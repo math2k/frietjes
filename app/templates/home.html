@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block jumbo %}
+    <div class="jumbotron">
+        <h1>Frietjes ?</h1>
+
+        <p class="lead">
+            A day without frietjes is a day wasted.
+        </p>
+
+        <p><a class="btn btn-lg btn-success" href="/order" role="button">Order now!</a></p>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="col-lg-6">
+        {% for order in all_orders %}
+            <h4>{{ order.date }}</h4>
+            <p>
+                <b>Manager:</b> {{ order.manager }}<br/>
+                <b>Total:</b> {{ order.total }}€<br/>
+                <b>Status:</b>
+                {% if order.open %}
+                    <span class="label label-success">Open</span>
+                {% else %}
+                    <span class="label label-danger">Closed</span>
+                {% endif %}
+            </p>
+        {% endfor %}
+
+    </div>
+
+    <div class="col-lg-6">
+    </div>
+{% endblock %}

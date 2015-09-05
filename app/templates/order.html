@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block jumbo %}
+    <div class="jumbotron">
+        {{ order.manager }}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="col-lg-6">
+        {{ form.as_p }}
+    </div>
+
+    <div class="col-lg-6">
+    </div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block jumbo %}
+    <div class="jumbotron">
+        <h3>{{ order.date }}</h3>
+        Order managed by: {{ order.manager }}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="col-lg-6">
+        {% for uo in order.userorder_set.all %}
+            <div class="panel panel-default">
+                <div class="panel-heading">{{ uo.name }} <span class="pull-right"><b>{{ uo.total }} €</b></span></div>
+                <ul class="list-group">
+                    {% for uoi in uo.userorderitem_set.all %}
+                        <li class="list-group-item" style="padding-top: 5px; padding-bottom: 5px;">{{ uoi }} <span
+                                class="pull-right">{{ uoi.total }} €</span></li>
+                    {% endfor %}
+                </ul>
+                {% if uo.notes %}
+                    <div class="panel-body">
+                        <p{{ uo.notes }}></p>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+    <div class="col-lg-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">Order summary<span class="pull-right"><b>{{ order.total }} €</b></span></div>
+            <ul class="list-group">
+                {% for i in order_items %}
+                    <li class="list-group-item"
+                        style="padding-top: 5px; padding-bottom: 5px;">{{ i.menu_item__name }} <span
+                            class="pull-right">x {{ i.count }}</span></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}

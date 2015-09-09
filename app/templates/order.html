@@ -1,16 +1,50 @@
 {% extends "base.html" %}
+{% load widget_tweaks %}
 
 {% block jumbo %}
     <div class="jumbotron">
-        {{ order.manager }}
+        <h3>{{ order.date }}</h3>
+        Order managed by: {{ order.manager }}
     </div>
 {% endblock %}
 
 {% block content %}
-    <div class="col-lg-6">
-        {{ form.as_p }}
-    </div>
 
-    <div class="col-lg-6">
-    </div>
+    {% for dict in formset.errors %}
+        {% for error in dict.values %}
+            <div class="alert alert-danger">
+                {{ error }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+    {% for field, msg in form.errors.iteritems %}
+        <div class="alert alert-danger">
+            <b>{{ field }}</b>: {{ msg }}
+        </div>
+    {% endfor %}
+    <form class="form-inline" method="post">
+        <div class="col-lg-6">
+            {% for f in order_form_formset %}
+                {{ f.order }}
+                <div class="col-lg-12">
+                    <div class="form-group items">
+                        {{ f.menu_item|add_class:"form-control" }}
+                    </div>
+                </div>
+            {% endfor %}
+            {{ order_form_formset.management_form }}
+            {% csrf_token %}
+        </div>
+
+        <div class="col-lg-6">
+            <div class="form-group">
+                {{ user_order.name|add_class:"form-control" }}
+            </div>
+            <div class="form-group">
+                {{ user_order.notes|add_class:"form-control" }}
+            </div>
+            {{ user_order.order }}
+            <button type="submit" style="margin-top: 20px;" class="btn btn-success pull-right">Order</button>
+        </div>
+    </form>
 {% endblock %}

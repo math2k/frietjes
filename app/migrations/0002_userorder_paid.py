@@ -12,13 +12,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='order',
-            name='open',
-            field=models.BooleanField(default=True),
-        ),
-        migrations.AlterField(
-            model_name='order',
-            name='notes',
-            field=models.TextField(default=b''),
+            model_name='userorder',
+            name='paid',
+            field=models.BooleanField(default=False),
         ),
     ]

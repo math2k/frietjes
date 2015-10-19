@@ -1,4 +1,5 @@
 import datetime
+import random
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Count
 from django.forms import formset_factory, Select
@@ -14,6 +15,10 @@ class HomeView(TemplateView):
         ctx = {}
         ctx['all_orders'] = Order.objects.all().order_by("-date")
         ctx['open_order'] = Order.objects.filter(open=True).order_by("-date").last()
+	ctx['heading'] = random.choice((
+		'A day without fritjes is a day wasted',
+		'A fritje a day, keeps the doctor away'
+	))
         return ctx
 
 

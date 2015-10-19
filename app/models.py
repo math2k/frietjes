@@ -34,7 +34,7 @@ class UserOrder(models.Model):
         return total
 
     def __unicode__(self):
-        return "{0} - {1}".format(self.name, self.order.date, self.paid)
+        return u"{0} - {1}".format(self.name, self.order.date, self.paid)
 
 
 class UserOrderItem(models.Model):
@@ -46,7 +46,7 @@ class UserOrderItem(models.Model):
         return self.menu_item.unit_price
 
     def __unicode__(self):
-        return "{0}".format(self.menu_item.name)
+        return u"{0}".format(self.menu_item.name)
 
 
 class MenuItemCategory(models.Model):

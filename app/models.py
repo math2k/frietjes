@@ -6,7 +6,7 @@ class Order(models.Model):
     manager = models.CharField(max_length=50)
     open = models.BooleanField(default=True)
     notes = models.TextField(default="", blank=True)
-    date = models.DateField(auto_now=True)
+    date = models.DateField(auto_now_add=True)
 
     @property
     def total(self):

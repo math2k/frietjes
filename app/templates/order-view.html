@@ -9,14 +9,20 @@
 {% endblock %}
 
 {% block content %}
-    <div class="col-lg-6">
+    <div class="col-lg-12 hidden-print" style="margin-bottom: 10px;">
+        <div class="btn-group btn-group-xs pull-right" role="group" aria-label="...">
+            <a href="javascript:void(0);" class="btn btn-default btn-xs active price-toggle"><i class="glyphicon glyphicon-euro"></i></a>
+            <a href="javascript:window.print()" class="btn btn-default btn-xs"><i class="glyphicon glyphicon-print"></i></a>
+        </div>
+    </div>
+    <div class="col-md-6 hidden-print">
         {% for uo in order.userorder_set.all %}
             <div class="panel panel-default">
-                <div class="panel-heading">{{ uo.name }} <span class="pull-right"><b>{{ uo.total }} €</b></span></div>
+                <div class="panel-heading">{{ uo.name }} <span class="pull-right price"><b>{{ uo.total }} €</b></span></div>
                 <ul class="list-group">
                     {% for uoi in uo.userorderitem_set.all %}
                         <li class="list-group-item" style="padding-top: 5px; padding-bottom: 5px;">{{ uoi }} <span
-                                class="pull-right">{{ uoi.total }} €</span></li>
+                                class="pull-right price">{{ uoi.total }} €</span></li>
                     {% endfor %}
                 </ul>
                 {% if uo.notes %}
@@ -27,14 +33,14 @@
             </div>
         {% endfor %}
     </div>
-    <div class="col-lg-6">
+    <div class="col-md-6">
         <div class="panel panel-default">
-            <div class="panel-heading">Order summary<span class="pull-right"><b>{{ order.total }} €</b></span></div>
+            <div class="panel-heading">Order summary<span class="pull-right price"><b>{{ order.total }} €</b></span></div>
             <ul class="list-group">
-                {% for i in order_items %}
+              {% for i in order_items %}
                     <li class="list-group-item"
-                        style="padding-top: 5px; padding-bottom: 5px;">{{ i.menu_item__name }} <span
-                            class="pull-right">x {{ i.count }}</span></li>
+                    style="padding-top: 5px; padding-bottom: 5px;"><span class="visible-print pull-left">{{ i.count }} x&nbsp;</span>{{ i.menu_item__name }} <span
+                            class="pull-right hidden-print">x {{ i.count }}</span></li>
                 {% endfor %}
             </ul>
         </div>

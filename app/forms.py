@@ -1,8 +1,9 @@
-from django.forms import ModelForm, Select, HiddenInput, TextInput, Textarea, Field, CharField
-from app.models import UserOrderItem, UserOrder
+from django.forms import ModelForm, Select, HiddenInput, TextInput, Textarea, Field, CharField, ModelChoiceField
+from app.models import UserOrderItem, UserOrder, MenuItem
 
 
 class OrderForm(ModelForm):
+
     class Meta:
         model = UserOrderItem
         exclude = ['user_order']

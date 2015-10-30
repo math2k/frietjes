@@ -20,12 +20,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '2*&b3k*9ydv@5ts3&ub6v!)8ksfa9xib3d=2%v4kwp7#wfd!3)'
+SECRET_KEY = '2*&b3k*9ydv@5ts3&ub6v!)8ksfa9xib3d=2%v4kwp7fffd!3)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['.math2k.net', '.th2k.net']
 
 
 # Application definition
@@ -80,8 +80,11 @@ WSGI_APPLICATION = 'frietjes.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'frietjes',
+	'USER': 'frietjes',
+	'PASSWORD': 'ZbYbzPy9GwnBNr9',
+	'HOST': 'localhost'
     }
 }
 
@@ -104,3 +107,24 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/var/www/frietjes.math2k.net/logs/django.log',
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}

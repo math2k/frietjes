@@ -3,9 +3,11 @@ import random
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Count
 from django.forms import formset_factory, Select
-from app.forms import OrderForm, UserOrderForm
+from app.forms import OrderForm, UserOrderForm, UserOrder
 from app.models import Order, MenuItem, UserOrderItem
-from django.views.generic import TemplateView, FormView
+from django.views.generic import TemplateView, FormView, View
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib import messages
 
 
 class HomeView(TemplateView):
@@ -50,6 +52,17 @@ class OrderFormView(FormView):
 
     def form_invalid(self, form):
         return super(OrderFormView, self).form_invalid(form)
+
+class TogglePaidFlag(View):
+    http_method_names = ['post', ]
+
+    def post(self, request, *args, **kwargs):
+        if request.user.is_staff:
+            uo = get_object_or_404(UserOrder, pk=kwargs.get('uo'))
+            uo.paid = not uo.paid
+            uo.save()
+            messages.success(request, "{0}'s order marked as {1}".format(uo.name, "paid" if uo.paid else "not paid"))
+            return redirect(request.META.get('HTTP_REFERER'))
 
 
 class OrderView(TemplateView):

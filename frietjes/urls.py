@@ -21,5 +21,6 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', HomeView.as_view(), name="home"),
     url(r'^order$', OrderFormView.as_view(), name="order"),
-    url(r'^order/(?P<order>.+)$', OrderView.as_view(), name="order-view")
+    url(r'^order/(?P<order>.+)$', OrderView.as_view(), name="order-view"),
+    url(r'^toggle-paid-flag/(?P<uo>.+)$', TogglePaidFlag.as_view(), name="toggle-paid-flag")
 ]

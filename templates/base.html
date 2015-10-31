@@ -1,3 +1,4 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,6 +21,7 @@
 
     <!-- Optional theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+    <link rel="icon" type="image/png" href="{% static "favicon.png" %}" />
 
     <style>
         /* Space out content a bit */
@@ -138,7 +140,9 @@
         </nav>
         <h3 class="text-muted">Friiiiietjes</h3>
     </div>
-
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} hidden-print">{{ message }}</div>
+    {% endfor %}
         {% block jumbo %}
         {% endblock %}
 
@@ -159,7 +163,6 @@
 <script>
   $(document).ready(function (){
     $('.price-toggle').click(function(){
-      console.log($(this).hasClass('active'));
       if($(this).hasClass("active")) {
         $('.price').hide();
         $(this).removeClass('active');
@@ -168,6 +171,7 @@
         $(this).addClass('active');
       }
     });
+    $('.add-tooltip').tooltip();
   });
 </script>
 </body>

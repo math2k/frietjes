@@ -5,6 +5,16 @@
     <div class="jumbotron">
         <h3>{{ order.date }}</h3>
         Order managed by: {{ order.manager }}
+        {% if order.open %}
+          <p><a class="btn btn-success hidden-print" style="padding: 3px; font-size: 14px;"href="/order" role="button">Order now!</a></p>
+          <p class="hidden-print">
+          {% if order.delivery_person %}
+              <strong>{{ order.delivery_person.name }}</strong> is picking them up.<br />Thanks buddy!
+          {% else %}
+              No one has volunteered yet to go pick up the fries. If no one volunteers, someone will be designated at random!
+          {% endif %}
+          </p>
+        {% endif %}
     </div>
 {% endblock %}
 

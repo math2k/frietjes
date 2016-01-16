@@ -27,6 +27,18 @@
             </h4>
             <p>
                 <b>Manager:</b> {{ order.manager }}<br/>
+                <b>Delivery:</b> 
+                {% if order.delivery_person %}
+                  {{ order.delivery_person.name }}
+                {% else %}
+                  {% if order.open %}
+                    you ?
+                    {% if request.user.is_authenticated %} 
+                    <a href="{% url "pick-random" o=order.pk %}" class="btn btn-xs btn-primary">Pick at random</a>
+                    {% endif %}
+                  {% endif %}
+                {% endif %}
+                <br/>
                 <b>Total:</b> {{ order.total }}€<br/>
                 <b>Notes:</b> {{ order.notes }}
             </p>

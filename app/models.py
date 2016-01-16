@@ -1,28 +1,9 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 
-
-class Order(models.Model):
-    manager = models.CharField(max_length=50)
-    open = models.BooleanField(default=True)
-    notes = models.TextField(default="", blank=True)
-    date = models.DateField(auto_now_add=True)
-
-    @property
-    def total(self):
-        total = 0
-        for uo in self.userorder_set.all():
-            for uoi in uo.userorderitem_set.all():
-                total += uoi.menu_item.unit_price
-        return total
-
-    def __unicode__(self):
-        return self.date.strftime("%d-%m-%y")
-
-
 class UserOrder(models.Model):
     name = models.CharField(max_length=50)
-    order = models.ForeignKey(Order)
+    order = models.ForeignKey('Order')
     paid = models.BooleanField(default=False)
     notes = models.TextField(default="", blank=True)
 
@@ -35,6 +16,29 @@ class UserOrder(models.Model):
 
     def __unicode__(self):
         return u"{0} - {1}".format(self.name, self.order.date, self.paid)
+
+
+class Order(models.Model):
+    manager = models.CharField(max_length=50)
+    open = models.BooleanField(default=True)
+    notes = models.TextField(default="", blank=True)
+    date = models.DateField(auto_now_add=True)
+    delivery_person = models.ForeignKey('UserOrder', blank=True, null=True, related_name="delivery_person")
+
+    @property
+    def total(self):
+        total = 0
+        for uo in self.userorder_set.all():
+            for uoi in uo.userorderitem_set.all():
+                total += uoi.menu_item.unit_price
+        return total
+
+    def assign_random_delivery_person(self):
+        self.delivery_person = self.userorder_set.order_by('?').first()
+        self.save()
+
+    def __unicode__(self):
+        return self.date.strftime("%d-%m-%y")
 
 
 class UserOrderItem(models.Model):

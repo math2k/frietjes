@@ -64,6 +64,16 @@ class TogglePaidFlag(View):
             messages.success(request, "{0}'s order marked as {1}".format(uo.name, "paid" if uo.paid else "not paid"))
             return redirect(request.META.get('HTTP_REFERER'))
 
+class PickRandomDeliveryPerson(View):
+    def get(self, request, *args, **kwargs):
+        if request.user.is_staff:
+            o = get_object_or_404(Order, pk=kwargs.get('o'))
+            if o.delivery_person:
+                messages.error(request, "{0} is already set as the chinese volunteer!".format(uo.delivery_person.name))
+            else:
+                o.assign_random_delivery_person()
+                messages.success(request, "{0} has been selected as chinese volunteer! Thanks {0} :D".format(o.delivery_person.name))
+        return redirect(request.META.get('HTTP_REFERER'))
 
 class OrderView(TemplateView):
     template_name = "order-view.html"

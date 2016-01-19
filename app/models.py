@@ -37,6 +37,13 @@ class Order(models.Model):
         self.delivery_person = self.userorder_set.order_by('?').first()
         self.save()
 
+    @property
+    def has_unpaid_user_order(self):
+        for uo in self.userorder_set.all():
+          if not uo.paid:
+              return True
+        return False
+
     def __unicode__(self):
         return self.date.strftime("%d-%m-%y")
 

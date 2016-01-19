@@ -141,7 +141,11 @@
         <h3 class="text-muted">Friiiiietjes</h3>
     </div>
     {% for message in messages %}
+        {% if message.tags == "error" %}
+        <div class="alert alert-danger hidden-print">{{ message }}</div>
+        {% else %}
         <div class="alert alert-{{ message.tags }} hidden-print">{{ message }}</div>
+        {% endif %}
     {% endfor %}
         {% block jumbo %}
         {% endblock %}

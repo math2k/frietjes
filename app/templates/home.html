@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="col-lg-6">
+    <div class="col-lg-122">
         {% for order in all_orders %}
             <h4>
                 <a href="{% url "order-view" order=order.pk %}">{{ order.date }}</a>
@@ -23,6 +23,9 @@
                     <span class="label label-success">Open</span>
                 {% else %}
                     <span class="label label-danger">Closed</span>
+                {% endif %}
+                {% if order.has_unpaid_user_order %}
+                    <span class="label label-warning">Not fully paid</span>
                 {% endif %}
             </h4>
             <p>
@@ -33,7 +36,7 @@
                 {% else %}
                   {% if order.open %}
                     you ?
-                    {% if request.user.is_authenticated %} 
+                    {% if request.user.is_authenticated and order.userorder_set.all|length > 0 %} 
                     <a href="{% url "pick-random" o=order.pk %}" class="btn btn-xs btn-primary">Pick at random</a>
                     {% endif %}
                   {% endif %}

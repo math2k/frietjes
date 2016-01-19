@@ -72,7 +72,10 @@ class PickRandomDeliveryPerson(View):
                 messages.error(request, "{0} is already set as the chinese volunteer!".format(uo.delivery_person.name))
             else:
                 o.assign_random_delivery_person()
-                messages.success(request, "{0} has been selected as chinese volunteer! Thanks {0} :D".format(o.delivery_person.name))
+                if o.delivery_person:
+                    messages.success(request, "{0} has been selected as chinese volunteer! Thanks {0} :D".format(o.delivery_person.name))
+                else:
+                    messages.error(request, "Something went wrong .. do you have orders ?")
         return redirect(request.META.get('HTTP_REFERER'))
 
 class OrderView(TemplateView):

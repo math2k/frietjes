@@ -133,7 +133,7 @@ Cheers,
 
 To cancel notifications, visit this page: http://friejes.4lunch.eu{cancel_url}
         """.format(name=nr.name, cancel_url=reverse_lazy('notification-cancel', kwargs={'s': nr.secret}))
-        send_mail("What's for lunch? - 4lunch.eu", body, 'notification@4lunch.eu',
+        send_mail("What's for lunch? - 4lunch.eu", body, '4lunch.eu notifications <notification@4lunch.eu>',
             [nr.email], fail_silently=False)
 
 

@@ -123,12 +123,15 @@ def notify_all(**kwargs):
     for nr in nrs:
         body = """
 Hey {name},
+
 An order that matches your notification criteria has been created!
 Check it out on http://frietjes.4lunch.eu!
-To cancel notifications, visit this page: http://friejes.4lunch.eu{cancel_url}
+
 Cheers,
 --
 4lunch.eu
+
+To cancel notifications, visit this page: http://friejes.4lunch.eu{cancel_url}
         """.format(name=nr.name, cancel_url=reverse_lazy('notification-cancel', kwargs={'s': nr.secret}))
         send_mail("What's for lunch? - 4lunch.eu", body, 'notification@4lunch.eu',
             [nr.email], fail_silently=False)

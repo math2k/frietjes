@@ -4,7 +4,7 @@ from django.contrib import admin
 
 class UserOrderAdmin(ModelAdmin):
     list_display = ('name', 'order', 'total', 'paid')
-    list_filter = ('name')
+    list_filter = ('name',)
 
 class MenuItemAdmin(ModelAdmin):
     list_display = ('name', 'unit_price', 'category', 'provider')

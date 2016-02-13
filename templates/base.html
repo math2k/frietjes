@@ -134,11 +134,12 @@
     <div class="header clearfix hidden-print">
         <nav>
             <ul class="nav nav-pills pull-right">
-                <li role="presentation" class="active"><a href="/">Home</a></li>
+                <li role="presentation" class=""><a href="/">Home</a></li>
+                <li role="presentation" class="add-static-tooltip" title="Never miss frietjes again, get notified when someone starts an order!"><a href="{% url 'notification-request-form' %}">Notifications</a></li>
                 <li role="presentation"><a href="/admin">Admin</a></li>
             </ul>
         </nav>
-        <h3 class="text-muted">Friiiiietjes</h3>
+        <h3 class="text-muted"><a href="/" class="text-muted">Friiiiietjes</a></h3>
     </div>
     {% for message in messages %}
         {% if message.tags == "error" %}
@@ -178,5 +179,7 @@
     $('.add-tooltip').tooltip();
   });
 </script>
+{% block extra_js %}
+{% endblock %}
 </body>
 </html>

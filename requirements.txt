@@ -1,5 +1,4 @@
-Django==1.8.5
-MySQL-python==1.2.5
+Django==1.9.1
 argparse==1.2.1
 distribute==0.6.24
 django-flat-theme==1.1.1

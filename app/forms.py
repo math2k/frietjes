@@ -1,5 +1,6 @@
+from django import forms
 from django.forms import ModelForm, Select, HiddenInput, TextInput, Textarea, Field, CharField, ModelChoiceField
-from app.models import UserOrderItem, UserOrder, MenuItem
+from app.models import UserOrderItem, UserOrder, MenuItem, FoodProvider, NotificationRequest
 
 
 class OrderForm(ModelForm):
@@ -27,4 +28,17 @@ class UserOrderForm(ModelForm):
         widgets = {
             'order': HiddenInput(),
             'name': TextInput(attrs={'placeholder': 'Name'})
+        }
+
+
+class NotificationRequestForm(ModelForm):
+
+    providers = forms.ModelMultipleChoiceField(widget=forms.CheckboxSelectMultiple, queryset=FoodProvider.objects.all())
+
+    class Meta:
+        model = NotificationRequest
+        exclude = []
+        widgets = {
+            'name': TextInput(attrs={'placeholder': 'Name', 'style': 'width: 50%'}),
+            'email': TextInput(attrs={'placeholder': 'Email address', 'style': 'width: 50%'})
         }

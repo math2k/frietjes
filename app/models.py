@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+import uuid
+
+from django.core.mail import send_mail
+from django.core.urlresolvers import reverse_lazy
 from django.db import models
 from django.utils.functional import cached_property
 
@@ -51,7 +55,7 @@ class Order(models.Model):
 
     @property
     def has_unpaid_user_order(self):
-	return len(UserOrder.objects.filter(order=self.pk, paid=False)) > 0
+        return len(UserOrder.objects.filter(order=self.pk, paid=False)) > 0
 
     def __unicode__(self):
         return self.date.strftime("%d-%m-%y")
@@ -85,9 +89,48 @@ class MenuItem(models.Model):
 
     @property
     def provider(self):
-	return self.category.provider
+        return self.category.provider
 
     def __unicode__(self):
         return u"{0} - {1}€".format(self.name, self.unit_price)
+
+
+class NotificationRequest(models.Model):
+    name = models.CharField(max_length=50)
+    email = models.EmailField(unique=True, verbose_name="Email address")
+    providers = models.ManyToManyField(to=FoodProvider)
+    secret = models.CharField(max_length=32, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.secret = str(uuid.uuid4())[:32]
+        return super(NotificationRequest, self).save(*args, **kwargs)
+
+    def __repr__(self):
+        return self.email
+
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+
+@receiver(post_save)
+def notify_all(**kwargs):
+    if kwargs['sender'] != Order:
+        return
+    order = kwargs['instance']
+    nrs = NotificationRequest.objects.filter(providers__in=[order.provider])
+    for nr in nrs:
+        body = """
+Hey {name},
+An order that matches your notification criteria has been created!
+Check it out on http://frietjes.4lunch.eu!
+To cancel notifications, visit this page: http://friejes.4lunch.eu{cancel_url}
+Cheers,
+--
+4lunch.eu
+        """.format(name=nr.name, cancel_url=reverse_lazy('notification-cancel', kwargs={'s': nr.secret}))
+        send_mail("What's for lunch? - 4lunch.eu", body, 'notification@4lunch.eu',
+            [nr.email], fail_silently=False)
 
 

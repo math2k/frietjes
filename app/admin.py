@@ -18,6 +18,10 @@ class MenuItemCategoryAdmin(ModelAdmin):
     list_filter = ('provider',)
 
 
+class NotificationRequestAdmin(ModelAdmin):
+    list_display = ('name', 'email')
+
+
 class OrderAdmin(ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "delivery_person":
@@ -36,4 +40,4 @@ admin.site.register(MenuItem, MenuItemAdmin)
 admin.site.register(MenuItemCategory, MenuItemCategoryAdmin)
 admin.site.register(UserOrderItem)
 admin.site.register(FoodProvider)
-admin.site.register(NotificationRequest)
+admin.site.register(NotificationRequest, NotificationRequestAdmin)

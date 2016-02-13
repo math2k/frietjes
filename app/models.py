@@ -109,6 +109,9 @@ class NotificationRequest(models.Model):
     def __repr__(self):
         return self.email
 
+    def __unicode__(self):
+        return self.email
+
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -131,9 +134,9 @@ Cheers,
 --
 4lunch.eu
 
-To cancel notifications, visit this page: http://friejes.4lunch.eu{cancel_url}
+To cancel notifications, visit this address: http://friejes.4lunch.eu{cancel_url}
         """.format(name=nr.name, cancel_url=reverse_lazy('notification-cancel', kwargs={'s': nr.secret}))
-        send_mail("What's for lunch? - 4lunch.eu", body, '4lunch.eu notifications <notification@4lunch.eu>',
+        send_mail("What's for lunch? - 4lunch.eu", body, '4lunch.eu notifications <notifications@4lunch.eu>',
             [nr.email], fail_silently=False)
 
 

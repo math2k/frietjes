@@ -3,9 +3,10 @@ import random
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Count
 from django.forms import formset_factory, Select
+from django.forms.models import modelformset_factory
 from app.forms import OrderForm, UserOrderForm, UserOrder
 from app.models import Order, MenuItem, UserOrderItem
-from django.views.generic import TemplateView, FormView, View
+from django.views.generic import TemplateView, FormView, View, RedirectView
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 
@@ -15,12 +16,15 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = {}
-        ctx['all_orders'] = Order.objects.all().order_by("-date")
+        if self.request.GET.get('all'):
+          ctx['all_orders'] = Order.objects.all().order_by("-date")
+        else:
+          ctx['all_orders'] = Order.objects.all().order_by("-date")[:3]
         ctx['open_order'] = Order.objects.filter(open=True).order_by("-date").last()
-	ctx['heading'] = random.choice((
-		'A day without fritjes is a day wasted',
-		'A fritje a day, keeps the doctor away'
-	))
+        ctx['heading'] = random.choice((
+		      'A day without fritjes is a day wasted',
+		      'A fritje a day, keeps the doctor away'
+	      ))
         return ctx
 
 
@@ -31,20 +35,22 @@ class OrderFormView(FormView):
 
     def get_context_data(self, **kwargs):
         ctx = super(OrderFormView, self).get_context_data(**kwargs)
-        ctx['order'] = Order.objects.filter(open=True).order_by("-date").first()
-        order_form_formset = formset_factory(OrderForm, extra=10, min_num=0)
+        ctx['order'] = get_object_or_404(Order, pk=self.kwargs['order'])
+        order_form_formset = formset_factory(form=OrderForm, extra=10, min_num=0)
+        #qs = UserOrderItem.objects.filter(menu_item__category__provider__id=ctx['order'].provider.pk)
         if self.request.POST:
-            ctx['order_form_formset'] = order_form_formset(self.request.POST)
+            ctx['order_form_formset'] = order_form_formset(self.request.POST, form_kwargs={'provider': ctx['order'].provider})
             ctx['user_order'] = UserOrderForm(self.request.POST)
         else:
-            ctx['order_form_formset'] = order_form_formset()
+            ctx['order_form_formset'] = order_form_formset(form_kwargs={'provider': ctx['order'].provider})
             ctx['user_order'] = UserOrderForm(initial={'order': ctx['order']})
         return ctx
 
     def form_valid(self, form):
+        order = get_object_or_404(Order, pk=self.kwargs.get('order'))
         form.instance.save()
         order_form_formset = formset_factory(OrderForm)
-        for f in order_form_formset(self.request.POST):
+        for f in order_form_formset(self.request.POST, form_kwargs={'provider': order.provider}):
             if f.is_valid() and f.instance.menu_item_id is not None:
                 f.instance.user_order = form.instance
                 f.instance.save()
@@ -63,6 +69,12 @@ class TogglePaidFlag(View):
             uo.save()
             messages.success(request, "{0}'s order marked as {1}".format(uo.name, "paid" if uo.paid else "not paid"))
             return redirect(request.META.get('HTTP_REFERER'))
+
+class Redirect(RedirectView):
+    pattern_name = "home"
+    def get_redirect_url(self, *args, **kwargs):
+        messages.success(self.request, "Check this out! We have moved to a more appropriate .eu domain: 4lunch.eu, woohoo!")
+        return super(Redirect, self).get_redirect_url(*args, **kwargs)
 
 class PickRandomDeliveryPerson(View):
     def get(self, request, *args, **kwargs):

@@ -6,7 +6,7 @@
         <h3>{{ order.date }}</h3>
         Order managed by: {{ order.manager }}
         {% if order.open %}
-          <p><a class="btn btn-success hidden-print" style="padding: 3px; font-size: 14px;"href="/order" role="button">Order now!</a></p>
+        <p><a class="btn btn-success hidden-print" style="padding: 3px; font-size: 14px;"href="{% url 'order' order=order.pk %}" role="button">Order now!</a></p>
           <p class="hidden-print">
           {% if order.delivery_person %}
               <strong>{{ order.delivery_person.name }}</strong> is picking them up.<br />Thanks buddy!
@@ -25,8 +25,9 @@
             <a href="javascript:window.print()" class="btn btn-default btn-xs"><i class="glyphicon glyphicon-print"></i></a>
         </div>
     </div>
+    <div class="clearfix"></div>
     <div class="col-md-6 hidden-print">
-        {% for uo in order.userorder_set.all %}
+        {% for uo in order.get_userorders %}
           <form action="{% url "toggle-paid-flag" uo=uo.pk %}" method="post">
         <div class="panel panel-default">
             {% csrf_token %}

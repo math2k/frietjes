@@ -7,7 +7,7 @@
             {{ heading }}
         </p>
         {% if open_order %}
-            <p><a class="btn btn-lg btn-success" href="/order" role="button">Order now!</a></p>
+        <p><a class="btn btn-lg btn-success" href="{% url 'order' order=open_order.pk %}" role="button">Order now!</a></p>
     {% else %}
             <p>Sorry, no order is open at the moment.. <a href="/admin">create one yourself ?</a></p>
     {% endif %}
@@ -45,7 +45,8 @@
                 <b>Total:</b> {{ order.total }}€<br/>
                 <b>Notes:</b> {{ order.notes }}
             </p>
-        {% endfor %}
+            {% endfor %}
+            <a href="{% url 'home' %}?all=1">All orders</a>
 
     </div>
 

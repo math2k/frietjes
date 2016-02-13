@@ -4,6 +4,15 @@ from django.contrib import admin
 
 class UserOrderAdmin(ModelAdmin):
     list_display = ('name', 'order', 'total', 'paid')
+    list_filter = ('name')
+
+class MenuItemAdmin(ModelAdmin):
+    list_display = ('name', 'unit_price', 'category', 'provider')
+    list_filter = ('category', 'category__provider')
+
+class MenuItemCategoryAdmin(ModelAdmin):
+    list_display = ('name', 'provider')
+    list_filter = ('provider',)
 
 class OrderAdmin(ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -18,6 +27,7 @@ class OrderAdmin(ModelAdmin):
 
 admin.site.register(Order, OrderAdmin)
 admin.site.register(UserOrder, UserOrderAdmin)
-admin.site.register(MenuItem)
-admin.site.register(MenuItemCategory)
+admin.site.register(MenuItem, MenuItemAdmin)
+admin.site.register(MenuItemCategory, MenuItemCategoryAdmin)
 admin.site.register(UserOrderItem)
+admin.site.register(FoodProvider)

@@ -119,7 +119,7 @@ from django.dispatch import receiver
 
 @receiver(post_save)
 def notify_all(**kwargs):
-    if kwargs['sender'] != Order:
+    if kwargs['sender'] != Order or not kwargs['created']:
         return
     order = kwargs['instance']
     nrs = NotificationRequest.objects.filter(providers__in=[order.provider])
@@ -137,6 +137,6 @@ Cheers,
 To cancel notifications, visit this address: http://friejes.4lunch.eu{cancel_url}
         """.format(name=nr.name, cancel_url=reverse_lazy('notification-cancel', kwargs={'s': nr.secret}))
         send_mail("What's for lunch? - 4lunch.eu", body, '4lunch.eu notifications <notifications@4lunch.eu>',
-            [nr.email], fail_silently=False)
+            [nr.email], fail_silently=True)
 
 

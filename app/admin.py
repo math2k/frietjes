@@ -19,7 +19,7 @@ class MenuItemCategoryAdmin(ModelAdmin):
 
 
 class NotificationRequestAdmin(ModelAdmin):
-    list_display = ('name', 'email')
+    list_display = ('name', 'email', )
 
 
 class OrderAdmin(ModelAdmin):

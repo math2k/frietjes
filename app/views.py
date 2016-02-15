@@ -17,10 +17,11 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         ctx = {}
         if self.request.GET.get('all'):
-            ctx['all_orders'] = Order.objects.all().order_by("-date")
+            ctx['all_orders'] = Order.objects.all().order_by("-pk")
         else:
-            ctx['all_orders'] = Order.objects.all().order_by("-date")[:3]
+            ctx['all_orders'] = Order.objects.all().order_by("-pk")[:6]
         ctx['open_order'] = Order.objects.filter(open=True).order_by("-date").last()
+        ctx['col_size'] = int(len(ctx['all_orders']) / 2)
         ctx['heading'] = random.choice((
             'A day without fritjes is a day wasted',
             'A fritje a day, keeps the doctor away'

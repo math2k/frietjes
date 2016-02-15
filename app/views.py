@@ -122,7 +122,7 @@ class NotificationRequestFormView(CreateView):
         return res
 
     def get_success_url(self):
-        messages.success(self.request, "Notification set!")
+        messages.success(self.request, "We'll send you a notification as soon as you can place an order!")
         return reverse_lazy('home')
 
 

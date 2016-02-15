@@ -101,6 +101,10 @@ class NotificationRequest(models.Model):
     providers = models.ManyToManyField(to=FoodProvider)
     secret = models.CharField(max_length=32, null=True, blank=True)
 
+    @property
+    def selected_providers(self):
+        return ', '.join([p.name for p in self.providers.all()])
+
     def save(self, *args, **kwargs):
         if not self.pk:
             self.secret = str(uuid.uuid4())[:32]
@@ -128,13 +132,13 @@ def notify_all(**kwargs):
 Hey {name},
 
 An order that matches your notification criteria has been created!
-Check it out on http://frietjes.4lunch.eu!
+Check it out on http://whats.4lunch.eu!
 
 Cheers,
 --
 4lunch.eu
 
-To cancel notifications, visit this address: http://friejes.4lunch.eu{cancel_url}
+To cancel notifications, visit this address: http://whats.4lunch.eu{cancel_url}
         """.format(name=nr.name, cancel_url=reverse_lazy('notification-cancel', kwargs={'s': nr.secret}))
         send_mail("What's for lunch? - 4lunch.eu", body, '4lunch.eu notifications <notifications@4lunch.eu>',
             [nr.email], fail_silently=False)

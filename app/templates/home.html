@@ -37,7 +37,7 @@
                                 {% else %}
                                     <span class="label label-danger">Closed</span>
                                 {% endif %}
-                                {% if order.has_unpaid_user_order and order.closed %}
+                                {% if order.has_unpaid_user_order and not order.open %}
                                     <span class="label label-warning">Not fully paid</span>&nbsp;
                                 {% endif %}
                             </div>

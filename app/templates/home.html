@@ -6,7 +6,8 @@
         {% if open_order %}
             <p>Some orders are open, make your choice below!</p>
         {% else %}
-            <p>Sorry, no order is open at the moment.. <a href="{% url "admin:app_order_add" %}">create one yourself ?</a></p>
+            <p>Sorry, no order is open at the moment.. <a href="{% url "admin:app_order_add" %}">create one yourself
+                ?</a></p>
         {% endif %}
     </div>
 {% endblock %}
@@ -15,11 +16,72 @@
     <div class="col-lg-6">
         {% for order in all_orders %}
             <div style="{% if not order.open %}opacity: 0.5{% endif %}">
+                <div class="ui card">
+
+                    <div class="content">
+                    <a class="ui red right ribbon label">Closed</a>
+                        <div class="header">
+                            <a href="{% url "order-view" order=order.pk %}">{{ order.provider.name }}
+                                on {{ order.date }}</a>
+                        </div>
+                        <div class="description">
+                            <div class="ui list">
+                                <div class="item">
+                                    <i class="user icon add-tooltip" title="Manager"></i>
+                                    <div class="content">
+                                        {{ order.manager }}
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <i class="car icon add-tooltip" title="Delivery"></i>
+                                    <div class="content">
+                                        {% if order.delivery_person %}
+                                            {{ order.delivery_person.name }}
+                                        {% else %}
+                                            {% if order.open %}
+                                                you ?
+                                                {% if request.user.is_authenticated and order.userorder_set.all|length > 0 %}
+                                                    <a href="{% url "pick-random" o=order.pk %}"
+                                                       class="btn btn-xs btn-primary">Pick
+                                                        at
+                                                        random</a>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <i class="money icon add-tooltip" title="Total"></i>
+                                    <div class="content">
+                                        {{ order.total }}€
+                                    </div>
+                                </div>
+                                <div class="item">
+                                    <i class="comment icon add-tooltip" title="Notes"></i>
+                                    <div class="content">
+                                        {{ order.notes }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="extra content">
+                        <span class="left floated like">
+                          <i class="like icon"></i>
+                          Order
+                        </span>
+                        <span class="right floated star">
+                          <i class="star icon"></i>
+                          Admin
+                        </span>
+                    </div>
+                </div>
+
+
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">
-                            <a href="{% url "order-view" order=order.pk %}">{{ order.provider.name }}
-                                on {{ order.date }}</a>
+
                             <div class="pull-right">
                                 {% if order.open %}
                                     <div class="btn-group pull-right">

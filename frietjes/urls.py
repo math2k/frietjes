@@ -13,9 +13,12 @@ Including another URLconf
     1. Add an import:  from blog import urls as blog_urls
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
+from django.conf.urls.static import static
+
 from app.views import *
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.conf import settings
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
@@ -27,7 +30,7 @@ urlpatterns = [
     url(r'^pick-random/(?P<o>.+)$', PickRandomDeliveryPerson.as_view(), name="pick-random"),
     url(r'^notification/request', NotificationRequestFormView.as_view(), name="notification-request-form"),
     url(r'^notification/cancel/(?P<s>.{32})', NotificationCancelFormView.as_view(), name="notification-cancel"),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 from django.conf import settings
 from django.conf.urls import include, patterns, url

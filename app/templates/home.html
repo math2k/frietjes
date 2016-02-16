@@ -6,13 +6,14 @@
         {% if open_order %}
             <p>Some orders are open, make your choice below!</p>
         {% else %}
-            <p>Sorry, no order is open at the moment.. <a href="{% url "admin:app_order_add" %}">create one yourself ?</a></p>
+            <p>Sorry, no order is open at the moment.. <a href="{% url "admin:app_order_add" %}">create one yourself
+                ?</a></p>
         {% endif %}
     </div>
 {% endblock %}
 
 {% block content %}
-    <div class="col-lg-6">
+    <div class="col-lg-6 col-lg-offset-3">
         {% for order in all_orders %}
             <div style="{% if not order.open %}opacity: 0.5{% endif %}">
                 <div class="panel panel-default">
@@ -20,27 +21,6 @@
                         <h3 class="panel-title">
                             <a href="{% url "order-view" order=order.pk %}">{{ order.provider.name }}
                                 on {{ order.date }}</a>
-                            <div class="pull-right">
-                                {% if order.open %}
-                                    <div class="btn-group pull-right">
-                                        <a href="{% url "order" order=order.pk %}"
-                                           class="btn btn-success btn-xs">
-                                            Order
-                                        </a>
-                                        {% if request.user.is_authenticated %}
-                                            <a href="{% url "admin:app_order_change" order.pk %}"
-                                               class="btn btn-primary btn-xs">
-                                                Admin
-                                            </a>
-                                        {% endif %}
-                                    </div>
-                                {% else %}
-                                    <span class="label label-danger">Closed</span>
-                                {% endif %}
-                                {% if order.has_unpaid_user_order and not order.open %}
-                                    <span class="label label-warning">Not fully paid</span>&nbsp;
-                                {% endif %}
-                            </div>
                         </h3>
                     </div>
                     <div class="panel-body">
@@ -65,16 +45,41 @@
                             <b>Notes:</b> {{ order.notes }}<br/>
                         </div>
                     </div>
+                    <div class="panel-footer text-right" style="padding: 5px 15px">
+                        <div class="">
+                            {% if order.open %}
+                                <div class="btn-group">
+                                    <a href="{% url "order" order=order.pk %}"
+                                       class="btn btn-success btn-xs">
+                                        Order
+                                    </a>
+                                    {% if request.user.is_authenticated %}
+                                        <a href="{% url "admin:app_order_change" order.pk %}"
+                                           class="btn btn-primary btn-xs">
+                                            Admin
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <span class="label label-danger">Closed</span>
+                            {% endif %}
+                            {% if order.has_unpaid_user_order and not order.open %}
+                                <span class="label label-warning">Not fully paid</span>&nbsp;
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
-            {% if forloop.counter|divisibleby:col_size %}
+            {% if forloop.counter|divisibleby:col_size and False %}
                 </div>
                 <div class="col-lg-6">
             {% endif %}
         {% endfor %}
 
         </div>
-    <a href="{% url 'home' %}?all=1">All orders</a>
+    <div class="col-xs-12 text-right">
+        <a href="{% url 'home' %}?all=1">All orders</a>
+    </div>
 {% endblock %}
 {% block extra_js %}
     <script>

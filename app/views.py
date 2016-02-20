@@ -1,11 +1,13 @@
+# -*- coding: utf-8 -*-
+import csv
 import datetime
 import random
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Count
 from django.forms import formset_factory, Select
 from django.forms.models import modelformset_factory
-from app.forms import OrderForm, UserOrderForm, UserOrder, NotificationRequestForm
-from app.models import Order, MenuItem, UserOrderItem, NotificationRequest
+from app.forms import OrderForm, UserOrderForm, UserOrder, NotificationRequestForm, ImportMenuItemsForm
+from app.models import Order, MenuItem, UserOrderItem, NotificationRequest, MenuItemCategory
 from django.views.generic import TemplateView, FormView, View, RedirectView, CreateView
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
@@ -89,7 +91,7 @@ class PickRandomDeliveryPerson(View):
         if request.user.is_staff:
             o = get_object_or_404(Order, pk=kwargs.get('o'))
             if o.delivery_person:
-                messages.error(request, "{0} is already set as the chinese volunteer!".format(uo.delivery_person.name))
+                messages.error(request, "{0} is already set as the chinese volunteer!".format(o.delivery_person.name))
             else:
                 o.assign_random_delivery_person()
                 if o.delivery_person:
@@ -134,4 +136,27 @@ class NotificationCancelFormView(RedirectView):
             messages.success(self.request, "You won't receive any email from us anymore!")
         except:
             messages.error(self.request, "Something went wrong :(")
+        return reverse_lazy('home')
+
+
+class ImportMenuItemsFormView(FormView):
+    form_class = ImportMenuItemsForm
+    template_name = "import.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ImportMenuItemsFormView, self).get_context_data(**kwargs)
+        ctx['categories'] = MenuItemCategory.objects.all().select_related('provider')
+        return ctx
+
+    def form_valid(self, form):
+        csv_content = form.cleaned_data['csv']
+        reader = csv.reader(csv_content.splitlines(), delimiter=";")
+        for row in reader:
+            mi = MenuItem(name=row[0], unit_price=row[1], category_id=row[2])
+            mi.save()
+            messages.success(self.request, "Saved {name} at {price}€".format(name=row[0], price=row[1]))
+
+        return super(ImportMenuItemsFormView, self).form_valid(form)
+
+    def get_success_url(self):
         return reverse_lazy('home')

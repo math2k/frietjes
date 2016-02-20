@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^pick-random/(?P<o>.+)$', PickRandomDeliveryPerson.as_view(), name="pick-random"),
     url(r'^notification/request', NotificationRequestFormView.as_view(), name="notification-request-form"),
     url(r'^notification/cancel/(?P<s>.{32})', NotificationCancelFormView.as_view(), name="notification-cancel"),
+    url(r'^import', ImportMenuItemsFormView.as_view(), name="import"),
 ]
 
 from django.conf import settings

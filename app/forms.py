@@ -8,6 +8,8 @@ class OrderForm(ModelForm):
     def __init__(self, *args, **kwargs):
         if 'provider' in kwargs:
             provider = kwargs.pop('provider')
+        else:
+            provider = None
         super(OrderForm, self).__init__(*args, **kwargs)
         if provider:
             self.fields['menu_item'].queryset = MenuItem.objects.filter(category__provider=provider)
@@ -42,3 +44,7 @@ class NotificationRequestForm(ModelForm):
             'name': TextInput(attrs={'placeholder': 'Name', 'style': 'width: 50%'}),
             'email': TextInput(attrs={'placeholder': 'Email address', 'style': 'width: 50%'})
         }
+
+
+class ImportMenuItemsForm(forms.Form):
+    csv = forms.CharField(widget=forms.Textarea())

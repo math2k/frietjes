@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+    <div class="col-xs-6">
+        <ul>
+            {% for c in categories %}
+                <li>{{ c }} from {{ c.provider.name }}: {{ c.pk }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ form.csv|add_class:'form-control' }}
+        CSV format: item name;item price;category id
+        <input type="submit" value="Import" class="btn btn-success pull-right"/>
+    </form>
+{% endblock %}
+{% block extra_js %}
+{% endblock %}

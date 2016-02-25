@@ -152,9 +152,9 @@ class ImportMenuItemsFormView(FormView):
         csv_content = form.cleaned_data['csv']
         reader = csv.reader(csv_content.splitlines(), delimiter=";")
         for row in reader:
-            mi = MenuItem(name=row[0], unit_price=row[1], category_id=row[2])
+            mi = MenuItem(name=unicode(row[0]), unit_price=row[1], category_id=row[2])
             mi.save()
-            messages.success(self.request, "Saved {name} at {price}€".format(name=row[0], price=row[1]))
+            messages.success(self.request, u"Saved {name} at {price}€".format(name=row[0], price=row[1]))
 
         return super(ImportMenuItemsFormView, self).form_valid(form)
 

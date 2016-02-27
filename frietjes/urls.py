@@ -19,13 +19,14 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^accounts/', include('registration.backends.simple.urls')),
     url(r'^$', HomeView.as_view(), name="home"),
     url(r'^redirect', Redirect.as_view(), name="redirect"),
     url(r'^order/(?P<order>.+)/view$', OrderView.as_view(), name="order-view"),
     url(r'^order/(?P<order>.+)$', OrderFormView.as_view(), name="order"),
     url(r'^toggle-paid-flag/(?P<uo>.+)$', TogglePaidFlag.as_view(), name="toggle-paid-flag"),
     url(r'^pick-random/(?P<o>.+)$', PickRandomDeliveryPerson.as_view(), name="pick-random"),
-    url(r'^notification/request', NotificationRequestFormView.as_view(), name="notification-request-form"),
+    url(r'^notifications', NotificationRequestFormView.as_view(), name="notifications"),
     url(r'^notification/cancel/(?P<s>.{32})', NotificationCancelFormView.as_view(), name="notification-cancel"),
     url(r'^import', ImportMenuItemsFormView.as_view(), name="import"),
 ]

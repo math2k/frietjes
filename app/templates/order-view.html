@@ -4,7 +4,7 @@
 {% block jumbo %}
     <div class="jumbotron">
         <h3>{{ order.date }}</h3>
-        Order managed by: {{ order.manager }}
+        Order managed by: {{ order.manager.username }}
         {% if order.open %}
         <p><a class="btn btn-success hidden-print" style="padding: 3px; font-size: 14px;"href="{% url 'order' order=order.pk %}" role="button">Order now!</a></p>
           <p class="hidden-print">
@@ -32,7 +32,7 @@
         <div class="panel panel-default">
             {% csrf_token %}
               <div class="panel-heading">
-                {{ uo.name }}
+                {{ uo.user.username }}
                 {% if user.is_staff %}
                     <a href="#" onclick="$(this).closest('form').submit(); return false;" title="Toggle payment status" class="add-tooltip">
                 {% endif %}

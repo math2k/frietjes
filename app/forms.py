@@ -25,25 +25,20 @@ class UserOrderForm(ModelForm):
 
     class Meta:
         model = UserOrder
-        exclude = []
+        exclude = ['user']
 
         widgets = {
-            'order': HiddenInput(),
-            'name': TextInput(attrs={'placeholder': 'Name'})
+            'order': HiddenInput()
         }
 
 
 class NotificationRequestForm(ModelForm):
 
-    providers = forms.ModelMultipleChoiceField(widget=forms.CheckboxSelectMultiple, queryset=FoodProvider.objects.all())
+    providers = forms.ModelMultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple, queryset=FoodProvider.objects.all())
 
     class Meta:
         model = NotificationRequest
-        exclude = []
-        widgets = {
-            'name': TextInput(attrs={'placeholder': 'Name', 'style': 'width: 50%'}),
-            'email': TextInput(attrs={'placeholder': 'Email address', 'style': 'width: 50%'})
-        }
+        exclude = ['user', 'email']
 
 
 class ImportMenuItemsForm(forms.Form):

@@ -21,7 +21,7 @@
         {% endfor %}
         {% for field, msg in form.errors.iteritems %}
             <div class="alert alert-danger">
-                <b>{{ field }}</b>: {{ msg }}
+                {% if field != '__all__' %}<b>{{ field }}</b>:{% endif %}{{ msg }}
             </div>
         {% endfor %}
         <form class="form-inline" method="post">

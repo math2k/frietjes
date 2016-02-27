@@ -17,115 +17,11 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
     <title>What's 4lunch.eu ?</title>
-    <!-- Latest compiled and minified CSS -->
-
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
-    <link rel="icon" type="image/png" href="{% static "favicon.png" %}" />
+    <link rel="stylesheet" href="{% static "styles.css" %}">
+    <link rel="icon" type="image/png" href="{% static "favicon.png" %}"/>
 
     <style>
-        /* Space out content a bit */
-        body {
-            padding-top: 20px;
-            padding-bottom: 20px;
-        }
 
-        /* Everything but the jumbotron gets side spacing for mobile first views */
-        .header,
-        .marketing,
-        .footer {
-            padding-right: 15px;
-            padding-left: 15px;
-        }
-
-        /* Custom page header */
-        .header {
-            padding-bottom: 20px;
-            border-bottom: 1px solid #e5e5e5;
-        }
-
-        /* Make the masthead heading the same height as the navigation */
-        .header h3 {
-            margin-top: 0;
-            margin-bottom: 0;
-            line-height: 40px;
-        }
-
-        /* Custom page footer */
-        .footer {
-            padding-top: 19px;
-            color: #777;
-            border-top: 1px solid #e5e5e5;
-        }
-
-        /* Customize container */
-        @media (min-width: 768px) {
-            .container {
-                max-width: 930px;
-            }
-        }
-
-        .container-narrow > hr {
-            margin: 30px 0;
-        }
-
-        /* Main marketing message and sign up button */
-        .jumbotron {
-            text-align: center;
-            border-bottom: 1px solid #e5e5e5;
-            padding-bottom: 25px;
-            padding-top: 10px;
-        }
-
-        .jumbotron .btn {
-            padding: 14px 24px;
-            font-size: 21px;
-        }
-
-        /* Supporting marketing content */
-        .marketing {
-            margin: 40px 0;
-        }
-
-        .marketing p + h4 {
-            margin-top: 28px;
-        }
-
-        /* Responsive: Portrait tablets and up */
-        @media screen and (min-width: 768px) {
-            /* Remove the padding we set earlier */
-            .header,
-            .marketing,
-            .footer {
-                padding-right: 0;
-                padding-left: 0;
-            }
-
-            /* Space out the masthead */
-            .header {
-                margin-bottom: 30px;
-            }
-
-            /* Remove the bottom border on the jumbotron for visual effect */
-            .jumbotron {
-                border-bottom: 0;
-            }
-        }
-	.marketing .form-control{
-	    width: 100%;
-	}
-
-@media print {
-    body {
-        margin: 0;
-        padding: 0;
-        line-height: 1.4em;
-        word-spacing: 1px;
-        letter-spacing: 0.2px;
-        font: 13px Arial, Helvetica,"Lucida Grande", serif;
-        color: #000;
-    }
-}
 
     </style>
 </head>
@@ -135,28 +31,39 @@
         <nav>
             <ul class="nav nav-pills pull-right">
                 <li role="presentation" class=""><a href="/">Home</a></li>
-                <li role="presentation" class="add-static-tooltip" title="Never miss frietjes again, get notified when someone starts an order!"><a href="{% url 'notification-request-form' %}">Notifications</a></li>
-                <li role="presentation"></li>
+                {% if user.is_authenticated %}
+                    <li role="presentation" class="add-static-tooltip"
+                        title="Never miss good lunch again, get notified when someone starts an order!"><a
+                            href="{% url 'notifications' %}">Notifications</a></li>
+                    <li role="presentation"><a href="{% url "auth_logout" %}?next=/">Logout</a></li>
+                {% else %}
+                    <li role="presentation"><a href="{% url "registration_register" %}">Register</a></li>
+                    <li role="presentation"><a href="{% url "auth_login" %}">Login</a></li>
+                {% endif %}
             </ul>
         </nav>
         <h3 class="text-muted"><a href="https://whats.4lunch.eu" class="text-muted">What's for lunch ?</a></h3>
     </div>
+
+    {% block jumbo %}
+    {% endblock %}
+
     {% for message in messages %}
         {% if message.tags == "error" %}
-        <div class="alert alert-danger hidden-print">{{ message }}</div>
+            <div class="alert alert-danger hidden-print col-xs-6 col-xs-offset-3 text-center">{{ message }}</div>
         {% else %}
-        <div class="alert alert-{{ message.tags }} hidden-print">{{ message }}</div>
+            <div class="alert alert-{{ message.tags }} hidden-print col-xs-6 col-xs-offset-3 text-center">{{ message }}</div>
         {% endif %}
     {% endfor %}
-        {% block jumbo %}
-        {% endblock %}
 
     <div class="row marketing">
         {% block content %}{% endblock %}
     </div>
 
     <footer class="footer hidden-print">
-      <p>&copy; Frietjes 2015 - <a href="/admin">admin</a> <span class="pull-right"><i class="glyphicon glyphicon-cutlery"></i> fork it on <a href="https://github.com/math2k/frietjes">GitHub</a></span></p>
+        <p>&copy; Frietjes 2015 - <a href="/admin">admin</a> <span class="pull-right"><i
+                class="glyphicon glyphicon-cutlery"></i> fork it on <a
+                href="https://github.com/math2k/frietjes">GitHub</a></span></p>
     </footer>
 
 </div>
@@ -166,18 +73,18 @@
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <script>
-  $(document).ready(function (){
-    $('.price-toggle').click(function(){
-      if($(this).hasClass("active")) {
-        $('.price').hide();
-        $(this).removeClass('active');
-      } else {
-        $('.price').show();
-        $(this).addClass('active');
-      }
+    $(document).ready(function () {
+        $('.price-toggle').click(function () {
+            if ($(this).hasClass("active")) {
+                $('.price').hide();
+                $(this).removeClass('active');
+            } else {
+                $('.price').show();
+                $(this).addClass('active');
+            }
+        });
+        $('.add-tooltip').tooltip();
     });
-    $('.add-tooltip').tooltip();
-  });
 </script>
 {% block extra_js %}
 {% endblock %}

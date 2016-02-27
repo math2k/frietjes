@@ -2,15 +2,21 @@
 import csv
 import datetime
 import random
+import uuid
+
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Count
 from django.forms import formset_factory, Select
 from django.forms.models import modelformset_factory
+from django.utils.decorators import method_decorator
+
 from app.forms import OrderForm, UserOrderForm, UserOrder, NotificationRequestForm, ImportMenuItemsForm
 from app.models import Order, MenuItem, UserOrderItem, NotificationRequest, MenuItemCategory
-from django.views.generic import TemplateView, FormView, View, RedirectView, CreateView
+from django.views.generic import TemplateView, FormView, View, RedirectView, CreateView, UpdateView
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
+from app.signals import *
 
 
 class HomeView(TemplateView):
@@ -32,6 +38,7 @@ class HomeView(TemplateView):
         return ctx
 
 
+@method_decorator(login_required, name='dispatch')
 class OrderFormView(FormView):
     template_name = "order.html"
     form_class = UserOrderForm
@@ -40,7 +47,7 @@ class OrderFormView(FormView):
     def get_context_data(self, **kwargs):
         ctx = super(OrderFormView, self).get_context_data(**kwargs)
         ctx['order'] = get_object_or_404(Order, pk=self.kwargs['order'])
-        order_form_formset = formset_factory(form=OrderForm, extra=10, min_num=0)
+        order_form_formset = formset_factory(form=OrderForm, extra=10, min_num=1, validate_min=True)
         # qs = UserOrderItem.objects.filter(menu_item__category__provider__id=ctx['order'].provider.pk)
         if self.request.POST:
             ctx['order_form_formset'] = order_form_formset(self.request.POST,
@@ -48,17 +55,24 @@ class OrderFormView(FormView):
             ctx['user_order'] = UserOrderForm(self.request.POST)
         else:
             ctx['order_form_formset'] = order_form_formset(form_kwargs={'provider': ctx['order'].provider})
-            ctx['user_order'] = UserOrderForm(initial={'order': ctx['order']})
+            ctx['user_order'] = UserOrderForm(initial={'order': ctx['order'], 'name': self.request.user.username})
         return ctx
 
     def form_valid(self, form):
         order = get_object_or_404(Order, pk=self.kwargs.get('order'))
-        form.instance.save()
-        order_form_formset = formset_factory(OrderForm)
-        for f in order_form_formset(self.request.POST, form_kwargs={'provider': order.provider}):
-            if f.is_valid() and f.instance.menu_item_id is not None:
-                f.instance.user_order = form.instance
-                f.instance.save()
+        order_form_formset = formset_factory(OrderForm, min_num=1, validate_min=True)
+        of_formset_instance = order_form_formset(self.request.POST, form_kwargs={'provider': order.provider})
+        if of_formset_instance.is_valid():
+            form.instance.user = self.request.user
+            form.instance.save()
+            for f in of_formset_instance:
+                if f.is_valid() and f.instance.menu_item_id is not None:
+                    f.instance.user_order = form.instance
+                    f.instance.save()
+            messages.success(self.request, "Your order has been saved!")
+        else:
+            form.add_error(None, "You need to select something!")
+            return super(OrderFormView, self).form_invalid(form)
         return super(OrderFormView, self).form_valid(form)
 
     def form_invalid(self, form):
@@ -87,16 +101,17 @@ class Redirect(RedirectView):
 
 
 class PickRandomDeliveryPerson(View):
+
     def get(self, request, *args, **kwargs):
         if request.user.is_staff:
             o = get_object_or_404(Order, pk=kwargs.get('o'))
             if o.delivery_person:
-                messages.error(request, "{0} is already set as the chinese volunteer!".format(o.delivery_person.name))
+                messages.error(request, "{0} is already set as the chinese volunteer!".format(o.delivery_person.username))
             else:
                 o.assign_random_delivery_person()
                 if o.delivery_person:
                     messages.success(request, "{0} has been selected as chinese volunteer! Thanks {0} :D".format(
-                        o.delivery_person.name))
+                        o.delivery_person.username))
                 else:
                     messages.error(request, "Something went wrong .. do you have orders ?")
         return redirect(request.META.get('HTTP_REFERER'))
@@ -113,7 +128,8 @@ class OrderView(TemplateView):
         return ctx
 
 
-class NotificationRequestFormView(CreateView):
+@method_decorator(login_required, name='dispatch')
+class NotificationRequestFormView(UpdateView):
     form_class = NotificationRequestForm
     model = NotificationRequest
     template_name = 'notificationrequest_form.html'
@@ -123,11 +139,23 @@ class NotificationRequestFormView(CreateView):
         res.set_cookie('show_notification_tooltip', '0', expires="Fri, 01-Jan-25 12:12:12 GMT")
         return res
 
+    def get_object(self, queryset=None):
+        obj, created = NotificationRequest.objects.get_or_create(user=self.request.user)
+        return obj
+
+    def form_valid(self, form):
+        resp = super(NotificationRequestFormView, self).form_valid(form)
+        return resp
+
     def get_success_url(self):
-        messages.success(self.request, "We'll send you a notification as soon as you can place an order!")
+        if len(self.object.providers.all()) > 0 or self.object.all_providers:
+            messages.success(self.request, "We'll send you a notification as soon as you can place an order!")
+        else:
+            messages.warning(self.request, "We won't bother you with notifications again")
         return reverse_lazy('home')
 
 
+@method_decorator(login_required, name='dispatch')
 class NotificationCancelFormView(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):

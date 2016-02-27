@@ -2,7 +2,13 @@
 
 {% block jumbo %}
     <div class="jumbotron">
-        <h1>What's for lunch today ?</h1>
+        {% if user.is_authenticated %}
+            <h1>Hi, hungry {{ user.username }}</h1>
+        {% else %}
+            {% comment %}
+            <h1>What's for lunch today ?</h1>
+            {% endcomment %}
+        {% endif %}
         {% if open_order %}
             <p>Some orders are open, make your choice below!</p>
         {% else %}
@@ -28,7 +34,7 @@
                             <b>Manager:</b> {{ order.manager }}<br/>
                             <b>Delivery:</b>
                             {% if order.delivery_person %}
-                                {{ order.delivery_person.name }}
+                                {{ order.delivery_person.username }}
                             {% else %}
                                 {% if order.open %}
                                     you ?

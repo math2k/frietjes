@@ -4,8 +4,8 @@ from django.contrib import admin
 
 
 class UserOrderAdmin(ModelAdmin):
-    list_display = ('name', 'order', 'total', 'paid')
-    list_filter = ('name',)
+    list_display = ('user', 'order', 'total', 'paid')
+    list_filter = ('user__username',)
 
 
 class MenuItemAdmin(ModelAdmin):
@@ -19,7 +19,7 @@ class MenuItemCategoryAdmin(ModelAdmin):
 
 
 class NotificationRequestAdmin(ModelAdmin):
-    list_display = ('name', 'email', 'selected_providers')
+    list_display = ('user', 'selected_providers')
 
 
 class OrderAdmin(ModelAdmin):

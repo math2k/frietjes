@@ -1,20 +1,22 @@
 # -*- coding: utf-8 -*-
 import uuid
 
+from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse_lazy
 from django.db import models
 from django.utils.functional import cached_property
 
+
 class UserOrder(models.Model):
-    name = models.CharField(max_length=50)
+    #name = models.CharField(max_length=50)
+    user = models.ForeignKey(User)
     order = models.ForeignKey('Order')
     paid = models.BooleanField(default=False)
     notes = models.TextField(default="", blank=True)
 
     @cached_property
     def total(self):
-        total = 0
         total = self.userorderitem_set.all().aggregate(sum=models.Sum('menu_item__unit_price'))['sum']
         return total
 
@@ -31,12 +33,12 @@ class FoodProvider(models.Model):
 
 
 class Order(models.Model):
-    manager = models.CharField(max_length=50)
+    manager = models.ForeignKey(User)
     provider = models.ForeignKey(FoodProvider, related_name='provider')
     open = models.BooleanField(default=True)
     notes = models.TextField(default="", blank=True)
     date = models.DateField(auto_now_add=True)
-    delivery_person = models.ForeignKey('UserOrder', blank=True, null=True, related_name="delivery_person")
+    delivery_person = models.ForeignKey(User, blank=True, null=True, related_name="delivery_person")
 
     def get_userorders(self):
         return self.userorder_set.all().prefetch_related('userorderitem_set__menu_item')
@@ -50,7 +52,7 @@ class Order(models.Model):
         return total
 
     def assign_random_delivery_person(self):
-        self.delivery_person = self.userorder_set.order_by('?').first()
+        self.delivery_person = self.userorder_set.order_by('?').first().user
         self.save()
 
     @property
@@ -96,10 +98,10 @@ class MenuItem(models.Model):
 
 
 class NotificationRequest(models.Model):
-    name = models.CharField(max_length=50)
-    email = models.EmailField(unique=True, verbose_name="Email address")
-    providers = models.ManyToManyField(to=FoodProvider)
+    user = models.ForeignKey(User)
+    providers = models.ManyToManyField(to=FoodProvider, blank=True)
     secret = models.CharField(max_length=32, null=True, blank=True)
+    all_providers = models.BooleanField(default=False)
 
     @property
     def selected_providers(self):
@@ -111,36 +113,9 @@ class NotificationRequest(models.Model):
         return super(NotificationRequest, self).save(*args, **kwargs)
 
     def __repr__(self):
-        return self.email
+        return self.user.email
 
     def __unicode__(self):
-        return self.email
-
-
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-
-
-@receiver(post_save)
-def notify_all(**kwargs):
-    if kwargs['sender'] != Order or not kwargs['created']:
-        return
-    order = kwargs['instance']
-    nrs = NotificationRequest.objects.filter(providers__in=[order.provider])
-    for nr in nrs:
-        body = """
-Hey {name},
-
-An order that matches your notification criteria has been created!
-Check it out on http://whats.4lunch.eu!
-
-Cheers,
---
-4lunch.eu
-
-To cancel notifications, visit this address: http://whats.4lunch.eu{cancel_url}
-        """.format(name=nr.name, cancel_url=reverse_lazy('notification-cancel', kwargs={'s': nr.secret}))
-        send_mail("What's for lunch? - 4lunch.eu", body, '4lunch.eu notifications <notifications@4lunch.eu>',
-            [nr.email], fail_silently=True)
+        return self.user.email
 
 

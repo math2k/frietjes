@@ -8697,6 +8697,7 @@ a.list-group-item-danger.active:focus {
 .popover {
     color: #555555;
 }
+/*******/
 
 /* Space out content a bit */
 body {
@@ -8800,4 +8801,12 @@ body {
         font: 13px Arial, Helvetica, "Lucida Grande", serif;
         color: #000;
     }
+}
+
+/*******/
+
+
+.icon {
+    width: 20px;
+    text-align: center;
 }

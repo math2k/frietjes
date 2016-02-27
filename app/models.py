@@ -9,7 +9,6 @@ from django.utils.functional import cached_property
 
 
 class UserOrder(models.Model):
-    #name = models.CharField(max_length=50)
     user = models.ForeignKey(User)
     order = models.ForeignKey('Order')
     paid = models.BooleanField(default=False)
@@ -33,12 +32,14 @@ class FoodProvider(models.Model):
 
 
 class Order(models.Model):
-    manager = models.ForeignKey(User)
-    provider = models.ForeignKey(FoodProvider, related_name='provider')
     open = models.BooleanField(default=True)
-    notes = models.TextField(default="", blank=True)
+    manager = models.ForeignKey(User)
+    provider = models.ForeignKey(FoodProvider, verbose_name="Place", related_name='provider')
     date = models.DateField(auto_now_add=True)
     delivery_person = models.ForeignKey(User, blank=True, null=True, related_name="delivery_person")
+    delivery_time = models.TimeField(blank=True, null=True)
+    closing_time = models.TimeField(blank=True, null=True)
+    notes = models.TextField(default="", blank=True)
 
     def get_userorders(self):
         return self.userorder_set.all().prefetch_related('userorderitem_set__menu_item')

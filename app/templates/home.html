@@ -31,8 +31,8 @@
                     </div>
                     <div class="panel-body">
                         <div class="col-xs-6">
-                            <b>Manager:</b> {{ order.manager }}<br/>
-                            <b>Delivery:</b>
+                            <i class="icon fa fa-user add-tooltip" title="Manager"></i>: {{ order.manager }}<br/>
+                            <i class="icon fa fa-truck add-tooltip" title="Delivery"></i>:
                             {% if order.delivery_person %}
                                 {{ order.delivery_person.username }}
                             {% else %}
@@ -44,11 +44,19 @@
                                             random</a>
                                     {% endif %}
                                 {% endif %}
-                            {% endif %}
+                            {% endif %}<br />
+                            <i class="icon fa fa-money add-tooltip" title="Total"></i>: {{ order.total }}€<br/>
                         </div>
                         <div class="col-xs-6" style="padding-right: 0;">
-                            <b>Total:</b> {{ order.total }}€<br/>
-                            <b>Notes:</b> {{ order.notes }}<br/>
+                        {% if order.closing_time %}
+                            <i class="icon fa fa-close add-tooltip" title="Order closing time"></i>: {{ order.closing_time }}<br/>
+                        {% endif %}
+                        {% if order.delivery_time %}
+                            <i class="icon fa fa-clock-o add-tooltip" title="Expected delivery time"></i>: {{ order.delivery_time }}<br/>
+                        {% endifAdded %}
+                            {% if order.notes %}
+                                <i class="icon fa fa-pencil add-tooltip" title="Notes"></i>: {{ order.notes }}<br/>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="panel-footer text-right" style="padding: 5px 15px">

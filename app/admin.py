@@ -22,7 +22,13 @@ class NotificationRequestAdmin(ModelAdmin):
     list_display = ('user', 'selected_providers')
 
 
+class FeedEntryAdmin(ModelAdmin):
+    list_display = ('datetime', 'event')
+
+
 class OrderAdmin(ModelAdmin):
+    list_display = ('date', 'manager', 'open')
+
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "delivery_person":
             r_parts = request.path.split('/')
@@ -41,3 +47,4 @@ admin.site.register(MenuItemCategory, MenuItemCategoryAdmin)
 admin.site.register(UserOrderItem)
 admin.site.register(FoodProvider)
 admin.site.register(NotificationRequest, NotificationRequestAdmin)
+admin.site.register(FeedEntry, FeedEntryAdmin)

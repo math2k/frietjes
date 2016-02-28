@@ -29,7 +29,7 @@
             <ul class="nav nav-pills pull-right">
                 <li role="presentation" class=""><a href="/">Home</a></li>
                 {% if user.is_authenticated %}
-                    <li role="presentation" class="add-static-tooltip"
+                    <li role="presentation" {% if show_notification_tooltip %}class="add-static-tooltip"{% endif %}
                         title="Never miss good lunch again, get notified when someone starts an order!"><a
                             href="{% url 'notifications' %}">Notifications</a></li>
                     <li role="presentation"><a href="{% url "auth_logout" %}?next=/">Logout</a></li>
@@ -69,6 +69,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="{% static "bootstrap-confirmation.min.js" %}"></script>
 <script>
     $(document).ready(function () {
         $('.price-toggle').click(function () {

@@ -1,13 +1,12 @@
 {% extends "base.html" %}
+{% load humanize %}
 
 {% block jumbo %}
     <div class="jumbotron">
         {% if user.is_authenticated %}
             <h1>Hi, hungry {{ user.username }}</h1>
         {% else %}
-            {% comment %}
             <h1>What's for lunch today ?</h1>
-            {% endcomment %}
         {% endif %}
         {% if open_order %}
             <p>Some orders are open, make your choice below!</p>
@@ -15,90 +14,122 @@
             <p>Sorry, no order is open at the moment.. <a href="{% url "admin:app_order_add" %}">create one yourself
                 ?</a></p>
         {% endif %}
+        {% if unpaid_orders %}
+            <span class="text-warning">
+            Also, you seem to have unpaid orders:
+            {% for o in unpaid_orders %}
+                <a href="{% url 'order-view' order=o.order.pk %}">{{ o.order.date }}</a>
+            {% endfor %}
+            </span>
+        {% endif %}
     </div>
 {% endblock %}
 
 {% block content %}
-    <div class="col-lg-6 col-lg-offset-3">
-        {% for order in all_orders %}
-            <div style="{% if not order.open %}opacity: 0.5{% endif %}">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">
-                            <a href="{% url "order-view" order=order.pk %}">{{ order.provider.name }}
-                                on {{ order.date }}</a>
-                        </h3>
-                    </div>
-                    <div class="panel-body">
-                        <div class="col-xs-6">
-                            <i class="icon fa fa-user add-tooltip" title="Manager"></i>: {{ order.manager }}<br/>
-                            <i class="icon fa fa-truck add-tooltip" title="Delivery"></i>:
-                            {% if order.delivery_person %}
-                                {{ order.delivery_person.username }}
-                            {% else %}
-                                {% if order.open %}
-                                    you ?
-                                    {% if request.user.is_authenticated and order.userorder_set.all|length > 0 %}
-                                        <a href="{% url "pick-random" o=order.pk %}" class="btn btn-xs btn-primary">Pick
-                                            at
-                                            random</a>
+    <div class="row">
+        <div class="col-lg-7">
+            <h3>Orders</h3>
+            {% for order in all_orders %}
+                <div style="{% if not order.open %}opacity: 0.5{% endif %}">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                                <a href="{% url "order-view" order=order.pk %}">{{ order.provider.name }}
+                                    on {{ order.date }}</a>
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="col-xs-6">
+                                <i class="icon fa fa-user add-tooltip" title="Manager"></i>: {{ order.manager }}<br/>
+                                <i class="icon fa fa-truck add-tooltip" title="Delivery"></i>:
+                                {% if order.delivery_person %}
+                                    {{ order.delivery_person.username }}
+                                {% else %}
+                                    {% if order.open %}
+                                        you ?
+                                        {% if request.user.is_authenticated and order.userorder_set.all|length > 0 %}
+                                            <a href="{% url "pick-random" o=order.pk %}" class="btn btn-xs btn-primary">Pick
+                                                at
+                                                random</a>
+                                        {% endif %}
                                     {% endif %}
+                                {% endif %}<br/>
+                                <i class="icon fa fa-money add-tooltip" title="Total"></i>: {{ order.total }}€<br/>
+                            </div>
+                            <div class="col-xs-6" style="padding-right: 0;">
+                                {% if order.closing_time %}
+                                    <i class="icon fa fa-close add-tooltip" title="Order closing time"></i>:
+                                    {{ order.closing_time }}<br/>
                                 {% endif %}
-                            {% endif %}<br />
-                            <i class="icon fa fa-money add-tooltip" title="Total"></i>: {{ order.total }}€<br/>
+                                {% if order.delivery_time %}
+                                    <i class="icon fa fa-clock-o add-tooltip" title="Expected delivery time"></i>:
+                                    {{ order.delivery_time }}<br/>
+                                {% endif %}
+                                {% if order.notes %}
+                                    <i class="icon fa fa-pencil add-tooltip" title="Notes"></i>: {{ order.notes }}<br/>
+                                {% endif %}
+                            </div>
                         </div>
-                        <div class="col-xs-6" style="padding-right: 0;">
-                        {% if order.closing_time %}
-                            <i class="icon fa fa-close add-tooltip" title="Order closing time"></i>: {{ order.closing_time }}<br/>
-                        {% endif %}
-                        {% if order.delivery_time %}
-                            <i class="icon fa fa-clock-o add-tooltip" title="Expected delivery time"></i>: {{ order.delivery_time }}<br/>
-                        {% endifAdded %}
-                            {% if order.notes %}
-                                <i class="icon fa fa-pencil add-tooltip" title="Notes"></i>: {{ order.notes }}<br/>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="panel-footer text-right" style="padding: 5px 15px">
-                        <div class="">
-                            {% if order.open %}
-                                <div class="btn-group">
-                                    <a href="{% url "order" order=order.pk %}"
-                                       class="btn btn-success btn-xs">
-                                        Order
-                                    </a>
-                                    {% if request.user.is_authenticated %}
-                                        <a href="{% url "admin:app_order_change" order.pk %}"
-                                           class="btn btn-primary btn-xs">
-                                            Admin
+                        <div class="panel-footer text-right" style="padding: 5px 15px">
+                            <div class="">
+                                {% if order.open %}
+                                    <div class="btn-group">
+                                        <a href="{% url "order" order=order.pk %}"
+                                           class="btn btn-success btn-xs">
+                                            Order
                                         </a>
-                                    {% endif %}
-                                </div>
-                            {% else %}
-                                <span class="label label-danger">Closed</span>
-                            {% endif %}
-                            {% if order.has_unpaid_user_order and not order.open %}
-                                <span class="label label-warning">Not fully paid</span>&nbsp;
-                            {% endif %}
+                                        {% if request.user.is_authenticated %}
+                                            <a href="{% url "admin:app_order_change" order.pk %}"
+                                               class="btn btn-primary btn-xs">
+                                                Admin
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    <span class="label label-danger">Closed</span>
+                                {% endif %}
+                                {% if order.has_unpaid_user_order and not order.open %}
+                                    <span class="label label-warning">Not fully paid</span>&nbsp;
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            {% if forloop.counter|divisibleby:col_size and False %}
-                </div>
-                <div class="col-lg-6">
-            {% endif %}
-        {% endfor %}
+                {% if forloop.counter|divisibleby:col_size and False %}
+                    </div>
+                    <div class="col-lg-6">
+                {% endif %}
+            {% endfor %}
 
+            </div>
+        <div class="col-xs-5">
+            <h3>Activity feed</h3>
+            {% if feed_entries %}
+                <ul class="list-group">
+                    {% for e in feed_entries %}
+                        <li class="list-group-item">
+                            <span class="event-content">{{ e.event }}</span>
+                            <span class="pull-right text-muted"
+                                  style="font-size: .8em">{{ e.datetime|naturaltime }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                No event today, nobody's hungry..
+            {% endif %}
         </div>
-    <div class="col-xs-12 text-right">
-        <a href="{% url 'home' %}?all=1">All orders</a>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 text-right">
+            <a href="{% url 'home' %}?all=1">All orders</a>
+        </div>
     </div>
 {% endblock %}
 {% block extra_js %}
     <script>
-        {% if show_notification_tooltip %}
-            $('.add-static-tooltip').tooltip({'placement': 'bottom', 'trigger': 'manual'}).tooltip('show');
-        {% endif %}
+        $('.add-static-tooltip').tooltip({'placement': 'bottom', 'trigger': 'manual'}).tooltip('show');
+        $('.event-content').each(function () {
+            $(this).html($(this).text().replace(/_(\w+)_/, '<strong>$1</strong>'));
+        });
     </script>
 {% endblock %}

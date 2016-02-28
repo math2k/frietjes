@@ -30,11 +30,10 @@ class HomeView(TemplateView):
             ctx['all_orders'] = Order.objects.all().order_by("-pk")[:6]
         ctx['open_order'] = Order.objects.filter(open=True).order_by("-date").last()
         ctx['col_size'] = int(len(ctx['all_orders']) / 2)
-        ctx['heading'] = random.choice((
-            'A day without fritjes is a day wasted',
-            'A fritje a day, keeps the doctor away'
-        ))
+        ctx['feed_entries'] = FeedEntry.objects.filter(datetime__day=datetime.datetime.now().day).order_by('-datetime')[:15]
         ctx['show_notification_tooltip'] = False if self.request.COOKIES.get('show_notification_tooltip') == '0' else True
+        if self.request.user.is_authenticated():
+            ctx['unpaid_orders'] = UserOrder.objects.filter(user=self.request.user, paid=False, order__open=False)
         return ctx
 
 
@@ -69,6 +68,8 @@ class OrderFormView(FormView):
                 if f.is_valid() and f.instance.menu_item_id is not None:
                     f.instance.user_order = form.instance
                     f.instance.save()
+            fe = FeedEntry(event='_{0}_ placed an order at {1}'.format(self.request.user.username, order.provider.name))
+            fe.save()
             messages.success(self.request, "Your order has been saved!")
         else:
             form.add_error(None, "You need to select something!")
@@ -87,7 +88,10 @@ class TogglePaidFlag(View):
             uo = get_object_or_404(UserOrder, pk=kwargs.get('uo'))
             uo.paid = not uo.paid
             uo.save()
-            messages.success(request, "{0}'s order marked as {1}".format(uo.name, "paid" if uo.paid else "not paid"))
+            messages.success(request, "{0}'s order marked as {1}".format(uo.user.username, "paid" if uo.paid else "not paid"))
+            if uo.paid:
+                fe = FeedEntry(event='_{0}_ paid their order'.format(uo.user.username))
+                fe.save()
             return redirect(request.META.get('HTTP_REFERER'))
 
 
@@ -112,6 +116,9 @@ class PickRandomDeliveryPerson(View):
                 if o.delivery_person:
                     messages.success(request, "{0} has been selected as chinese volunteer! Thanks {0} :D".format(
                         o.delivery_person.username))
+                    fe = FeedEntry(event='_{0}_ has been randomly selected to pick up the order from {1}'
+                                   .format(o.delivery_person.username, o.provider.name))
+                    fe.save()
                 else:
                     messages.error(request, "Something went wrong .. do you have orders ?")
         return redirect(request.META.get('HTTP_REFERER'))
@@ -148,8 +155,8 @@ class NotificationRequestFormView(UpdateView):
         return resp
 
     def get_success_url(self):
-        if len(self.object.providers.all()) > 0 or self.object.all_providers:
-            messages.success(self.request, "We'll send you a notification as soon as you can place an order!")
+        if len(self.object.providers.all()) > 0 or self.object.all_providers or self.object.deliveries:
+            messages.success(self.request, "Notifications saved!")
         else:
             messages.warning(self.request, "We won't bother you with notifications again")
         return reverse_lazy('home')

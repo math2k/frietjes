@@ -9,7 +9,7 @@
         <p><a class="btn btn-success hidden-print" style="padding: 3px; font-size: 14px;"href="{% url 'order' order=order.pk %}" role="button">Order now!</a></p>
           <p class="hidden-print">
           {% if order.delivery_person %}
-              <strong>{{ order.delivery_person.name }}</strong> is picking them up.<br />Thanks buddy!
+              <strong>{{ order.delivery_person.username }}</strong> is taking care of the delivery.<br />Thanks buddy!
           {% else %}
               No one has volunteered yet to go pick up the food.<br />If no one volunteers, someone will be designated at random!
           {% endif %}

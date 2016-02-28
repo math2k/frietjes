@@ -5,15 +5,15 @@ from registration import signals
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse_lazy
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
-from app.models import Order, NotificationRequest
+from app.models import Order, NotificationRequest, FeedEntry
 
 
-@receiver(post_save)
+@receiver(post_save, sender=Order)
 def notify_all(**kwargs):
-    if kwargs['sender'] != Order or not kwargs['created']:
+    if not kwargs['created']:
         return
     order = kwargs['instance']
     nrs = NotificationRequest.objects.filter(Q(providers__in=[order.provider]) | Q(all_providers=True)).distinct()
@@ -32,6 +32,15 @@ To cancel notifications, visit this address: http://whats.4lunch.eu{cancel_url}
         """.format(name=nr.user.username, cancel_url=reverse_lazy('notifications'))
         send_mail("What's for lunch? - 4lunch.eu", body, '4lunch.eu notifications <notifications@4lunch.eu>',
             [nr.user.email], fail_silently=True)
+
+
+@receiver(post_save)
+def add_feedentry(**kwargs):
+    if kwargs['sender'] == Order:
+        if not kwargs['created']:
+            return
+        fe = FeedEntry(event='An order at _{0}_ has been opened'.format(kwargs['instance'].provider.name))
+        fe.save()
 
 
 @receiver(registration.signals.user_registered)

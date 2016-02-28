@@ -20,7 +20,7 @@ class UserOrder(models.Model):
         return total
 
     def __unicode__(self):
-        return u"{0} - {1}".format(self.name, self.order.date, self.paid)
+        return u"{0} - {1}".format(self.user.username, self.order.date, self.paid)
 
 
 class FoodProvider(models.Model):
@@ -32,7 +32,8 @@ class FoodProvider(models.Model):
 
 
 class Order(models.Model):
-    open = models.BooleanField(default=True)
+    open = models.BooleanField(default=True, verbose_name="Open for ordering")
+    delivered = models.BooleanField(default=False)
     manager = models.ForeignKey(User)
     provider = models.ForeignKey(FoodProvider, verbose_name="Place", related_name='provider')
     date = models.DateField(auto_now_add=True)
@@ -40,6 +41,11 @@ class Order(models.Model):
     delivery_time = models.TimeField(blank=True, null=True)
     closing_time = models.TimeField(blank=True, null=True)
     notes = models.TextField(default="", blank=True)
+
+    def __init__(self, *args, **kwargs):
+        super(Order, self).__init__(*args, **kwargs)
+        self._original_open = self.open
+        self._original_delivered = self.delivered
 
     def get_userorders(self):
         return self.userorder_set.all().prefetch_related('userorderitem_set__menu_item')
@@ -59,6 +65,32 @@ class Order(models.Model):
     @property
     def has_unpaid_user_order(self):
         return len(UserOrder.objects.filter(order=self.pk, paid=False)) > 0
+
+    def save(self, **kwargs):
+        if self._original_open != self.open and not self.open:
+            fe = FeedEntry(event='Order at _{0}_ has been closed'.format(self.provider.name))
+            fe.save()
+        if self._original_delivered != self.delivered and self.delivered:
+            fe = FeedEntry(event='Order at _{0}_ has been delivered!<br/> Woohoo!'.format(self.provider.name))
+            fe.save()
+            users = set([uo.user for uo in self.userorder_set.filter()])
+            nrs = NotificationRequest.objects.filter(deliveries=True, user__in=users)
+            for nr in nrs:
+                body = """
+Hey {name},
+
+The order from {place} has been delivered!
+
+Cheers,
+--
+4lunch.eu
+
+To cancel notifications, visit this address: http://whats.4lunch.eu{cancel_url}
+        """.format(name=nr.user.username, place=self.provider.name, cancel_url=reverse_lazy('notifications'))
+                send_mail("What's for lunch? - 4lunch.eu", body, '4lunch.eu notifications <notifications@4lunch.eu>',
+                    [nr.user.email], fail_silently=True)
+
+        return super(Order, self).save(**kwargs)
 
     def __unicode__(self):
         return self.date.strftime("%d-%m-%y")
@@ -103,6 +135,7 @@ class NotificationRequest(models.Model):
     providers = models.ManyToManyField(to=FoodProvider, blank=True)
     secret = models.CharField(max_length=32, null=True, blank=True)
     all_providers = models.BooleanField(default=False)
+    deliveries = models.BooleanField(default=True)
 
     @property
     def selected_providers(self):
@@ -120,3 +153,6 @@ class NotificationRequest(models.Model):
         return self.user.email
 
 
+class FeedEntry(models.Model):
+    datetime = models.DateTimeField(auto_now_add=True)
+    event = models.TextField()

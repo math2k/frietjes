@@ -16,7 +16,7 @@
         {% endif %}
         {% if unpaid_orders %}
             <span class="text-warning">
-            Also, you seem to have unpaid orders:
+            You seem to have unpaid orders:
             {% for o in unpaid_orders %}
                 <a href="{% url 'order-view' order=o.order.pk %}">{{ o.order.date }}</a>
             {% endfor %}
@@ -47,7 +47,7 @@
                                 {% else %}
                                     {% if order.open %}
                                         you ?
-                                        {% if request.user.is_authenticated and order.userorder_set.all|length > 0 %}
+                                        {% if request.user.is_staff and order.userorder_set.all|length > 0 %}
                                             <a href="{% url "pick-random" o=order.pk %}" class="btn btn-xs btn-primary">Pick
                                                 at
                                                 random</a>

@@ -135,7 +135,7 @@ class NotificationRequest(models.Model):
     providers = models.ManyToManyField(to=FoodProvider, blank=True)
     secret = models.CharField(max_length=32, null=True, blank=True)
     all_providers = models.BooleanField(default=False)
-    deliveries = models.BooleanField(default=True)
+    deliveries = models.BooleanField(default=False)
 
     @property
     def selected_providers(self):

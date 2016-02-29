@@ -19,6 +19,7 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^accounts/register/$', FrietjesRegistrationView.as_view(), name='registration_register'),
     url(r'^accounts/', include('registration.backends.simple.urls')),
     url(r'^$', HomeView.as_view(), name="home"),
     url(r'^redirect', Redirect.as_view(), name="redirect"),

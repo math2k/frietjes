@@ -7,6 +7,11 @@
             <h1>Hi, hungry {{ user.username }}</h1>
         {% else %}
             <h1>What's for lunch today ?</h1>
+            <span class="text-warning">Had you set notifications earlier ?<br/>
+            Sorry, you'll need to set them again after you've <a href="{% url "registration_register" %}">created an
+                    account</a><br/>
+            Good news is that you get more notifications options!
+            </span>
         {% endif %}
         {% if open_order %}
             <p>Some orders are open, make your choice below!</p>
@@ -17,9 +22,9 @@
         {% if unpaid_orders %}
             <span class="text-warning">
             You seem to have unpaid orders:
-            {% for o in unpaid_orders %}
-                <a href="{% url 'order-view' order=o.order.pk %}">{{ o.order.date }}</a>
-            {% endfor %}
+                {% for o in unpaid_orders %}
+                    <a href="{% url 'order-view' order=o.order.pk %}">{{ o.order.date }}</a>
+                {% endfor %}
             </span>
         {% endif %}
     </div>

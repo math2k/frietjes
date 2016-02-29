@@ -40,6 +40,7 @@
                         {{ form.password2|add_class:"form-control" }}
                     </div>
                 </div>
+                <input type="hidden" name="next" value="{% url "notifications" %}">
                 <div class="control-group">
                     <div class="controls">
                         <button type="submit" class="btn btn-success pull-right">Register</button>

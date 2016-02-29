@@ -8780,7 +8780,7 @@ body {
 
     /* Space out the masthead */
     .header {
-        margin-bottom: 30px;
+        /*margin-bottom: 30px;*/
     }
 
     /* Remove the bottom border on the jumbotron for visual effect */

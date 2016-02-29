@@ -10,6 +10,7 @@ from django.db.models import Count
 from django.forms import formset_factory, Select
 from django.forms.models import modelformset_factory
 from django.utils.decorators import method_decorator
+from registration.backends.simple.views import RegistrationView
 
 from app.forms import OrderForm, UserOrderForm, UserOrder, NotificationRequestForm, ImportMenuItemsForm
 from app.models import Order, MenuItem, UserOrderItem, NotificationRequest, MenuItemCategory
@@ -32,6 +33,7 @@ class HomeView(TemplateView):
         ctx['col_size'] = int(len(ctx['all_orders']) / 2)
         ctx['feed_entries'] = FeedEntry.objects.filter(datetime__day=datetime.datetime.now().day).order_by('-datetime')[:15]
         ctx['show_notification_tooltip'] = False if self.request.COOKIES.get('show_notification_tooltip') == '0' else True
+        ctx['show_account_tooltip'] = False if self.request.COOKIES.get('show_account_tooltip') == '0' else True
         if self.request.user.is_authenticated():
             ctx['unpaid_orders'] = UserOrder.objects.filter(user=self.request.user, paid=False, order__open=False)
         return ctx
@@ -195,3 +197,14 @@ class ImportMenuItemsFormView(FormView):
 
     def get_success_url(self):
         return reverse_lazy('home')
+
+
+class FrietjesRegistrationView(RegistrationView):
+
+    def dispatch(self, *args, **kwargs):
+        res = super(FrietjesRegistrationView, self).dispatch(*args, **kwargs)
+        res.set_cookie('show_account_tooltip', '0', expires="Fri, 01-Jan-25 12:12:12 GMT")
+        return res
+
+    def get_success_url(self, user):
+        return self.request.GET.get('next', self.request.POST.get('next', reverse_lazy('home')))

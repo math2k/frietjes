@@ -31,7 +31,8 @@ class HomeView(TemplateView):
             ctx['all_orders'] = Order.objects.all().order_by("-pk")[:6]
         ctx['open_order'] = Order.objects.filter(open=True).order_by("-date").last()
         ctx['col_size'] = int(len(ctx['all_orders']) / 2)
-        ctx['feed_entries'] = FeedEntry.objects.filter(datetime__day=datetime.datetime.now().day).order_by('-datetime')[:15]
+        #ctx['feed_entries'] = FeedEntry.objects.filter(datetime__day=datetime.datetime.now().day).order_by('-datetime')[:15]
+        ctx['feed_entries'] = FeedEntry.objects.filter().order_by('-datetime')[:15]
         ctx['show_notification_tooltip'] = False if self.request.COOKIES.get('show_notification_tooltip') == '0' else True
         ctx['show_account_tooltip'] = False if self.request.COOKIES.get('show_account_tooltip') == '0' else True
         if self.request.user.is_authenticated():

@@ -135,7 +135,7 @@
     <script>
         $('.add-static-tooltip').tooltip({'placement': 'bottom', 'trigger': 'manual'}).tooltip('show');
         $('.event-content').each(function () {
-            $(this).html($(this).text().replace(/_(\w+)_/, '<strong>$1</strong>'));
+            $(this).html($(this).text().replace(/_(.+)_/, '<strong>$1</strong>'));
         });
     </script>
 {% endblock %}

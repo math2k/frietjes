@@ -82,6 +82,33 @@ class OrderFormView(FormView):
         return super(OrderFormView, self).form_invalid(form)
 
 
+class NewOrderFormView(FormView):
+    template_name = "order-new.html"
+    form_class = UserOrderForm
+    success_url = reverse_lazy('home')
+
+    def get_context_data(self, **kwargs):
+        ctx = super(NewOrderFormView, self).get_context_data(**kwargs)
+        ctx['order'] = get_object_or_404(Order, pk=self.kwargs['order'])
+        ctx['menu_items'] = MenuItem.objects.filter(category__provider=ctx['order'].provider).select_related('category').order_by('category__order', 'name')
+        if self.request.POST:
+            ctx['user_order'] = UserOrderForm(self.request.POST)
+        else:
+            ctx['user_order'] = UserOrderForm(initial={'order': ctx['order']})
+        return ctx
+
+    def form_valid(self, form):
+        items = self.request.POST.get('items', '').split(',')
+        form.instance.user = self.request.user
+        form.instance.save()
+        for i in items:
+            uoi = UserOrderItem()
+            uoi.menu_item_id = i
+            uoi.user_order_id = form.instance.pk
+            uoi.save()
+        return super(NewOrderFormView, self).form_valid(form)
+
+
 class TogglePaidFlag(View):
     http_method_names = ['post', ]
 

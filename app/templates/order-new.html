@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block jumbo %}
+    <div class="jumbotron">
+        <h3>{{ order.date }}</h3>
+        Order at <strong>{{ order.provider.name }}</strong> managed by <strong>{{ order.manager }}</strong>
+        {{ order.notes }}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+
+        {% for dict in formset.errors %}
+            {% for error in dict.values %}
+                <div class="alert alert-danger">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+        {% for field, msg in form.errors.iteritems %}
+            <div class="alert alert-danger">
+                <b>{{ field }}</b>: {{ msg }}
+            </div>
+        {% endfor %}
+        <form class="form-inline order" method="post">
+            <div class="col-lg-6">
+                <div>
+                    <div>
+                        {% for m in menu_items %}
+                            {% ifchanged m.category %}
+                                </div>
+                                </div>
+                                <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    {{ m.category.name }}
+                                </div>
+                                <div class="panel-body">
+                            {% endifchanged %}
+                            <a href="javascript:void(0);" class="list-group-item cart-item" data-item-id="{{ m.pk }}" data-item-price="{{ m.unit_price }}">
+                                <button type="button" class="btn btn-xs btn-noborder btn-success pull-right cart-add">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                                <button type="button" class="btn btn-danger btn-xs btn-noborder pull-right cart-remove"
+                                        style="display: none;">
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                                <span class="">
+                                    <p class="list-group-item-text pull-left"><strong>{{ m.name }}</strong></p>
+                                    <p class="list-group-item-text pull-right">
+                                        {{ m.unit_price }}
+                                    </p>
+                                    <br class="clearfix">
+                            </a>
+                        {% endfor %}
+                        </div>
+                        </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-shopping-cart"></i> Cart
+                        <span class="pull-right">Total: <span id="cart-total">0.00</span>€</span>
+                    </div>
+                    <div id="cart" class="panel-body">
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{ user_order.name|add_class:"form-control" }}
+                </div>
+                <div class="form-group">
+                    {{ user_order.notes|add_class:"form-control" }}
+                </div>
+                {{ user_order.order }}
+                <input type="hidden" id="items" name="items" value="" />
+                {% csrf_token %}
+            </div>
+            <button type="submit" style="margin-top: 20px;" class="btn btn-success pull-right">Order</button>
+        </form>
+    </div>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        $(document).on('click', '.cart-add', function () {
+            $new_item = $(this).parents('.cart-item').clone();
+            $new_item.children('button.cart-add').hide();
+            $new_item.children('button.cart-remove').show();
+            $("#cart").append($new_item);
+            updateTotal();
+            return false;
+        });
+        $(document).on('click', '.cart-remove', function () {
+            $(this).parents('.cart-item').remove();
+            updateTotal();
+            return false;
+        });
+        $("form.order").on('submit', function (){
+            var items = []
+            $("#cart .cart-item").each(function(){
+                items.push($(this).data('item-id'));
+            });
+            $("#items").val(items.join(','));
+        });
+    function updateTotal(){
+        var total = 0;
+        $("#cart .cart-item").each(function() {
+            total += parseFloat($(this).data('item-price'));
+        });
+        $('#cart-total').html(total.toFixed(2));
+    }
+    </script>
+{% endblock %}

@@ -46,6 +46,7 @@ class Order(models.Model):
     delivery_time = models.TimeField(blank=True, null=True)
     closing_time = models.TimeField(blank=True, null=True)
     notes = models.TextField(default="", blank=True)
+    silent = models.BooleanField(default=False, help_text="Don't send notifications for this order")
 
     def __init__(self, *args, **kwargs):
         super(Order, self).__init__(*args, **kwargs)
@@ -78,6 +79,8 @@ class Order(models.Model):
         if self._original_delivered != self.delivered and self.delivered:
             fe = FeedEntry(event='Order at _{0}_ has been delivered!<br/> Woohoo!'.format(self.provider.name))
             fe.save()
+            if self.silent:
+                return super(Order, self).save(**kwargs)
             users = set([uo.user for uo in self.userorder_set.filter()])
             nrs = NotificationRequest.objects.filter(deliveries=True, user__in=users)
             for nr in nrs:

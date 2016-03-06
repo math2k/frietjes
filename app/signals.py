@@ -13,9 +13,9 @@ from app.models import Order, NotificationRequest, FeedEntry
 
 @receiver(post_save, sender=Order)
 def notify_all(**kwargs):
-    if not kwargs['created']:
-        return
     order = kwargs['instance']
+    if not kwargs['created'] or order.silent:
+        return
     nrs = NotificationRequest.objects.filter(Q(providers__in=[order.provider]) | Q(all_providers=True)).distinct()
     for nr in nrs:
         body = """

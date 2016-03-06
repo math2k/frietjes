@@ -8812,3 +8812,12 @@ body {
     width: 20px;
     text-align: center;
 }
+
+.btn-noborder {
+    border: 0;
+    margin-left: 5px;
+}
+
+.cart-item {
+     padding: 7px 15px;
+}

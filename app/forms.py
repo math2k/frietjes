@@ -32,6 +32,20 @@ class UserOrderForm(ModelForm):
         }
 
 
+class NewUserOrderForm(ModelForm):
+
+    notes = CharField(required=False, widget=Textarea(attrs={'placeholder': 'Notes ?'}))
+    items = CharField(required=True, widget=HiddenInput)
+
+    class Meta:
+        model = UserOrder
+        exclude = ['user']
+
+        widgets = {
+            'order': HiddenInput()
+        }
+
+
 class NotificationRequestForm(ModelForm):
 
     providers = forms.ModelMultipleChoiceField(required=False, widget=forms.CheckboxSelectMultiple, queryset=FoodProvider.objects.all())

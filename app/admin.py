@@ -40,11 +40,22 @@ class OrderAdmin(ModelAdmin):
         return super(OrderAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
+class MenuImageInline(admin.StackedInline):
+    model = MenuImage
+
+
+class FoodProviderAdmin(admin.ModelAdmin):
+
+    inlines = [
+        MenuImageInline
+    ]
+
+
 admin.site.register(Order, OrderAdmin)
 admin.site.register(UserOrder, UserOrderAdmin)
 admin.site.register(MenuItem, MenuItemAdmin)
 admin.site.register(MenuItemCategory, MenuItemCategoryAdmin)
 admin.site.register(UserOrderItem)
-admin.site.register(FoodProvider)
+admin.site.register(FoodProvider, FoodProviderAdmin)
 admin.site.register(NotificationRequest, NotificationRequestAdmin)
 admin.site.register(FeedEntry, FeedEntryAdmin)

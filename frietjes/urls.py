@@ -13,9 +13,12 @@ Including another URLconf
     1. Add an import:  from blog import urls as blog_urls
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
+from django.conf.urls.static import static
+
 from app.views import *
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.conf import settings
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
@@ -30,9 +33,8 @@ urlpatterns = [
     url(r'^notifications', NotificationRequestFormView.as_view(), name="notifications"),
     url(r'^notification/cancel/(?P<s>.{32})', NotificationCancelFormView.as_view(), name="notification-cancel"),
     url(r'^import', ImportMenuItemsFormView.as_view(), name="import"),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-from django.conf import settings
 from django.conf.urls import include, patterns, url
 
 if settings.DEBUG:

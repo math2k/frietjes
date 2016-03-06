@@ -23,6 +23,11 @@ class UserOrder(models.Model):
         return u"{0} - {1}".format(self.user.username, self.order.date, self.paid)
 
 
+class MenuImage(models.Model):
+    image = models.ImageField(upload_to='menus')
+    provider = models.ForeignKey('FoodProvider')
+
+
 class FoodProvider(models.Model):
     name = models.CharField(max_length=50)
     address = models.CharField(max_length=300)

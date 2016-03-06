@@ -99,7 +99,10 @@ class NewOrderFormView(FormView):
         return ctx
 
     def form_valid(self, form):
-        items = self.request.POST.get('items', '').split(',')
+        items = [i for i in self.request.POST.get('items', '').split(',') if i != '']
+        if len(items) == 0:
+            form.add_error(None, 'No items in cart')
+            return self.form_invalid(form)
         form.instance.user = self.request.user
         form.instance.save()
         for i in items:

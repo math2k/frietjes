@@ -22,13 +22,13 @@ def notify_all(**kwargs):
 Hey {name},
 
 An order that matches your notification criteria has been created!
-Check it out on http://whats.4lunch.eu!
+Check it out on https://whats.4lunch.eu !
 
 Cheers,
 --
 4lunch.eu
 
-To cancel notifications, visit this address: http://whats.4lunch.eu{cancel_url}
+To cancel notifications, visit this address: https://whats.4lunch.eu{cancel_url}
         """.format(name=nr.user.username, cancel_url=reverse_lazy('notifications'))
         send_mail("What's for lunch? - 4lunch.eu", body, '4lunch.eu notifications <notifications@4lunch.eu>',
             [nr.user.email], fail_silently=True)

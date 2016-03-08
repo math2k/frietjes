@@ -83,6 +83,7 @@ class OrderFormView(FormView):
         return super(OrderFormView, self).form_invalid(form)
 
 
+@method_decorator(login_required, name='dispatch')
 class NewOrderFormView(FormView):
     template_name = "order-new.html"
     form_class = UserOrderForm

@@ -7,13 +7,7 @@
 
     <div class="row">
         <div class="col-xs-8 col-xs-offset-2">
-            {% if form.errors %}
-                <div class="alert alert-danger">
-                    {% for field, msg in form.errors.iteritems %}
-                        <b>{{ field }}</b>: {{ msg }}
-                    {% endfor %}
-                </div>
-            {% endif %}
+
             <form class="form-horizontal" method="post" action="{% url 'registration_register' %}">
                 {% csrf_token %}
                 <div class="form-group">

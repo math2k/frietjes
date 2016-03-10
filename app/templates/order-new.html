@@ -19,18 +19,6 @@
 
 {% block content %}
     <div class="row">
-        {% for dict in formset.errors %}
-            {% for error in dict.values %}
-                <div class="alert alert-danger">
-                    {{ error }}
-                </div>
-            {% endfor %}
-        {% endfor %}
-        {% for field, msg in form.errors.iteritems %}
-            <div class="alert alert-danger">
-                <b>{{ field }}</b>: {{ msg }}
-            </div>
-        {% endfor %}
         <form class="form-inline order" method="post">
             <div class="col-lg-6">
                 <div>

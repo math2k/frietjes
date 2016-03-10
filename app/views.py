@@ -97,6 +97,10 @@ class NewOrderFormView(FormView):
             ctx['user_order'] = UserOrderForm(self.request.POST)
         else:
             ctx['user_order'] = UserOrderForm(initial={'order': ctx['order']})
+        try:
+            ctx['latest_order'] = UserOrder.objects.filter(order__provider=ctx['order'].provider, user=self.request.user).order_by('-order__date')[0]
+        except IndexError:
+            ctx['latest_order'] = None
         return ctx
 
     def form_valid(self, form):
@@ -111,6 +115,7 @@ class NewOrderFormView(FormView):
             uoi.menu_item_id = i
             uoi.user_order_id = form.instance.pk
             uoi.save()
+        messages.success(self.request, "Order saved!")
         return super(NewOrderFormView, self).form_valid(form)
 
 

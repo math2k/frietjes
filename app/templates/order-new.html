@@ -33,8 +33,7 @@
                                 </div>
                                 <div class="panel-body">
                             {% endifchanged %}
-                            <span data-placement="left" title="{% if m.pk in latest_order_items %}This item was in your latest order{% endif %}" class="add-static-tooltip">
-                            <a href="javascript:void(0);" class="list-group-item cart-item" data-item-id="{{ m.pk }}"
+                            <a href="javascript:void(0);" class="add-static-tooltip list-group-item cart-item" data-item-id="{{ m.pk }}"
                                data-item-price="{{ m.unit_price }}">
                                 <button type="button" class="btn btn-xs btn-noborder btn-success pull-right cart-add">
                                     <i class="fa fa-plus"></i>
@@ -44,13 +43,16 @@
                                     <i class="fa fa-minus"></i>
                                 </button>
                                 <span>
-                                    <p class="list-group-item-text pull-left"><strong>{{ m.name }}</strong></p>
+                                    <p class="list-group-item-text pull-left">
+                               		{% if m.pk in latest_order_items %}<i class="fa fa-star add-tooltip text-warning" title="This item was in your latest order"></i>{% endif %}
+					<strong>{{ m.name }}</strong>
+					</p>
                                     <p class="list-group-item-text pull-right">
                                         {{ m.unit_price }}
                                     </p>
+				</span>
                                     <br class="clearfix">
                             </a>
-                            </span>
                         {% endfor %}
                         </div>
                         </div>

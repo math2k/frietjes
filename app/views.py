@@ -98,9 +98,9 @@ class NewOrderFormView(FormView):
         else:
             ctx['user_order'] = UserOrderForm(initial={'order': ctx['order']})
         try:
-            ctx['latest_order'] = UserOrder.objects.filter(order__provider=ctx['order'].provider, user=self.request.user).order_by('-order__date')[0]
-        except IndexError:
-            ctx['latest_order'] = None
+            ctx['latest_order_items'] = UserOrder.objects.filter(order__provider=ctx['order'].provider, user=self.request.user).order_by('-order__pk')[0].userorderitem_set.all().values_list('menu_item__pk', flat=True)
+        except:
+            ctx['latest_order_items'] = []
         return ctx
 
     def form_valid(self, form):
@@ -115,7 +115,7 @@ class NewOrderFormView(FormView):
             uoi.menu_item_id = i
             uoi.user_order_id = form.instance.pk
             uoi.save()
-        messages.success(self.request, "Order saved!")
+        messages.success(self.request, "Sit back, relax, your order has been saved!")
         return super(NewOrderFormView, self).form_valid(form)
 
 

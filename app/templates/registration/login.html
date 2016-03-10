@@ -6,15 +6,6 @@
 {% block content %}
 
     <div class="row">
-        {% if form.errors %}
-	<div class="col-xs-6 col-xs-offset-3">
-            <div class="alert alert-danger">
-                {% for field, msg in form.errors.iteritems %}
-                    {{ msg }}
-                {% endfor %}
-            </div>
-	</div>
-        {% endif %}
         <div class="col-md-4 col-md-offset-4">
             <form class="form-horizontal" method="post" action="{% url 'auth_login' %}">
                 {% csrf_token %}

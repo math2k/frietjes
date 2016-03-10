@@ -21,7 +21,7 @@ class OrderForm(ModelForm):
 
 class UserOrderForm(ModelForm):
 
-    notes = CharField(required=False, widget=Textarea(attrs={'placeholder': 'Notes ?'}))
+    notes = CharField(required=False, widget=Textarea(attrs={'placeholder': 'Notes ?', 'rows': 2}))
 
     class Meta:
         model = UserOrder

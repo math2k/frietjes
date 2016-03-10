@@ -7,11 +7,6 @@
             <h1>Hi, hungry {{ user.username }}</h1>
         {% else %}
             <h1>What's for lunch today ?</h1>
-            <span class="text-warning">Had you set notifications earlier ?<br/>
-            Sorry, you'll need to set them again after you've <a href="{% url "registration_register" %}">created an
-                    account</a><br/>
-            Good news is that you get more notifications options!
-            </span>
         {% endif %}
         {% if open_order %}
             <p>Some orders are open, make your choice below!</p>
@@ -80,6 +75,10 @@
                             <div class="">
                                 {% if order.open %}
                                     <div class="btn-group">
+                                        <a href="{% url "order-view" order=order.pk %}"
+                                           class="btn btn-primary btn-xs">
+                                            View
+                                        </a>
                                         <a href="{% url "order" order=order.pk %}"
                                            class="btn btn-success btn-xs">
                                             Order
@@ -133,7 +132,6 @@
 {% endblock %}
 {% block extra_js %}
     <script>
-        $('.add-static-tooltip').tooltip({'placement': 'bottom', 'trigger': 'manual'}).tooltip('show');
         $('.event-content').each(function () {
             $(this).html($(this).text().replace(/_(.+)_/, '<strong>$1</strong>'));
         });

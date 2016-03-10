@@ -36,7 +36,7 @@
                     <li role="presentation"><a href="{% url "auth_logout" %}?next=/">Logout</a></li>
                 {% else %}
                     <li role="presentation" {% if show_account_tooltip %}class="add-static-tooltip"{% endif %}
-                        title="Create your account here!"><a href="{% url "registration_register" %}">Register</a></li>
+                        data-placement='bottom' title="Create your account here!"><a href="{% url "registration_register" %}">Register</a></li>
                     <li role="presentation"><a href="{% url "auth_login" %}">Login</a></li>
                 {% endif %}
             </ul>
@@ -112,7 +112,7 @@
         modal.find('.modal-body').html("<img style='width: 100%; height: 100%' src='" + button.data('img') + "' />");
     });
     $.noty.defaults = $.extend(true, $.noty.defaults, {
-        timeout: 3000,
+        timeout: 5000,
         killer: true,
         layout: 'topCenter',
         theme: 'relax',
@@ -123,8 +123,8 @@
     });
     {% for message in messages %}
         noty({
-            text: '{{ message }}',
-            type: '{{ message.tags }}'
+            text: "{{ message|safe }}",
+            type: "{{ message.tags }}"
         });
     {% endfor %}
     {% if form.errors %}
@@ -132,15 +132,18 @@
             noty({
                 timeout: false,
                 layout: 'topRight',
-            {% if field != '__all__' %}
-                text: '{{ field }}: {{ msg }}',
-            {% else %}
-                text: '{{ msg }}',
-            {% endif %}
-            type: 'error'
-        });
+                {% if field != '__all__' %}
+                    text: '{{ field }}: {{ msg }}',
+                {% else %}
+                    text: '{{ msg }}',
+                {% endif %}
+                type: 'error'
+            });
         {% endfor %}
     {% endif %}
+    $(document).ready(function () {
+        $('.add-static-tooltip').tooltip({'trigger': 'manual'}).tooltip('show');
+    });
 </script>
 </body>
 </html>

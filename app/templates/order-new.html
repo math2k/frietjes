@@ -33,6 +33,7 @@
                                 </div>
                                 <div class="panel-body">
                             {% endifchanged %}
+                            <span data-placement="left" title="{% if m.pk in latest_order_items %}This item was in your latest order{% endif %}" class="add-static-tooltip">
                             <a href="javascript:void(0);" class="list-group-item cart-item" data-item-id="{{ m.pk }}"
                                data-item-price="{{ m.unit_price }}">
                                 <button type="button" class="btn btn-xs btn-noborder btn-success pull-right cart-add">
@@ -42,13 +43,14 @@
                                         style="display: none;">
                                     <i class="fa fa-minus"></i>
                                 </button>
-                                <span class="">
+                                <span>
                                     <p class="list-group-item-text pull-left"><strong>{{ m.name }}</strong></p>
                                     <p class="list-group-item-text pull-right">
                                         {{ m.unit_price }}
                                     </p>
                                     <br class="clearfix">
                             </a>
+                            </span>
                         {% endfor %}
                         </div>
                         </div>
@@ -72,20 +74,39 @@
                 <input type="hidden" id="items" name="items" value=""/>
                 {% csrf_token %}
             </div>
-            <button type="submit" style="margin-top: 20px;" class="btn btn-success pull-right">Order</button>
+            <button type="submit" style="margin-top: 20px;" class="btn btn-success pull-right">Place order</button>
         </form>
     </div>
 {% endblock %}
 {% block extra_js %}
     <script>
+    function getText(n){
+        text = {
+                1: "One item, that's reasonable",
+                2: "You're hungry today!",
+                3: "Ho boy, this is getting expensive",
+                4: "Is this all for you ?!",
+                5: "I'd take two of those while you're at it!",
+                6: "Should I book a room for your afternoon nap already ?",
+                7: "Yeah, sure. This is for tomorrow, right ?",
+                8: "I'll let the delivery person know that he needs a truck",
+                9: "Right, I quit, order everything you want!"
+            };
+        if(n > 0 && n <= Object.keys(text).length) {
+            return '<br />' + text[n];
+        } else {
+            return '';
+        }
+    }
         $(document).on('click', '.cart-add', function () {
             $new_item = $(this).parents('.cart-item').clone();
             $new_item.children('button.cart-add').hide();
             $new_item.children('button.cart-remove').show();
             $("#cart").append($new_item);
             updateTotal();
+
             noty({
-                text: 'Item added to cart',
+                text: 'Item added to cart' + getText($("#cart .cart-item").length),
                 type: 'success'
             });
             return false;
@@ -93,7 +114,7 @@
         $(document).on('click', '.cart-remove', function () {
             $(this).parents('.cart-item').remove();
             noty({
-                text: 'Item removed from cart',
+                text: 'Item removed from cart, make up your mind!',
                 type: 'error'
             });
             updateTotal();

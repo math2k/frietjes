@@ -1,31 +1,189 @@
 {% extends "base.html" %}
 {% load humanize %}
 
-{% block jumbo %}
-    <div class="jumbotron">
-        {% if user.is_authenticated %}
-            <h1>Hi, hungry {{ user.username }}</h1>
-        {% else %}
-            <h1>What's for lunch today ?</h1>
-        {% endif %}
-        {% if open_order %}
-            <p>Some orders are open, make your choice below!</p>
-        {% else %}
-            <p>Sorry, no order is open at the moment.. <a href="{% url "admin:app_order_add" %}">create one yourself
-                ?</a></p>
-        {% endif %}
-        {% if unpaid_orders %}
-            <span class="text-warning">
-            You seem to have unpaid orders:
-                {% for o in unpaid_orders %}
-                    <a href="{% url 'order-view' order=o.order.pk %}">{{ o.order.date }}</a>
-                {% endfor %}
-            </span>
-        {% endif %}
-    </div>
+{% block page_title %}
+    {% if user.is_authenticated %}
+        Hi, hungry {{ user.username }}
+    {% else %}
+        What's for lunch today ?
+    {% endif %}
+{% endblock %}
+
+{% block page_title_text %}
+    {% if open_order %}
+        <p>Some orders are open, make your choice below!</p>
+    {% else %}
+        <p>Sorry, no order is open at the moment.. <a href="{% url "admin:app_order_add" %}">create one yourself
+            ?</a></p>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
+    <!-- Content ================================================== -->
+    <div class="container margin_60_35">
+
+        <div class="main_title">
+            <h2 class="nomargin_top" style="padding-top:0">How it works</h2>
+            <p>
+                It's so easy, even a cat could order food.
+            </p>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="box_home" id="one">
+                    <span>1</span>
+                    <div class="icon icon-search"></div>
+                    <h3>Find an open group order</h3>
+                    <p>
+                        At one of the available places below.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="box_home" id="two">
+                    <span>2</span>
+                    <div class="icon icon-cursor"></div>
+                    <h3>Place your order</h3>
+                    <p>
+                        Select your food in the menu.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="box_home" id="three">
+                    <span>3</span>
+                    <div class="icon icon-food"></div>
+                    <h3>Enjoy your food</h3>
+                    <p>
+                        With your colleagues, or without.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="box_home" id="four">
+                    <span>4</span>
+                    <div class="icon icon-money-2"></div>
+                    <h3>Pay your order</h3>
+                    <p>
+                        Pay the manager of the group order.
+                    </p>
+                </div>
+            </div>
+        </div><!-- End row -->
+        <div class="row">
+
+            <div class="col-md-3">
+                <div id="filters_col">
+                    <div class="filter_type">
+                        <h5>Your orders</h5>
+                        <hr>
+                        {% for uo in my_orders %}
+                            <ul>
+                                <li>
+                                    <a href="{% url "user-order-view" user_order=uo.pk %}">
+                                        {{ uo.order.date|date:"D j M" }}</a>
+                                    <span class="pull-right">
+                                    {% if uo.order.delivered %}
+                                        <span class="label label-success">Delivered</span>
+                                    {% endif %}
+                                        {% if not uo.paid %}
+                                            <span class="label label-danger">Not paid</span>
+                                        {% endif %}
+                                    </span>
+                                </li>
+                            </ul>
+                            {% empty %}
+                            No orders
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+
+                <div class="row">
+                    {% for order in all_orders %}
+                        {% if forloop.counter|divisibleby:2 %}
+                            <div class="row">
+                        {% endif %}
+
+                    <div class="col-md-6 col-sm-6  fadeIn" data-wow-delay="0.1s">
+                        {% if request.user.is_staff %}
+                            <span class="pull-right">
+                                    <a href="{% url "admin:app_order_change" order.pk %}" class="add-tooltip"
+                                       title="View order in admin">
+                                        <i class="icon-pencil"></i>
+                                    </a>
+                                {% if order.userorder_set.all|length > 0 %}
+                                    <a href="{% url "pick-random" o=order.pk %}" class="add-tooltip"
+                                       title="Pick a random delivery person">
+                                        <i class="icon-truck"></i>
+                                    </a>
+                                {% endif %}
+                                    </span>
+                        {% endif %}
+                        <div class="strip_list grid">
+
+                            <div class="desc">
+                                <h3>
+                                    <a href="{% url "order-view" order=order.pk %}">
+                                        {{ order.provider.name }}
+                                    </a>
+                                </h3>
+                                <div class="type">
+                                    {{ order.date }}
+                                </div>
+                                <div class="location">
+                                    {% if order.open and order.closing_time %}
+                                        <span class="opening">Order before
+                                            {{ order.closing_time|date:"H:i" }}</span>
+                                    {% endif %}
+                                    {% if order.open and order.closing_time %}
+                                        <span class="">Expected delivery {{ order.delivery_time|date:"H:i" }}</span>
+                                    {% endif %}
+                                    <br/>
+                                    Delivered by:
+                                    {% if order.delivery_person %}
+                                        {{ order.delivery_person.username }}
+                                    {% else %}
+                                        {% if order.open %}
+                                            you ?
+                                        {% endif %}
+                                    {% endif %}
+                                    <br/>
+                                    Current order: {{ order.total }}€
+                                </div>
+                                <div style="margin-top: 30px;">
+                                    {% if order.open %}
+                                        <a href="{% url "order" order=order.pk %}"
+                                           class="btn btn-success btn-md">
+                                            Order
+                                        </a>
+                                    {% else %}
+                                        <span class="label label-danger">Closed</span>
+                                        {% if order.has_unpaid_user_order %}
+                                            <span class="label label-warning">Not fully paid</span>&nbsp;
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div><!-- End strip_list-->
+                    </div><!-- End col-md-6-->
+                    {% if forloop.counter|divisibleby:2 %}
+                        </div>
+                    {% endif %}
+                    {% endfor %}
+                </div><!-- End row-->
+            </div><!-- End col-md-9-->
+            <div class="col-md-3">
+
+
+            </div><!--End col-md -->
+        </div><!-- End row -->
+    </div><!-- End container -->
+{% endblock %}
+
+{% block contentttt %}
     <div class="clearfix"></div>
     <div class="row">
         <div class="col-lg-6">

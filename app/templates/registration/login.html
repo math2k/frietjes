@@ -4,30 +4,33 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-
-    <div class="row">
-        <div class="col-md-4 col-md-offset-4">
-            <form class="form-horizontal" method="post" action="{% url 'auth_login' %}">
-                {% csrf_token %}
-                <input type="hidden" name="next" value="{{ next }}" />
-                <div class="form-group">
-                    <label class="col-xs-4 control-label" for="id_username">Name</label>
-                    <div class="col-xs-8">
-                        {{ form.username|add_class:"form-control" }}
+    <div class="container margin_60_35">
+        <div class="col-md-6 col-md-offset-3">
+            <div class="box_style_2">
+                <h2 class="inner">Login</h2>
+                <form class="form-horizontal" method="post" action="{% url 'auth_login' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next }}"/>
+                    <div class="form-group">
+                        <label class="col-xs-4 control-label" for="id_username">Name</label>
+                        <div class="col-xs-8">
+                            {{ form.username|add_class:"form-control" }}
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-xs-4 control-label" for="id_password1">Password</label>
-                    <div class="col-xs-8">
-                        {{ form.password|add_class:"form-control" }}
+                    <div class="form-group">
+                        <label class="col-xs-4 control-label" for="id_password1">Password</label>
+                        <div class="col-xs-8">
+                            {{ form.password|add_class:"form-control" }}
+                        </div>
                     </div>
-                </div>
-                <div class="control-group">
-                    <div class="controls">
-                        <button type="submit" class="btn btn-success pull-right">Login</button>
+                    <div class="control-group">
+                        <div class="controls">
+                            <button type="submit" class="btn btn-success pull-right">Login</button>
+                        </div>
                     </div>
-                </div>
-            </form>
+                    <div class="clearfix"></div>
+                </form>
+            </div>
         </div>
     </div>
 {% endblock %}

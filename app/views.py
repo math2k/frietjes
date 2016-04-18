@@ -28,13 +28,17 @@ class HomeView(TemplateView):
         if self.request.GET.get('all'):
             ctx['all_orders'] = Order.objects.all().order_by("-pk")
         else:
-            ctx['all_orders'] = Order.objects.all().order_by("-pk")[:6]
+            ctx['all_orders'] = Order.objects.all().order_by("-pk")[:10]
         ctx['open_order'] = Order.objects.filter(open=True).order_by("-date").last()
         ctx['col_size'] = int(len(ctx['all_orders']) / 2)
         #ctx['feed_entries'] = FeedEntry.objects.filter(datetime__day=datetime.datetime.now().day).order_by('-datetime')[:15]
         ctx['feed_entries'] = FeedEntry.objects.filter().order_by('-datetime')[:15]
         ctx['show_notification_tooltip'] = False if self.request.COOKIES.get('show_notification_tooltip') == '0' else True
         ctx['show_account_tooltip'] = False if self.request.COOKIES.get('show_account_tooltip') == '0' else True
+        if self.request.user.is_authenticated():
+            ctx['my_orders'] = UserOrder.objects.filter(user=self.request.user).order_by('-order__date')
+        else:
+            ctx['my_orders'] = []
         if self.request.user.is_authenticated():
             ctx['unpaid_orders'] = UserOrder.objects.filter(user=self.request.user, paid=False, order__open=False)
         return ctx
@@ -84,13 +88,12 @@ class OrderFormView(FormView):
 
 
 @method_decorator(login_required, name='dispatch')
-class NewOrderFormView(FormView):
-    template_name = "order-new.html"
+class CreateUserOrderFormView(FormView):
+    template_name = "userorder_form.html"
     form_class = UserOrderForm
-    success_url = reverse_lazy('home')
 
     def get_context_data(self, **kwargs):
-        ctx = super(NewOrderFormView, self).get_context_data(**kwargs)
+        ctx = super(CreateUserOrderFormView, self).get_context_data(**kwargs)
         ctx['order'] = get_object_or_404(Order, pk=self.kwargs['order'])
         ctx['menu_items'] = MenuItem.objects.filter(category__provider=ctx['order'].provider).select_related('category').order_by('category__order', 'name')
         if self.request.POST:
@@ -110,13 +113,16 @@ class NewOrderFormView(FormView):
             return self.form_invalid(form)
         form.instance.user = self.request.user
         form.instance.save()
+        self.instance = form.instance
         for i in items:
             uoi = UserOrderItem()
             uoi.menu_item_id = i
             uoi.user_order_id = form.instance.pk
             uoi.save()
-        messages.success(self.request, "Sit back, relax, your order has been saved!")
-        return super(NewOrderFormView, self).form_valid(form)
+        return super(CreateUserOrderFormView, self).form_valid(form)
+
+    def get_success_url(self):
+        return "{0}?success=1".format(reverse_lazy('user-order-view', kwargs={'user_order': self.instance.pk }))
 
 
 class TogglePaidFlag(View):
@@ -164,13 +170,23 @@ class PickRandomDeliveryPerson(View):
 
 
 class OrderView(TemplateView):
-    template_name = "order-view.html"
+    template_name = "order_view.html"
 
     def get_context_data(self, **kwargs):
         ctx = super(OrderView, self).get_context_data(**kwargs)
         ctx['order'] = Order.objects.get(pk=kwargs['order'])
         ctx['order_items'] = UserOrderItem.objects.filter(user_order__order=ctx['order']). \
             values('menu_item__name').annotate(count=Count('menu_item__name')).order_by('menu_item__category__order')
+        return ctx
+
+
+class UserOrderView(TemplateView):
+    template_name = "userorder_view.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super(UserOrderView, self).get_context_data(**kwargs)
+        ctx['user_order'] = UserOrder.objects.get(pk=kwargs['user_order'])
+        ctx['success'] = 'success' in self.request.GET
         return ctx
 
 

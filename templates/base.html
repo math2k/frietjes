@@ -70,9 +70,8 @@
                                 <a href="{% url 'notifications' %}">Notifications</a></li>
                             <li role="presentation"><a href="{% url "auth_logout" %}?next=/">Logout</a></li>
                         {% else %}
-                            <li role="presentation" {% if show_account_tooltip %}class="add-static-tooltip"{% endif %}
-                                data-placement='bottom' title="Create your account here!"><a
-                                    href="{% url "registration_register" %}">Register</a></li>
+                            <li role="presentation">
+                                <a href="{% url "registration_register" %}">Register</a></li>
                             <li><a href="#0" data-toggle="modal" data-target="#login_2">Login</a></li>
                         {% endif %}
                     </ul>
@@ -157,10 +156,10 @@
                 <div class="login_icon"><i class="icon_lock_alt"></i></div>
                 <input type="text" name="username" class="form-control form-white" placeholder="Username">
                 <input type="password" name="password" class="form-control form-white" placeholder="Password">
-                <div class="text-left">
+                <div class="text-left hidden">
                     <a href="#">Forgot Password?</a>
                 </div>
-                <button type="submit" class="btn btn-submit">Submit</button>
+                <button type="submit" class="btn btn-success text-center">Login</button>
                 {% csrf_token %}
             </form>
         </div>

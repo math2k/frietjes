@@ -122,7 +122,7 @@ class MenuItemCategory(models.Model):
     provider = models.ForeignKey(FoodProvider)
 
     def __unicode__(self):
-        return u"{0}".format(self.name)
+        return u"{0} from {1}".format(self.name, self.provider.name)
 
 
 class MenuItem(models.Model):

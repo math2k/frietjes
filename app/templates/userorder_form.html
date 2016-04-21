@@ -7,7 +7,8 @@
 {% endblock %}
 
 {% block page_title_text %}
-    {{ order.provider.address }}
+    <div class="icon icon-location-1">{{ order.provider.address }}</div>
+    <div class="icon icon-phone">{{ order.provider.phone }}</div>
 {% endblock %}
 
 {% block content %}
@@ -27,7 +28,19 @@
                         </div><!-- End box_style_1 -->
 
                         <div class="box_style_2 hidden-xs" id="help">
-                            <i class="icon_lifesaver"></i>
+                            <i class="icon icon-truck"></i>
+                            {% if order.delivery_person %}
+                                <h4>Delivery</h4>
+                                {{ order.delivery_person.username }} is taking care of the delivery today.
+                            {% else %}
+                                <h4>Delivery ?</h4>
+                                Food won't magically appear in the office.<br/>
+                                Would you have time today to be the delivery person ?<br/>
+                                Get in touch with <strong>{{ order.manager }}</strong> to volunteer!
+                            {% endif %}
+                        </div>
+                        <div class="box_style_2 hidden-xs" id="help">
+                            <i class="icon icon-lifebuoy"></i>
                             <h4>Need <span>Help?</span></h4>
                             Contact {{ order.manager }} if you require assistance with this order.
                         </div>
@@ -56,11 +69,11 @@
                                 <tr class="cart-item" data-item-id="{{ m.pk }}" data-item-price="{{ m.unit_price }}">
                                     <td>
                                         <h5>
-                                            {{ m.name }}
                                             {% if m.pk in latest_order_items %}
-                                                <i class="fa fa-star add-tooltip text-warning"
-                                                   title="This item was in your latest order"></i>
+                                                <i class="fa fa-star add-tooltip latest-order-start"
+                                                   title="This item was part of your latest order"></i>
                                             {% endif %}
+                                            {{ m.name }}
                                         </h5>
                                         <p>
                                             {{ m.description }}
@@ -69,9 +82,10 @@
                                     <td>
                                         <strong>€&nbsp;{{ m.unit_price }}</strong>
                                     </td>
-                                    <td class="options">
+                                    <td class="text-center">
                                         <a href="javascript:void(0);" class="cart-add" data-item-id="{{ m.pk }}"
-                                           data-item-price="{{ m.unit_price }}"><i class="icon_plus_alt2"></i></a>
+                                           data-item-price="{{ m.unit_price }}"><i
+                                                class="icon-plus-squared cart-add-button"></i></a>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -90,8 +104,6 @@
                                 </tr>
                             </table>
                             <hr>
-                            No one has volunteered for the delivery yet.
-                            <hr>
                             {{ user_order.notes|add_class:"form-control" }}
                             <hr>
                             <table class="table table_summary">
@@ -104,7 +116,8 @@
                                 </tbody>
                             </table>
                             <hr>
-                            <button type="submit" class="btn_full">Order now</button>
+                            <button type="submit" class="btn btn-success pull-right">Order now</button>
+                            <div class="clearfix"></div>
                         </div><!-- End cart_box -->
                     </div><!-- End theiaStickySidebar -->
                 </div><!-- End col-md-3 -->
@@ -207,7 +220,7 @@
         $(document).on('click', '.cart-add', function () {
             var $item = $(this).parents('.cart-item');
             var $new_item = $('<tr class="cart-item" data-item-id="' + $item.data('item-id') + '" data-item-price="' + $item.data('item-price') + '"><td>' +
-                    '<a href="javascript:void(0);" class="cart-remove"><i class="icon-minus cart-remove-button"></i></a> ' + $item.find('td').first().text() + '</td>' +
+                    '<a href="javascript:void(0);" class="cart-remove"><i class="icon-minus-squared cart-remove-button"></i></a> ' + $item.find('td').first().text() + '</td>' +
                     '<td><strong class="pull-right">€ ' + $item.data('item-price') + '</strong></td></tr>');
             $new_item.children('button.cart-add').hide();
             $new_item.children('button.cart-remove').show();

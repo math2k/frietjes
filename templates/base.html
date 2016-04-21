@@ -23,6 +23,7 @@
     <!-- GOOGLE WEB FONT -->
     <link href='https://fonts.googleapis.com/css?family=Lato:400,700,900,400italic,700italic,300,300italic'
           rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
 
     <!-- BASE CSS -->
     <link href="{% static 'css/base.css' %}" rel="stylesheet">
@@ -36,7 +37,7 @@
 
 </head>
 
-<body>
+<body id="4lunch">
 
 <!--[if lte IE 8]>
     <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a>.</p>
@@ -63,6 +64,7 @@
                     </div>
                     <a href="#" class="open_close" id="close_in"><i class="icon_close"></i></a>
                     <ul>
+                        <li role="presentation" class=""><a href="/">Home</a></li>
                         {% if user.is_authenticated %}
                             <li role="presentation"
                                 {% if show_notification_tooltip %}class="add-static-tooltip"{% endif %}
@@ -118,7 +120,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div id="social_footer">
-                    <p>© Quick Food 2015</p>
+                    <p>© 4lunch.eu</p>
                 </div>
             </div>
         </div><!-- End row -->

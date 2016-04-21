@@ -20,8 +20,8 @@
                         <div class="box_style_1">
                             <ul id="cat_nav">
                                 {% for m in menu_items %}
-                                    {% ifchanged m.category %}
-                                        <li><a href="#{{ m.category|slugify }}">{{ m.category }}</a></li>
+                                    {% ifchanged m.category.name %}
+                                        <li><a href="#{{ m.category.name|slugify }}">{{ m.category.name }}</a></li>
                                     {% endifchanged %}
                                 {% endfor %}
                             </ul>

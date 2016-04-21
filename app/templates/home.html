@@ -134,16 +134,19 @@
                                     {{ order.date }}
                                 </div>
                                 <div class="location">
-                                    <div class="col-xs-6 text-left">
-                                        {% if order.open and order.closing_time %}
-                                            <span class="opening">Order before
-                                                {{ order.closing_time|date:"H:i" }}</span>
-                                        {% endif %}
-                                        {% if order.open and order.delivery_time %}
-                                            <span class="">Expected delivery {{ order.delivery_time|date:"H:i" }}</span>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-xs-6 text-left" style="margin-bottom: 30px;">
+                                    {% if order.open and order.closing_time or order.delivery_time %}
+                                        <div class="col-xs-6 text-left">
+                                            {% if order.open and order.closing_time %}
+                                                <span class="opening">Order before
+                                                    {{ order.closing_time|date:"H:i" }}</span>
+                                            {% endif %}
+                                            {% if order.open and order.delivery_time %}
+                                                <span class="">Expected delivery
+                                                    {{ order.delivery_time|date:"H:i" }}</span>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="col-xs-6 {% if order.open and order.closing_time or order.delivery_time %}col-offset-xs-3{% endif %} text-left">
                                         Delivered by:
                                         {% if order.delivery_person %}
                                             {{ order.delivery_person.username }}
@@ -155,6 +158,7 @@
                                         <br/>
                                         Current order: {{ order.total }}€
                                     </div>
+                                    <div class="clearfix"></div>
                                 </div>
                                 <div style="margin-top: 30px;">
                                     {% if order.open %}

@@ -66,10 +66,8 @@
                     <ul>
                         <li role="presentation" class=""><a href="/">Home</a></li>
                         {% if user.is_authenticated %}
-                            <li role="presentation"
-                                {% if show_notification_tooltip %}class="add-static-tooltip"{% endif %}
-                                title="Never miss good lunch again, get notified when someone starts an order!"><a
-                                    href="{% url 'notifications' %}">Notifications</a></li>
+                            <li role="presentation">
+                                <a href="{% url 'notifications' %}">Notifications</a></li>
                             <li role="presentation"><a href="{% url "auth_logout" %}?next=/">Logout</a></li>
                         {% else %}
                             <li role="presentation" {% if show_account_tooltip %}class="add-static-tooltip"{% endif %}

@@ -47,20 +47,21 @@
 <header class="hidden-print">
     <div class="container-fluid">
         <div class="row">
-            <div class="col--md-4 col-sm-4 col-xs-4">
+            <div class="col-md-8 col-sm-8 col-xs-8">
                 <a href="/" id="logo">
                     <img src="{% static 'img/logo_mobile_2x.png' %}" width="59" height="23" alt="" data-retina="true"
                          class="hidden-xs">
                     <img src="{% static 'img/logo_mobile.png' %}" width="59" height="23" alt="" data-retina="true"
                          class="hidden-lg hidden-md hidden-sm">
                 </a>
-                <span class="hidden-xs subtitle">What's 4lunch ?</span>
+                <span class="subtitle">What's 4lunch ?</span>
             </div>
-            <nav class="col--md-8 col-sm-8 col-xs-8">
+            <nav class="col-md-4 col-sm-4 col-xs-4">
                 <a class="cmn-toggle-switch cmn-toggle-switch__htx open_close" href="javascript:void(0);"><span>Menu mobile</span></a>
                 <div class="main-menu">
                     <div id="header_menu">
-                        <img src="{% static 'img/logo.png' %}" width="190" height="23" alt="" data-retina="true">
+                        <img src="{% static 'img/logo_mobile.png' %}" width="59" height="23" alt="" data-retina="true">
+                        <span class="subtitle">What's 4lunch ?</span>
                     </div>
                     <a href="#" class="open_close" id="close_in"><i class="icon_close"></i></a>
                     <ul>
@@ -90,11 +91,20 @@
             <p>{% block page_title_text %}{% endblock %}</p>
         </div><!-- End sub_content -->
     </div><!-- End subheader -->
+    {% comment %}
+        <div id="count" class="hidden-xs">
+            <ul>
+                <li><span class="number">2650</span> Restaurant</li>
+                <li><span class="number">5350</span> People Served</li>
+                <li><span class="number">12350</span> Registered Users</li>
+            </ul>
+        </div>{% endcomment %}
 </section><!-- End section -->
 
 <div class="white_bg">
 
     {% block content %}{% endblock %}
+
 </div><!-- End white_bg -->
 
 <!-- Footer ================================================== -->
@@ -117,7 +127,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div id="social_footer">
-                    <p>© 4lunch.eu</p>
+                    <p>© 4lunch.eu {% if user.is_authenticated %}- <a href="/admin">admin</a>{% endif %}</p>
                 </div>
             </div>
         </div><!-- End row -->
@@ -156,12 +166,13 @@
                 <div class="login_icon"><i class="icon_lock_alt"></i></div>
                 <input type="text" name="username" class="form-control form-white" placeholder="Username">
                 <input type="password" name="password" class="form-control form-white" placeholder="Password">
-                <div class="text-left hidden">
-                    <a href="#">Forgot Password?</a>
-                </div>
                 <button type="submit" class="btn btn-success text-center">Login</button>
                 {% csrf_token %}
             </form>
+            <div class="pull-right">
+                <a href="{% url "auth_password_reset" %}">Forgot Password?</a>
+            </div>
+            <div class="clearfix"></div>
         </div>
     </div>
 </div><!-- End modal -->

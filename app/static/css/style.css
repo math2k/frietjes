@@ -288,6 +288,20 @@ a.button_intro.outilne, .button_intro.outline  {
 /* Header */
 header{
 	width:100%;
+	position:fixed;
+	padding-top:15px;
+	top:0;
+	left:0;
+	z-index:99999;
+}
+header.sticky{
+	background-color: #4298B5;
+	-webkit-box-shadow: 0px 2px 10px -2px rgba(0, 0, 0, 0.41);
+	-moz-box-shadow:0px 2px 10px -2px rgba(0, 0, 0, 0.41);
+	box-shadow:0px 2px 10px -2px rgba(0, 0, 0, 0.41);
+}
+/*header{
+	width:100%;
 	padding-top:15px;
 	background-color: #4298B5;
 	-webkit-box-shadow: 0px 2px 10px -2px rgba(0, 0, 0, 0.41);
@@ -302,7 +316,7 @@ header{
 	top:0;
 	left:0;
 	z-index:99999;
-}
+}*/
 
 #subheader{
 	text-align:center;
@@ -910,10 +924,10 @@ a.strip_list:hover h3{
 .box_style_2#main_menu, .box_style_2.info{
 	padding-bottom:10px;
 }
-.box_style_2#help{
+.box_style_2.left{
 	text-align:center;
 }
-.box_style_2#help i{
+.box_style_2.left i{
 	font-size:52px;
 	display:inline-block;
 	color:#999;
@@ -1153,8 +1167,8 @@ ul.additional_links li:first-child{
 	margin-bottom:25px;
 }
 #confirm i{
-	font-size:140px;
-	color: #85c99d;
+	font-size:82px;
+	color: #92b06A;
 	display:inline-block;
 }
 

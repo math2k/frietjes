@@ -22,61 +22,62 @@
     <!-- Content ================================================== -->
     <div class="container margin_60_35">
 
-        <div class="main_title">
-            <h2 class="nomargin_top" style="padding-top:0">How it works</h2>
-            <p>
-                It's so easy, even a cat could order food.
-            </p>
+    <div class="main_title">
+        <h2 class="nomargin_top" style="padding-top:0">How it works</h2>
+        <p>
+            It's so easy, even a cat could order food.<br/>
+            <span style="font-size: 8px">but I hope they won't</span>
+        </p>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="box_home" id="one">
+                <span>1</span>
+                <div class="icon icon-search"></div>
+                <h3>Find an open group order</h3>
+                <p>
+                    At one of the available places below.
+                </p>
+            </div>
         </div>
-        <div class="row">
-            <div class="col-md-3">
-                <div class="box_home" id="one">
-                    <span>1</span>
-                    <div class="icon icon-search"></div>
-                    <h3>Find an open group order</h3>
-                    <p>
-                        At one of the available places below.
-                    </p>
-                </div>
+        <div class="col-md-3">
+            <div class="box_home" id="two">
+                <span>2</span>
+                <div class="icon icon-cursor"></div>
+                <h3>Place your order</h3>
+                <p>
+                    Select your food in the menu.
+                </p>
             </div>
-            <div class="col-md-3">
-                <div class="box_home" id="two">
-                    <span>2</span>
-                    <div class="icon icon-cursor"></div>
-                    <h3>Place your order</h3>
-                    <p>
-                        Select your food in the menu.
-                    </p>
-                </div>
+        </div>
+        <div class="col-md-3">
+            <div class="box_home" id="three">
+                <span>3</span>
+                <div class="icon icon-food"></div>
+                <h3>Enjoy your food</h3>
+                <p>
+                    With your colleagues, or without.
+                </p>
             </div>
-            <div class="col-md-3">
-                <div class="box_home" id="three">
-                    <span>3</span>
-                    <div class="icon icon-food"></div>
-                    <h3>Enjoy your food</h3>
-                    <p>
-                        With your colleagues, or without.
-                    </p>
-                </div>
+        </div>
+        <div class="col-md-3">
+            <div class="box_home" id="four">
+                <span>4</span>
+                <div class="icon icon-money-2"></div>
+                <h3>Pay your order</h3>
+                <p>
+                    Pay the manager of the group order.
+                </p>
             </div>
-            <div class="col-md-3">
-                <div class="box_home" id="four">
-                    <span>4</span>
-                    <div class="icon icon-money-2"></div>
-                    <h3>Pay your order</h3>
-                    <p>
-                        Pay the manager of the group order.
-                    </p>
-                </div>
-            </div>
-        </div><!-- End row -->
-        <div class="row">
-
-            <div class="col-md-3">
-                <div id="filters_col">
-                    <div class="filter_type">
-                        <h5>Your orders</h5>
-                        <hr style="margin-top: 0px;">
+        </div>
+    </div><!-- End row -->
+    <div class="row">
+        <div class="col-md-3">
+            <div id="filters_col">
+                <div class="filter_type">
+                    <h5>Your orders</h5>
+                    <hr style="margin-top: 0px;">
+                    {% if user.is_authenticated %}
                         {% for uo in my_orders %}
                             <ul>
                                 <li>
@@ -95,18 +96,19 @@
                             {% empty %}
                             No orders
                         {% endfor %}
-                    </div>
+
+                    {% else %}
+                        <p>Please <a href="#0" data-toggle="modal" data-target="#login_2">login</a> to view your orders
+                        </p>
+                    {% endif %}
                 </div>
             </div>
+        </div>
 
-            <div class="col-md-9">
+        <div class="col-md-9">
 
-                <div class="row">
-                    {% for order in all_orders %}
-                        {% if forloop.counter|divisibleby:2 %}
-                            <div class="row">
-                        {% endif %}
-
+            <div class="row">
+                {% for order in all_orders %}
                     <div class="col-md-6 col-sm-6  fadeIn" data-wow-delay="0.1s">
                         {% if request.user.is_staff %}
                             <span class="pull-right">
@@ -125,11 +127,20 @@
                         <div class="strip_list grid">
 
                             <div class="desc">
+                            <a href="{% url "order-view" order=order.pk %}">
                                 <h3>
-                                    <a href="{% url "order-view" order=order.pk %}">
                                         {{ order.provider.name }}
-                                    </a>
                                 </h3>
+                                {% if order.provider.logo %}
+                                    <div class="thumb_strip">
+                                        <img src="{{ order.provider.logo.url }}" alt=""/>
+                                    </div>
+                                {% else %}
+                                    <div class="thumb_strip">
+                                        <i class="icon icon-shop-1" style="font-size: 70px; opacity: 0.5; vertical-align: middle"></i>
+                                    </div>
+                                {% endif %}
+                            </a>
                                 <div class="type">
                                     {{ order.date }}
                                 </div>
@@ -148,7 +159,7 @@
                                             </div>
                                         {% endif %}
                                     {% endif %}
-                                    <div class="col-xs-6 {% if order.open %}{% if order.closing_time or order.delivery_time %}col-offset-xs-3{% endif %}{% endif %} text-left">
+                                    <div class="{% if order.open %}{% if order.closing_time or order.delivery_time %}col-offset-xs-3{% endif %}{% endif %} text-left">
                                         Delivered by:
                                         {% if order.delivery_person %}
                                             {{ order.delivery_person.username }}
@@ -178,16 +189,8 @@
                             </div>
                         </div><!-- End strip_list-->
                     </div><!-- End col-md-6-->
-                    {% if forloop.counter|divisibleby:2 %}
-                        </div>
-                    {% endif %}
-                    {% endfor %}
-                </div><!-- End row-->
-            </div><!-- End col-md-9-->
-            <div class="col-md-3">
-
-
-            </div><!--End col-md -->
+                {% endfor %}
+            </div><!-- End row-->
         </div><!-- End row -->
     </div><!-- End container -->
 {% endblock %}

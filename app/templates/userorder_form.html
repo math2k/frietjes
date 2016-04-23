@@ -8,7 +8,8 @@
 
 {% block page_title_text %}
     <div class="icon icon-location-1">&nbsp;{{ order.provider.address }}</div>
-    {% if order.provider.phone %}<div class="icon icon-phone">&nbsp;{{ order.provider.phone }}</div>{% endif %}
+    {% if order.provider.phone %}
+        <div class="icon icon-phone">&nbsp;{{ order.provider.phone }}</div>{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -17,6 +18,20 @@
             <div class="row">
                 <div class="col-md-3 sidebar">
                     <div class="theiaStickySidebar">
+                        <div class="box_style_2 left">
+                            <img src="{{ order.provider.logo.url }}" style="width: 80%; height: 80%"/>
+                            {% if order.provider.menuimage_set.all %}
+                                <p>
+                                    View the full menu:<br/>
+                                    {% for i in order.provider.menuimage_set.all %}
+                                        <a data-toggle="modal" data-target="#image-modal" data-img="{{ i.image.url }}"
+                                           class="fa fa-file-text-o add-tooltip"
+                                           title="Image {{ forloop.counter }}"></a>
+                                        &nbsp;
+                                    {% endfor %}
+                                </p>
+                            {% endif %}
+                        </div>
                         <div class="box_style_1">
                             <ul id="cat_nav">
                                 {% for m in menu_items %}
@@ -25,9 +40,8 @@
                                     {% endifchanged %}
                                 {% endfor %}
                             </ul>
-                        </div><!-- End box_style_1 -->
-
-                        <div class="box_style_2 hidden-xs" id="help">
+                        </div>
+                        <div class="box_style_2 left">
                             <i class="icon icon-truck"></i>
                             {% if order.delivery_person %}
                                 <h4>Delivery</h4>
@@ -39,7 +53,7 @@
                                 Get in touch with <strong>{{ order.manager }}</strong> to volunteer!
                             {% endif %}
                         </div>
-                        <div class="box_style_2 hidden-xs" id="help">
+                        <div class="box_style_2 left">
                             <i class="icon icon-lifebuoy"></i>
                             <h4>Need <span>Help?</span></h4>
                             Contact {{ order.manager }} if you require assistance with this order.

@@ -31,6 +31,8 @@ class MenuImage(models.Model):
 class FoodProvider(models.Model):
     name = models.CharField(max_length=50)
     address = models.CharField(max_length=300)
+    phone = models.CharField(max_length=20, null=True)
+    logo = models.ImageField(upload_to='logos', null=True)
 
     def __unicode__(self):
         return u"{0}".format(self.name)

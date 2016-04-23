@@ -34,6 +34,11 @@
                             <i class="icon_check_alt2"></i>
                             <h3>Thank you!</h3>
                             <p>
+                                You order has been saved.<br/>
+                                {% if user_order.order.delivery_time %}
+                                   The estimated delivery time for this order is: <strong>{{ user_order.order.delivery_time }}</strong><br />
+                                    To be notified by email when your order has been delivered, <br />you can <a href="{% url "notifications" %}">activate the delivery notification</a> if you haven't already.
+                                {% endif %}
                             </p>
                         </div>
                     {% endif %}

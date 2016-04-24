@@ -4,6 +4,7 @@ import datetime
 import random
 import uuid
 
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Count
@@ -229,6 +230,7 @@ class NotificationCancelFormView(RedirectView):
         return reverse_lazy('home')
 
 
+@method_decorator(staff_member_required, name='dispatch')
 class ImportMenuItemsFormView(FormView):
     form_class = ImportMenuItemsForm
     template_name = "import.html"

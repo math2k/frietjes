@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load staticfiles %}
+
+{% block page_title %}
+    {{ order.provider }}
+{% endblock %}
+
+{% block page_title_text %}
+    <div class="icon icon-location-1">&nbsp;{{ order.provider.address }}</div>
+    {% if order.provider.phone %}
+        <div class="icon icon-phone">&nbsp;{{ order.provider.phone }}</div>{% endif %}
+{% endblock %}
+
+{% block content %}
+    <form action="" method="post" class="order">
+        <div class="container margin_60_35">
+            <div class="row">
+                <div class="col-md-3 sidebar">
+                    <div class="theiaStickySidebar">
+                        <div class="box_style_2 left">
+                            <img src="{{ order.provider.logo.url }}" style="width: 80%; height: 80%"/>
+                            {% if order.provider.menuimage_set.all %}
+                                <p>
+                                    View the full menu:<br/>
+                                    {% for i in order.provider.menuimage_set.all %}
+                                        <a data-toggle="modal" data-target="#image-modal" data-img="{{ i.image.url }}"
+                                           class="fa fa-file-text-o add-tooltip"
+                                           title="Image {{ forloop.counter }}"></a>
+                                        &nbsp;
+                                    {% endfor %}
+                                </p>
+                            {% endif %}
+                        </div>
+                        <div class="box_style_1">
+                            <ul id="cat_nav">
+                                {% for m in menu_items %}
+                                    {% ifchanged m.category.name %}
+                                        <li><a href="#{{ m.category.name|slugify }}">{{ m.category.name }}</a></li>
+                                    {% endifchanged %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="box_style_2 left">
+                            <i class="icon icon-truck"></i>
+                            {% if order.delivery_person %}
+                                <h4>Delivery</h4>
+                                {{ order.delivery_person.username }} is taking care of the delivery today.
+                            {% else %}
+                                <h4>Delivery ?</h4>
+                                Food won't magically appear in the office.<br/>
+                                Would you have time today to be the delivery person ?<br/>
+                                Get in touch with <strong>{{ order.manager }}</strong> to volunteer!
+                            {% endif %}
+                        </div>
+                        <div class="box_style_2 left">
+                            <i class="icon icon-lifebuoy"></i>
+                            <h4>Need <span>Help?</span></h4>
+                            Contact {{ order.manager }} if you require assistance with this order.
+                        </div>
+                    </div>
+                </div><!-- End col-md-3 -->
+
+                <div class="col-md-6">
+                    <div class="box_style_2" id="main_menu">
+                        <h2 class="inner">Menu</h2>
+                        <table>
+                            {% for m in menu_items %}
+                                {% ifchanged m.category %}
+                                    </table>
+
+                                    <h3 class="" id="{{ m.category.name|slugify }}">{{ m.category.name }}</h3>
+
+                                    <table class="table table-striped cart-list">
+                                    <thead>
+                                    <tr>
+                                        <th class="col-xs-9">Item</th>
+                                        <th class="col-xs-2">Price</th>
+                                        <th class="col-xs-1">Order</th>
+                                    </tr>
+                                    </thead>
+                                {% endifchanged %}
+                                <tr class="cart-item" data-item-id="{{ m.pk }}" data-item-price="{{ m.unit_price }}">
+                                    <td>
+                                        <h5>
+                                            {% if m.pk in latest_order_items %}
+                                                <i class="fa fa-star add-tooltip latest-order-start"
+                                                   title="This item was part of your latest order"></i>
+                                            {% endif %}
+                                            {{ m.name }}
+                                        </h5>
+                                        <p>
+                                            {{ m.description }}
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <strong>€&nbsp;{{ m.unit_price }}</strong>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="javascript:void(0);" class="cart-add" data-item-id="{{ m.pk }}"
+                                           data-item-price="{{ m.unit_price }}"><i
+                                                class="icon-plus-squared cart-add-button"></i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </table>
+
+                    </div><!-- End box_style_1 -->
+                </div><!-- End col-md-6 -->
+
+                <div class="col-md-3 sidebar" id="sidebar">
+                    <div class="theiaStickySidebar">
+                        <div id="cart_box">
+                            <h3>Your order <i class="icon_cart_alt pull-right"></i></h3>
+                            <table class="table table_summary" id="cart">
+                                <tr>
+                                    <td colspan="3" class="no-item-message">No item in your cart</td>
+                                </tr>
+                            </table>
+                            <hr>
+                            {{ user_order.notes|add_class:"form-control" }}
+                            <hr>
+                            <table class="table table_summary">
+                                <tbody>
+                                <tr>
+                                    <td class="total">
+                                        Total <span class="pull-right" id="cart-total">€ 0</span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <hr>
+                            <button type="submit" class="btn btn-success pull-right">Order now</button>
+                            <div class="clearfix"></div>
+                        </div><!-- End cart_box -->
+                    </div><!-- End theiaStickySidebar -->
+                </div><!-- End col-md-3 -->
+
+            </div><!-- End row -->
+        </div><!-- End container -->
+        {% csrf_token %}
+        {{ user_order.order }}
+        <input type="hidden" id="items" name="items" value=""/>
+    </form>
+    <!-- End Content =============================================== -->
+{% endblock %}
+
+{% block contentll %}
+    <div class="row">
+        <form class="form-inline order" method="post">
+            <div class="col-lg-6">
+                <div>
+                    <div>
+                        {% for m in menu_items %}
+                            {% ifchanged m.category %}
+                                </div>
+                                </div>
+                                <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    {{ m.category.name }}
+                                </div>
+                                <div class="panel-body">
+                            {% endifchanged %}
+                            <a href="javascript:void(0);" class="add-static-tooltip list-group-item cart-item"
+                               data-item-id="{{ m.pk }}"
+                               data-item-price="{{ m.unit_price }}">
+                                <button type="button" class="btn btn-xs btn-noborder btn-success pull-right cart-add">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                                <button type="button" class="btn btn-danger btn-xs btn-noborder pull-right cart-remove"
+                                        style="display: none;">
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                                <span>
+                                    <p class="list-group-item-text pull-left">
+                                        {% if m.pk in latest_order_items %}
+                                            <i class="fa fa-star add-tooltip text-warning"
+                                               title="This item was in your latest order"></i>{% endif %}
+                                        <strong>{{ m.name }}</strong>
+                                    </p>
+                                    <p class="list-group-item-text pull-right">
+                                        {{ m.unit_price }}
+                                    </p>
+				</span>
+                                <br class="clearfix">
+                            </a>
+                        {% endfor %}
+                        </div>
+                        </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="fa fa-shopping-cart"></i> Cart
+                        <span class="pull-right">Total: <span id="cart-total">0.00</span>€</span>
+                    </div>
+                    <div id="cart" class="panel-body">
+
+                    </div>
+                    {{ user_order.order|add_class:'form-control' }}
+                </div>
+                <div class="form-group">
+                    {{ user_order.notes|add_class:"form-control" }}
+                </div>
+
+                <input type="hidden" id="items" name="items" value=""/>
+                {% csrf_token %}
+            </div>
+            <button type="submit" style="margin-top: 20px;" class="btn btn-success pull-right">Place order</button>
+        </form>
+    </div>
+{% endblock %}
+{% block extra_js %}
+    <script>
+        function getText(n) {
+            text = {
+                1: "One item, that's reasonable",
+                2: "You're hungry today!",
+                3: "Ho boy, this is getting expensive",
+                4: "Is this all for you ?!",
+                5: "I'd take two of those while you're at it!",
+                6: "Should I book a room for your afternoon nap already ?",
+                7: "Yeah, sure. This is for tomorrow, right ?",
+                8: "I'll let the delivery person know that he needs a truck",
+                9: "Right, I quit, order everything you want!"
+            };
+            if (n > 0 && n <= Object.keys(text).length) {
+                return '<br />' + text[n];
+            } else {
+                return '';
+            }
+        }
+        $(document).on('click', '.cart-add', function () {
+            var $item = $(this).parents('.cart-item');
+            var $new_item = $('<tr class="cart-item" data-item-id="' + $item.data('item-id') + '" data-item-price="' + $item.data('item-price') + '"><td>' +
+                    '<a href="javascript:void(0);" class="cart-remove"><i class="icon-minus-squared cart-remove-button"></i></a> ' + $item.find('td').first().text() + '</td>' +
+                    '<td><strong class="pull-right">€ ' + $item.data('item-price') + '</strong></td></tr>');
+            $new_item.children('button.cart-add').hide();
+            $new_item.children('button.cart-remove').show();
+            $("#cart").append($new_item);
+            updateTotal();
+
+            noty({
+                text: 'Item added to cart' + getText($("#cart .cart-item").length),
+                type: 'success'
+            });
+            return false;
+        });
+        $(document).on('click', '.cart-remove', function () {
+            $(this).parents('.cart-item').remove();
+            noty({
+                text: 'Item removed from cart, make up your mind!',
+                type: 'warning'
+            });
+            updateTotal();
+            return false;
+        });
+        $("form.order").on('submit', function () {
+            var items = [];
+            $("#cart .cart-item").each(function () {
+                items.push($(this).data('item-id'));
+            });
+            $("#items").val(items.join(','));
+        });
+        function updateTotal() {
+            var total = i = 0;
+            $("#cart .cart-item").each(function () {
+                total += parseFloat($(this).data('item-price'));
+                i++;
+            });
+            if (i > 0) {
+                $('.no-item-message').hide();
+            } else {
+                $('.no-item-message').show();
+            }
+            $('#cart-total').html("€ " + total.toFixed(2));
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load staticfiles %}
+
+{% block page_title %}
+    {{ user_order.order.provider }}
+{% endblock %}
+
+{% block page_title_text %}
+    <div class="icon icon-location-1">&nbsp;{{ user_order.order.provider.address }}</div>
+    {% if order.provider.phone %}<div class="icon icon-phone">&nbsp;{{ user_order.order.provider.phone }}</div>{% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="container margin_60_35">
+        <div class="row">
+            <div class="col-md-offset-3 col-md-6">
+                <div class="box_style_2">
+                    <h2 class="inner">
+                        Order
+                    {% if not success %}
+                        <span class="pull-right">
+                            {% if user_order.order.delivered %}
+                                <span class="label label-success">Delivered</span>
+                            {% endif %}
+                            {% if not user_order.paid %}
+                                <span class="label label-danger">Not paid</span>
+                            {% endif %}
+                        </span>
+                    {% endif %}
+                    </h2>
+                    {% if success %}
+                        <div id="confirm">
+                            <i class="icon_check_alt2"></i>
+                            <h3>Thank you!</h3>
+                            <p>
+                                You order has been saved.<br/>
+                                {% if user_order.order.delivery_time %}
+                                   The estimated delivery time for this order is: <strong>{{ user_order.order.delivery_time }}</strong><br />
+                                    To be notified by email when your order has been delivered, <br />you can <a href="{% url "notifications" %}">activate the delivery notification</a> if you haven't already.
+                                {% endif %}
+                            </p>
+                        </div>
+                    {% endif %}
+                    <h4>Summary</h4>
+                    <table class="table table-striped">
+                        <tbody>
+                        {% for uoi in user_order.userorderitem_set.all %}
+                            <tr>
+                                <td>
+                                    {{ uoi }}
+                                </td>
+                                <td>
+                                    <strong class="pull-right">€ {{ uoi.total }}</strong>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    {% if user_order.notes %}
+                        <div style="margin-bottom: 20px">
+                            <h4>Notes</h4>
+                            {{ user_order.notes }}
+                        </div>
+                    {% endif %}
+                    <table class="table ">
+                        <tbody>
+                        <tr>
+                            <td class="total_confirm">
+                                TOTAL
+                            </td>
+                            <td class="total_confirm">
+                                <span class="pull-right">€ {{ user_order.total }}</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div><!-- End row -->
+    </div><!-- End container -->
+{% endblock %}

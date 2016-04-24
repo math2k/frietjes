@@ -1,87 +1,143 @@
 {% load staticfiles %}
 <!DOCTYPE html>
-<html lang="en">
+<!--[if IE 9]><html class="ie ie9"> <![endif]-->
+<html>
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="keywords" content="pizza, delivery food, fast food, sushi, take away, chinese, italian food">
+    <meta name="description" content="">
+    <title>4lunch.eu - What's for lunch today ?</title>
 
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <!-- Favicons-->
+    <link rel="shortcut icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
+    <link rel="apple-touch-icon" type="image/x-icon" href="{% static 'img/apple-touch-icon-57x57-precomposed.png' %}">
+    <link rel="apple-touch-icon" type="image/x-icon" sizes="72x72"
+          href="{% static 'img/apple-touch-icon-72x72-precomposed.png' %}">
+    <link rel="apple-touch-icon" type="image/x-icon" sizes="114x114"
+          href="{% static 'img/apple-touch-icon-114x114-precomposed.png' %}">
+    <link rel="apple-touch-icon" type="image/x-icon" sizes="144x144"
+          href="{% static 'img/apple-touch-icon-144x144-precomposed.png' %}">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!-- GOOGLE WEB FONT -->
+    <link href='https://fonts.googleapis.com/css?family=Lato:400,700,900,400italic,700italic,300,300italic'
+          rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
+
+    <!-- BASE CSS -->
+    <link href="{% static 'css/base.css' %}" rel="stylesheet">
+
     <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+      <script src="js/html5shiv.min.js"></script>
+      <script src="js/respond.min.js"></script>
     <![endif]-->
-    <title>What's 4lunch.eu ?</title>
-    <link rel="stylesheet" href="{% static "animate.css" %}">
-    <link rel="stylesheet" href="{% static "styles.css" %}">
-    <link rel="icon" type="image/png" href="{% static "favicon.png" %}"/>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+    <script src="{% static 'js/jquery-1.11.2.min.js' %}"></script>
 
 </head>
-<body>
-<div class="container">
-    <div class="header clearfix hidden-print">
-        <nav>
-            <ul class="nav nav-pills pull-right">
-                <li role="presentation" class=""><a href="/">Home</a></li>
-                {% if user.is_authenticated %}
-                    <li role="presentation" {% if show_notification_tooltip %}class="add-static-tooltip"{% endif %}
-                        title="Never miss good lunch again, get notified when someone starts an order!"><a
-                            href="{% url 'notifications' %}">Notifications</a></li>
-                    <li role="presentation"><a href="{% url "auth_logout" %}?next=/">Logout</a></li>
-                {% else %}
-                    <li role="presentation" {% if show_account_tooltip %}class="add-static-tooltip"{% endif %}
-                        data-placement='bottom' title="Create your account here!"><a href="{% url "registration_register" %}">Register</a></li>
-                    <li role="presentation"><a href="{% url "auth_login" %}">Login</a></li>
-                {% endif %}
+
+<body id="4lunch">
+
+<!--[if lte IE 8]>
+    <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a>.</p>
+<![endif]-->
+
+<!-- Header ================================================== -->
+<header class="hidden-print">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-8 col-sm-8 col-xs-8">
+                <a href="/" id="logo">
+                    <img src="{% static 'img/logo_mobile_2x.png' %}" width="59" height="23" alt="" data-retina="true"
+                         class="hidden-xs">
+                    <img src="{% static 'img/logo_mobile.png' %}" width="59" height="23" alt="" data-retina="true"
+                         class="hidden-lg hidden-md hidden-sm">
+                </a>
+                <span class="subtitle">What's 4lunch ?</span>
+            </div>
+            <nav class="col-md-4 col-sm-4 col-xs-4">
+                <a class="cmn-toggle-switch cmn-toggle-switch__htx open_close" href="javascript:void(0);"><span>Menu mobile</span></a>
+                <div class="main-menu">
+                    <div id="header_menu">
+                        <img src="{% static 'img/logo_mobile.png' %}" width="59" height="23" alt="" data-retina="true">
+                        <span class="subtitle">What's 4lunch ?</span>
+                    </div>
+                    <a href="#" class="open_close" id="close_in"><i class="icon_close"></i></a>
+                    <ul>
+                        <li role="presentation" class=""><a href="/">Home</a></li>
+                        {% if user.is_authenticated %}
+                            <li role="presentation">
+                                <a href="{% url 'notifications' %}">Notifications</a></li>
+                            <li role="presentation"><a href="{% url "auth_logout" %}?next=/">Logout</a></li>
+                        {% else %}
+                            <li role="presentation">
+                                <a href="{% url "registration_register" %}">Register</a></li>
+                            <li><a href="#0" data-toggle="modal" data-target="#login_2">Login</a></li>
+                        {% endif %}
+                    </ul>
+                </div><!-- End main-menu -->
+            </nav>
+        </div><!-- End row -->
+    </div><!-- End container -->
+</header>
+<!-- End Header =============================================== -->
+
+<section class="parallax-window hidden-print" id="short" data-parallax="scroll"
+         data-image-src="{% static "img/sub_header_short_2.jpg" %}" data-natural-width="1400" data-natural-height="350">
+    <div id="subheader">
+        <div id="sub_content">
+            <h1>{% block page_title %}{% endblock %}</h1>
+            <p>{% block page_title_text %}{% endblock %}</p>
+        </div><!-- End sub_content -->
+    </div><!-- End subheader -->
+    {% comment %}
+        <div id="count" class="hidden-xs">
+            <ul>
+                <li><span class="number">2650</span> Restaurant</li>
+                <li><span class="number">5350</span> People Served</li>
+                <li><span class="number">12350</span> Registered Users</li>
             </ul>
-        </nav>
-        <h3 class="text-muted"><a href="https://whats.4lunch.eu" class="text-muted">What's for lunch ?</a></h3>
-    </div>
+        </div>{% endcomment %}
+</section><!-- End section -->
 
-    {% block jumbo %}
-    {% endblock %}
+<div class="white_bg">
 
-    <div class="col-xs-8 col-xs-offset-2">
-        <h3 class="" style="margin-bottom: 30px;">{% block title %}{% endblock %}</h3>
-    </div>
-    <div class="row marketing">
-        {% block content %}{% endblock %}
-    </div>
+    {% block content %}{% endblock %}
 
-    <footer class="footer hidden-print">
-        <p>&copy; Frietjes 2016 - <a href="/admin">admin</a> <span class="pull-right"><i
-                class="glyphicon glyphicon-cutlery"></i> fork it on <a
-                href="https://github.com/math2k/frietjes">GitHub</a></span></p>
-    </footer>
+</div><!-- End white_bg -->
 
-</div>
-<!-- /container -->
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-<script src="{% static "bootstrap-confirmation.min.js" %}"></script>
-<script src="{% static "jquery.noty.packaged.min.js" %}"></script>
-<script>
-    $(document).ready(function () {
-        $('.price-toggle').click(function () {
-            if ($(this).hasClass("active")) {
-                $('.price').hide();
-                $(this).removeClass('active');
-            } else {
-                $('.price').show();
-                $(this).addClass('active');
-            }
-        });
-        $('.add-tooltip').tooltip();
-    });
-</script>
+<!-- Footer ================================================== -->
+<footer class="hidden">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div id="social_footer">
+                    <p>
+                        © 4lunch 2016
+                    </p>
+                </div>
+            </div>
+        </div><!-- End row -->
+    </div><!-- End container -->
+</footer>
+
+<footer class="hidden-print">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div id="social_footer">
+                    <p>© 4lunch.eu {% if user.is_authenticated %}- <a href="/admin">admin</a>{% endif %}</p>
+                </div>
+            </div>
+        </div><!-- End row -->
+    </div><!-- End container -->
+</footer>
+<!-- End Footer =============================================== -->
+
+<div class="layer"></div><!-- Mobile menu overlay mask -->
+
+
 {% block extra_js %}
 {% endblock %}
 <div class="modal fade" tabindex="-1" role="dialog" id="image-modal">
@@ -100,27 +156,34 @@
         </div>
     </div>
 </div>
+
+<!-- Login modal -->
+<div class="modal fade" id="login_2" tabindex="-1" role="dialog" aria-labelledby="myLogin" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content modal-popup">
+            <a href="#" class="close-link"><i class="icon_close_alt2"></i></a>
+            <form action="{% url 'auth_login' %}" method="post" class="popup-form" id="myLogin">
+                <div class="login_icon"><i class="icon_lock_alt"></i></div>
+                <input type="text" name="username" class="form-control form-white" placeholder="Username">
+                <input type="password" name="password" class="form-control form-white" placeholder="Password">
+                <button type="submit" class="btn btn-success text-center">Login</button>
+                {% csrf_token %}
+            </form>
+            <div class="pull-right">
+                <a href="{% url "auth_password_reset" %}">Forgot Password?</a>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div><!-- End modal -->
+
+<script src="{% static 'js/common_scripts_min.js' %}"></script>
+<script src="{% static 'js/functions.js' %}"></script>
+<script src="{% static 'assets/validate.js' %}"></script>
+<script src="{% static 'jquery.noty.packaged.min.js' %}"></script>
+<script src="{% static 'js/theia-sticky-sidebar.js' %}"></script>
+<script src="{% static 'scripts.js' %}"></script>
 <script>
-    $(document).on('show.bs.modal', '#image-modal', function (event) {
-        var button = $(event.relatedTarget);
-        var modal = $(this);
-        $(this).find('.modal-body').css({
-            width: 'auto', //probably not needed
-            height: 'auto', //probably not needed
-            'max-height': '100%'
-        });
-        modal.find('.modal-body').html("<img style='width: 100%; height: 100%' src='" + button.data('img') + "' />");
-    });
-    $.noty.defaults = $.extend(true, $.noty.defaults, {
-        timeout: 5000,
-        killer: true,
-        layout: 'topCenter',
-        theme: 'relax',
-        animation: {
-            open: 'animated flipInX', // Animate.css class names
-            close: 'animated flipOutX' // Animate.css class names
-        }
-    });
     {% for message in messages %}
         noty({
             text: "{{ message|safe }}",
@@ -131,7 +194,6 @@
         {% for field, msg in form.errors.iteritems %}
             noty({
                 timeout: false,
-                layout: 'topRight',
                 {% if field != '__all__' %}
                     text: '{{ field }}: {{ msg }}',
                 {% else %}
@@ -141,9 +203,7 @@
             });
         {% endfor %}
     {% endif %}
-    $(document).ready(function () {
-        $('.add-static-tooltip').tooltip({'trigger': 'manual'}).tooltip('show');
-    });
+
 </script>
 </body>
 </html>

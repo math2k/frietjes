@@ -18,6 +18,8 @@ def notify_all(**kwargs):
         return
     nrs = NotificationRequest.objects.filter(Q(providers__in=[order.provider]) | Q(all_providers=True)).distinct()
     for nr in nrs:
+        if nr.user == order.manager:
+            continue
         body = """
 Hey {name},
 

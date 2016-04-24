@@ -31,6 +31,8 @@ class MenuImage(models.Model):
 class FoodProvider(models.Model):
     name = models.CharField(max_length=50)
     address = models.CharField(max_length=300)
+    phone = models.CharField(max_length=20, null=True)
+    logo = models.ImageField(upload_to='logos', null=True)
 
     def __unicode__(self):
         return u"{0}".format(self.name)
@@ -47,11 +49,14 @@ class Order(models.Model):
     closing_time = models.TimeField(blank=True, null=True)
     notes = models.TextField(default="", blank=True)
     silent = models.BooleanField(default=False, help_text="Don't send notifications for this order")
+    cancelled = models.BooleanField(default=False, help_text="Food won't be delivered for this order")
+    cancelled_reason = models.TextField(null=True, blank=True, help_text="Reason for cancelling this order")
 
     def __init__(self, *args, **kwargs):
         super(Order, self).__init__(*args, **kwargs)
         self._original_open = self.open
         self._original_delivered = self.delivered
+        self._original_cancelled = self.cancelled
 
     def get_userorders(self):
         return self.userorder_set.all().prefetch_related('userorderitem_set__menu_item')
@@ -97,6 +102,30 @@ To cancel notifications, visit this address: http://whats.4lunch.eu{cancel_url}
         """.format(name=nr.user.username, place=self.provider.name, cancel_url=reverse_lazy('notifications'))
                 send_mail("What's for lunch? - 4lunch.eu", body, '4lunch.eu notifications <notifications@4lunch.eu>',
                     [nr.user.email], fail_silently=True)
+        if self._original_cancelled != self.cancelled and self.cancelled:
+                    fe = FeedEntry(event='Order at _{0}_ has been cancelled!'.format(self.provider.name))
+                    fe.save()
+                    if self.silent:
+                        return super(Order, self).save(**kwargs)
+                    users = set([uo.user for uo in self.userorder_set.all()])
+                    for u in users:
+                        body = """
+        Hey {name},
+
+        We are sorry to let you know that the order from {place} has been cancelled!
+
+        {reason}
+
+        Cheers,
+        --
+        4lunch.eu
+
+        To cancel notifications, visit this address: http://whats.4lunch.eu{cancel_url}
+                """.format(name=u.username, place=self.provider.name, cancel_url=reverse_lazy('notifications'),
+                           reason='The reason given is: '+self.cancelled_reason  if self.cancelled_reason else 'No reason was given by the manager')
+                        send_mail("What's for lunch? - 4lunch.eu", body,
+                                  '4lunch.eu notifications <notifications@4lunch.eu>',
+                                  [u.email], fail_silently=True)
 
         return super(Order, self).save(**kwargs)
 
@@ -122,7 +151,7 @@ class MenuItemCategory(models.Model):
     provider = models.ForeignKey(FoodProvider)
 
     def __unicode__(self):
-        return u"{0}".format(self.name)
+        return u"{0} from {1}".format(self.name, self.provider.name)
 
 
 class MenuItem(models.Model):

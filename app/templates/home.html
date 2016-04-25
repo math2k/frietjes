@@ -116,7 +116,7 @@
                                        title="View order in admin">
                                         <i class="icon-pencil"></i>
                                     </a>
-                                {% if order.userorder_set.all|length > 0 %}
+                                {% if order.userorder_set.all and order.open %}
                                     <a href="{% url "pick-random" o=order.pk %}" class="add-tooltip"
                                        title="Pick a random delivery person">
                                         <i class="icon-truck"></i>

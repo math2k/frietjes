@@ -19,7 +19,9 @@
                 <div class="col-md-3 sidebar">
                     <div class="theiaStickySidebar">
                         <div class="box_style_2 left">
+                        {% if order.provider.logo %}
                             <img src="{{ order.provider.logo.url }}" style="width: 80%; height: 80%"/>
+                        {% endif %}
                             {% if order.provider.menuimage_set.all %}
                                 <p>
                                     View the full menu:<br/>

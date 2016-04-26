@@ -39,6 +39,7 @@ class FoodProvider(models.Model):
 
 
 class Order(models.Model):
+    company = models.ForeignKey(to="Company")
     open = models.BooleanField(default=True, verbose_name="Open for ordering")
     delivered = models.BooleanField(default=False)
     manager = models.ForeignKey(User)
@@ -193,3 +194,28 @@ class NotificationRequest(models.Model):
 class FeedEntry(models.Model):
     datetime = models.DateTimeField(auto_now_add=True)
     event = models.TextField()
+
+
+class Company(models.Model):
+    name = models.CharField(max_length=200)
+
+    def __unicode__(self):
+        return self.name
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, related_name='profile', on_delete=models.CASCADE)
+    company = models.ForeignKey(Company)
+
+
+class UserInvite(models.Model):
+    email = models.EmailField()
+    secret = models.CharField(primary_key=True, max_length=32, editable=False)
+    company = models.ForeignKey(Company)
+    used_on = models.DateTimeField(editable=False, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.secret = str(uuid.uuid4())[:32]
+        return super(UserInvite, self).save(*args, **kwargs)
+

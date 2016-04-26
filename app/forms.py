@@ -1,6 +1,9 @@
 from django import forms
-from django.forms import ModelForm, Select, HiddenInput, TextInput, Textarea, Field, CharField, ModelChoiceField
-from app.models import UserOrderItem, UserOrder, MenuItem, FoodProvider, NotificationRequest
+from django.forms import ModelForm, Select, HiddenInput, TextInput, Textarea, Field, CharField, ModelChoiceField, \
+    EmailField, widgets
+from registration.forms import RegistrationForm
+
+from app.models import UserOrderItem, UserOrder, MenuItem, FoodProvider, NotificationRequest, UserInvite
 
 
 class OrderForm(ModelForm):
@@ -57,3 +60,15 @@ class NotificationRequestForm(ModelForm):
 
 class ImportMenuItemsForm(forms.Form):
     csv = forms.CharField(widget=forms.Textarea())
+
+
+class FrietjesRegistrationForm(RegistrationForm):
+    secret = forms.CharField(widget=HiddenInput)
+
+
+class UserInviteForm(ModelForm):
+    email = EmailField(label='', required=True, widget=widgets.TextInput(attrs={'placeholder': 'Email'}))
+
+    class Meta:
+        model = UserInvite
+        exclude = ['secret', 'used_on', 'company']

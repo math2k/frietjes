@@ -22,7 +22,7 @@ from django.conf import settings
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^accounts/register/$', FrietjesRegistrationView.as_view(), name='registration_register'),
+    url(r'^accounts/register/(?P<secret>.{32})$', FrietjesRegistrationView.as_view(), name='registration_register'),
     url(r'^accounts/', include('registration.backends.simple.urls')),
     url(r'^$', HomeView.as_view(), name="home"),
     url(r'^redirect', Redirect.as_view(), name="redirect"),
@@ -34,6 +34,7 @@ urlpatterns = [
     url(r'^notifications', NotificationRequestFormView.as_view(), name="notifications"),
     url(r'^notification/cancel/(?P<s>.{32})', NotificationCancelFormView.as_view(), name="notification-cancel"),
     url(r'^import', ImportMenuItemsFormView.as_view(), name="import"),
+    url(r'^invite', UserInviteFormView.as_view(), name="invite-form"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 from django.conf.urls import include, patterns, url

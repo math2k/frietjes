@@ -1,6 +1,7 @@
 from django.contrib.admin import ModelAdmin
 from app.models import *
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 
 class UserOrderAdmin(ModelAdmin):
@@ -27,7 +28,7 @@ class FeedEntryAdmin(ModelAdmin):
 
 
 class OrderAdmin(ModelAdmin):
-    list_display = ('date', 'manager', 'open')
+    list_display = ('company', 'date', 'manager', 'open')
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "delivery_person":
@@ -51,6 +52,24 @@ class FoodProviderAdmin(admin.ModelAdmin):
     ]
 
 
+class UserProfileInline(admin.StackedInline):
+    model = UserProfile
+    can_delete = False
+    verbose_name_plural = 'profile'
+
+
+class UserAdmin(BaseUserAdmin):
+    inlines = (UserProfileInline,)
+
+
+class UserInviteAdmin(admin.ModelAdmin):
+    list_display = ['email', 'company', 'used_on']
+
+
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
+admin.site.register(Company)
+admin.site.register(UserInvite, UserInviteAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(UserOrder, UserOrderAdmin)
 admin.site.register(MenuItem, MenuItemAdmin)

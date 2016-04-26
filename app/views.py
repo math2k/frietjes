@@ -11,10 +11,11 @@ from django.db.models import Count
 from django.forms import formset_factory, Select
 from django.forms.models import modelformset_factory
 from django.utils.decorators import method_decorator
-from registration.backends.simple.views import RegistrationView
+from registration.backends.simple.views import RegistrationView, User
 
-from app.forms import OrderForm, UserOrderForm, UserOrder, NotificationRequestForm, ImportMenuItemsForm
-from app.models import Order, MenuItem, UserOrderItem, NotificationRequest, MenuItemCategory
+from app.forms import OrderForm, UserOrderForm, UserOrder, NotificationRequestForm, ImportMenuItemsForm, \
+    FrietjesRegistrationForm, UserInviteForm
+from app.models import Order, MenuItem, UserOrderItem, NotificationRequest, MenuItemCategory, UserProfile
 from django.views.generic import TemplateView, FormView, View, RedirectView, CreateView, UpdateView
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
@@ -26,12 +27,12 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = {}
-        if self.request.GET.get('all'):
-            ctx['all_orders'] = Order.objects.all().order_by("-pk")
-        else:
-            ctx['all_orders'] = Order.objects.all().order_by("-pk")[:10]
-        ctx['open_order'] = Order.objects.filter(open=True).order_by("-date").last()
-        ctx['col_size'] = int(len(ctx['all_orders']) / 2)
+        if self.request.user.is_authenticated():
+            if self.request.GET.get('all'):
+                ctx['all_orders'] = Order.objects.filter(company=self.request.user.profile.company).order_by("-pk")
+            else:
+                ctx['all_orders'] = Order.objects.filter(company=self.request.user.profile.company).order_by("-pk")[:10]
+            ctx['open_order'] = Order.objects.filter(open=True, company=self.request.user.profile.company).order_by("-date").last()
         #ctx['feed_entries'] = FeedEntry.objects.filter(datetime__day=datetime.datetime.now().day).order_by('-datetime')[:15]
         ctx['feed_entries'] = FeedEntry.objects.filter().order_by('-datetime')[:15]
         ctx['show_notification_tooltip'] = False if self.request.COOKIES.get('show_notification_tooltip') == '0' else True
@@ -42,6 +43,7 @@ class HomeView(TemplateView):
             ctx['my_orders'] = []
         if self.request.user.is_authenticated():
             ctx['unpaid_orders'] = UserOrder.objects.filter(user=self.request.user, paid=False, order__open=False)
+        ctx['invite_form'] = UserInviteForm()
         return ctx
 
 
@@ -214,7 +216,7 @@ class NotificationRequestFormView(UpdateView):
         if len(self.object.providers.all()) > 0 or self.object.all_providers or self.object.deliveries:
             messages.success(self.request, "Notifications saved!")
         else:
-            messages.warning(self.request, "We won't bother you with notifications again")
+            messages.warning(self.request, "We won't bother you with notifications.")
         return reverse_lazy('home')
 
 
@@ -256,10 +258,43 @@ class ImportMenuItemsFormView(FormView):
 
 class FrietjesRegistrationView(RegistrationView):
 
-    def dispatch(self, *args, **kwargs):
-        res = super(FrietjesRegistrationView, self).dispatch(*args, **kwargs)
-        res.set_cookie('show_account_tooltip', '0', expires="Fri, 01-Jan-25 12:12:12 GMT")
+    form_class = FrietjesRegistrationForm
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.invite = UserInvite.objects.get(pk=self.kwargs['secret'], used_on=None)
+        except UserInvite.DoesNotExist:
+            messages.error(self.request, 'Invalid invitation link')
+            return redirect(reverse_lazy('home'))
+        return super(FrietjesRegistrationView, self).dispatch(request, *args, **kwargs)
+
+    def get_initial(self):
+        return {'secret': self.invite.secret, 'email': self.invite.email}
+
+    def form_valid(self, form):
+        res = super(FrietjesRegistrationView, self).form_valid(form)
+        # TODO: Fix this mess
+        user = User.objects.get(username=form.cleaned_data['username'])
+        user_profile = UserProfile(user_id=user.pk, company=self.invite.company)
+        user_profile.save()
+        self.invite.used_on = datetime.datetime.now()
+        self.invite.save()
         return res
 
     def get_success_url(self, user):
         return self.request.GET.get('next', self.request.POST.get('next', reverse_lazy('home')))
+
+
+class UserInviteFormView(CreateView):
+    model = UserInvite
+    fields = ['email']
+    template_name = 'userinvite_form.html'
+
+    def form_valid(self, form):
+        invite = form.save(commit=False)
+        invite.company = self.request.user.profile.company
+        return super(UserInviteFormView, self).form_valid(form)
+
+    def get_success_url(self):
+        messages.success(self.request, 'Invitation sent!')
+        return reverse_lazy('home')

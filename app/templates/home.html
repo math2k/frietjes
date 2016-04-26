@@ -10,11 +10,14 @@
 {% endblock %}
 
 {% block page_title_text %}
-    {% if open_order %}
-        <p>Some orders are open, make your choice below!</p>
-    {% else %}
-        <p>Sorry, no order is open at the moment.. <a href="{% url "admin:app_order_add" %}">create one yourself
-            ?</a></p>
+    {% if user.is_authenticated %}
+        {% if open_order %}
+            <p>Some group orders are open, make your choice below!</p>
+        {% else %}
+            <p>Sorry, no group order is open at the moment.. <a href="{% url "admin:app_order_add" %}">create one
+                yourself
+                ?</a></p>
+        {% endif %}
     {% endif %}
 {% endblock %}
 
@@ -77,6 +80,10 @@
                     <h5>Your orders</h5>
                     <hr style="margin-top: 0px;">
                     {% if user.is_authenticated %}
+                        <div class="hidden">
+                            <span>Your company: <strong>{{ user.profile.company.name }}</strong></span>
+                            <hr/>
+                        </div>
                         {% for uo in my_orders %}
                             <ul>
                                 <li>
@@ -95,11 +102,18 @@
                             {% empty %}
                             No orders
                         {% endfor %}
-
+                        <hr/>
+                        <h5>Invite a colleague</h5>
+                        <form action="{% url 'invite-form' %}" method="post">
+                            {{ invite_form }}
+                            {% csrf_token %}
+                            <button class="btn btn-xs btn-primary pull-right">Send</button>
+                        </form>
                     {% else %}
                         <p>Please <a href="#0" data-toggle="modal" data-target="#login_2">login</a> to view your orders
                         </p>
                     {% endif %}
+
                 </div>
             </div>
         </div>
@@ -107,88 +121,99 @@
         <div class="col-md-9">
 
             <div class="row">
-                {% for order in all_orders %}
-                    <div class="col-md-6 col-sm-6  fadeIn" data-wow-delay="0.1s">
-                        {% if request.user.is_staff %}
-                            <span class="pull-right">
+                {% if request.user.is_authenticated %}
+                    {% for order in all_orders %}
+                        <div class="col-md-6 col-sm-6  fadeIn" data-wow-delay="0.1s">
+                            {% if request.user.is_staff %}
+                                <span class="pull-right">
                                     <a href="{% url "admin:app_order_change" order.pk %}" class="add-tooltip"
                                        title="View order in admin">
                                         <i class="icon-pencil"></i>
                                     </a>
-                                {% if order.userorder_set.all and order.open %}
-                                    <a href="{% url "pick-random" o=order.pk %}" class="add-tooltip"
-                                       title="Pick a random delivery person">
-                                        <i class="icon-truck"></i>
-                                    </a>
-                                {% endif %}
+                                    {% if order.userorder_set.all and order.open %}
+                                        <a href="{% url "pick-random" o=order.pk %}" class="add-tooltip"
+                                           title="Pick a random delivery person">
+                                            <i class="icon-truck"></i>
+                                        </a>
+                                    {% endif %}
                                     </span>
-                        {% endif %}
-                        <div class="strip_list grid">
+                            {% endif %}
+                            <div class="strip_list grid">
 
-                            <div class="desc">
-                            <a href="{% url "order-view" order=order.pk %}">
-                                <h3>
-                                        {{ order.provider.name }}
-                                </h3>
-                                {% if order.provider.logo %}
-                                    <div class="thumb_strip">
-                                        <img src="{{ order.provider.logo.url }}" alt=""/>
-                                    </div>
-                                {% else %}
-                                    <div class="thumb_strip">
-                                        <i class="icon icon-shop-1" style="font-size: 70px; opacity: 0.5; vertical-align: middle"></i>
-                                    </div>
-                                {% endif %}
-                            </a>
-                                <div class="type">
-                                    {{ order.date }}
-                                </div>
-                                <div class="location">
-                                    {% if order.open %}
-                                        {% if order.closing_time or order.delivery_time %}
-                                            <div class="col-xs-6 text-left">
-                                                {% if order.open and order.closing_time %}
-                                                    <span class="opening">Order before
-                                                        {{ order.closing_time|date:"H:i" }}</span>
-                                                {% endif %}
-                                                {% if order.open and order.delivery_time %}
-                                                    <span class="">Expected delivery
-                                                        {{ order.delivery_time|date:"H:i" }}</span>
-                                                {% endif %}
+                                <div class="desc">
+                                    <a href="{% url "order-view" order=order.pk %}">
+                                        <h3>
+                                            {{ order.provider.name }}
+                                        </h3>
+                                        {% if order.provider.logo %}
+                                            <div class="thumb_strip">
+                                                <img src="{{ order.provider.logo.url }}" alt=""/>
+                                            </div>
+                                        {% else %}
+                                            <div class="thumb_strip">
+                                                <i class="icon icon-shop-1"
+                                                   style="font-size: 70px; opacity: 0.5; vertical-align: middle"></i>
                                             </div>
                                         {% endif %}
-                                    {% endif %}
-                                    <div class="{% if order.open %}{% if order.closing_time or order.delivery_time %}col-offset-xs-3{% endif %}{% endif %} text-left">
-                                        Delivered by:
-                                        {% if order.delivery_person %}
-                                            {{ order.delivery_person.username }}
-                                        {% else %}
-                                            {% if order.open %}
-                                                you ?
+                                    </a>
+                                    <div class="type">
+                                        {{ order.date }}
+                                    </div>
+                                    <div class="location">
+                                        {% if order.open %}
+                                            {% if order.closing_time or order.delivery_time %}
+                                                <div class="col-xs-6 text-left">
+                                                    {% if order.open and order.closing_time %}
+                                                        <span class="opening">Order before
+                                                            {{ order.closing_time|date:"H:i" }}</span>
+                                                    {% endif %}
+                                                    {% if order.open and order.delivery_time %}
+                                                        <span class="">Expected delivery
+                                                            {{ order.delivery_time|date:"H:i" }}</span>
+                                                    {% endif %}
+                                                </div>
                                             {% endif %}
                                         {% endif %}
-                                        <br/>
-                                        Current order: {{ order.total }}€
+                                        <div class="
+
+
+
+                                                {% if order.open %}{% if order.closing_time or order.delivery_time %}col-offset-xs-3{% endif %}{% endif %} text-left">
+                                            Delivered by:
+                                            {% if order.delivery_person %}
+                                                {{ order.delivery_person.username }}
+                                            {% else %}
+                                                {% if order.open %}
+                                                    you ?
+                                                {% endif %}
+                                            {% endif %}
+                                            <br/>
+                                            Current order: {{ order.total }}€
+                                        </div>
+                                        <div class="clearfix"></div>
                                     </div>
-                                    <div class="clearfix"></div>
-                                </div>
-                                <div style="margin-top: 30px;">
-                                    {% if order.open %}
-                                        <a href="{% url "order" order=order.pk %}"
-                                           class="btn btn-success btn-md">
-                                            Order
-                                        </a>
-                                    {% else %}
-                                        <span class="label label-danger">Closed</span>
-                                        {% if order.has_unpaid_user_order %}
-                                            <span class="label label-warning">Not fully paid</span>&nbsp;
+                                    <div style="margin-top: 30px;">
+                                        {% if order.open %}
+                                            <a href="{% url "order" order=order.pk %}"
+                                               class="btn btn-success btn-md">
+                                                Order
+                                            </a>
+                                        {% else %}
+                                            <span class="label label-danger">Closed</span>
+                                            {% if order.has_unpaid_user_order %}
+                                                <span class="label label-warning">Not fully paid</span>&nbsp;
+                                            {% endif %}
                                         {% endif %}
-                                    {% endif %}
+                                    </div>
                                 </div>
-                            </div>
-                        </div><!-- End strip_list-->
-                    </div><!-- End col-md-6-->
-                {% endfor %}
+                            </div><!-- End strip_list-->
+                        </div><!-- End col-md-6-->
+                    {% endfor %}
+                {% else %}
+                    <p class="text-center"><strong>Please <a href="#0" data-toggle="modal"
+                                                             data-target="#login_2">login</a> to view available orders.</strong>
+                    </p>
+                {% endif %}
             </div><!-- End row-->
         </div><!-- End row -->
     </div><!-- End container -->

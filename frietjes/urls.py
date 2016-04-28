@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^redirect', Redirect.as_view(), name="redirect"),
     url(r'^user-order/(?P<user_order>.+)/view$', UserOrderView.as_view(), name="user-order-view"),
     url(r'^order/(?P<order>.+)/view$', OrderView.as_view(), name="order-view"),
+    url(r'^order/(?P<pk>.+)/update', UpdateOrderFormView.as_view(), name="order-update"),
     url(r'^user-order/(?P<order>.+)/new$', CreateUserOrderFormView.as_view(), name="order"),
     url(r'^toggle-paid-flag/(?P<uo>.+)$', TogglePaidFlag.as_view(), name="toggle-paid-flag"),
     url(r'^pick-random/(?P<o>.+)$', PickRandomDeliveryPerson.as_view(), name="pick-random"),
@@ -35,6 +36,8 @@ urlpatterns = [
     url(r'^notification/cancel/(?P<s>.{32})', NotificationCancelFormView.as_view(), name="notification-cancel"),
     url(r'^import', ImportMenuItemsFormView.as_view(), name="import"),
     url(r'^invite', UserInviteFormView.as_view(), name="invite-form"),
+    url(r'^order/new', CreateOrderFormView.as_view(), name="order-new"),
+    url(r'^place/(?P<pk>.+)', FoodProviderQuickView.as_view(), name="place-view"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 from django.conf.urls import include, patterns, url

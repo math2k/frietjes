@@ -8,6 +8,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Count
+from django.db.models.query import QuerySet
 from django.forms import formset_factory, Select
 from django.forms.models import modelformset_factory
 from django.utils.decorators import method_decorator
@@ -15,8 +16,8 @@ from registration.backends.simple.views import RegistrationView, User
 
 from app.forms import OrderForm, UserOrderForm, UserOrder, NotificationRequestForm, ImportMenuItemsForm, \
     FrietjesRegistrationForm, UserInviteForm
-from app.models import Order, MenuItem, UserOrderItem, NotificationRequest, MenuItemCategory, UserProfile
-from django.views.generic import TemplateView, FormView, View, RedirectView, CreateView, UpdateView
+from app.models import Order, MenuItem, UserOrderItem, NotificationRequest, MenuItemCategory, UserProfile, FoodProvider
+from django.views.generic import TemplateView, FormView, View, RedirectView, CreateView, UpdateView, DetailView
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 from app.signals import *
@@ -158,11 +159,11 @@ class PickRandomDeliveryPerson(View):
         if request.user.is_staff:
             o = get_object_or_404(Order, pk=kwargs.get('o'))
             if o.delivery_person:
-                messages.error(request, "{0} is already set as the chinese volunteer!".format(o.delivery_person.username))
+                messages.error(request, "{0} is already set as the delivery person!".format(o.delivery_person.username))
             else:
                 o.assign_random_delivery_person()
                 if o.delivery_person:
-                    messages.success(request, "{0} has been selected as chinese volunteer! Thanks {0} :D".format(
+                    messages.success(request, "{0} has been designated as volunteer! Thanks {0} :D".format(
                         o.delivery_person.username))
                     fe = FeedEntry(event='_{0}_ has been randomly selected to pick up the order from {1}'
                                    .format(o.delivery_person.username, o.provider.name))
@@ -298,3 +299,56 @@ class UserInviteFormView(CreateView):
     def get_success_url(self):
         messages.success(self.request, 'Invitation sent!')
         return reverse_lazy('home')
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class CreateOrderFormView(CreateView):
+    model = Order
+    template_name = "order_form.html"
+    fields = ['open', 'delivered', 'manager', 'provider', 'delivery_person', 'delivery_time', 'closing_time', 'notes', 'silent', 'cancelled', 'cancelled_reason']
+
+    def get_form(self, form_class=None):
+        form = super(CreateOrderFormView, self).get_form(form_class)
+        form.fields['manager'].queryset = User.objects.filter(profile__company=self.request.user.profile.company)
+        if not form.instance.id:
+            # New group order, only current user can be the delivery person
+            form.fields['delivery_person'].queryset = User.objects.filter(pk=self.request.user.pk)
+        return form
+
+    def form_valid(self, form):
+        order = form.save(commit=False)
+        order.company = self.request.user.profile.company
+        return super(CreateOrderFormView, self).form_valid(form)
+
+    def get_success_url(self):
+        messages.success(self.request, 'Group order created')
+        return reverse_lazy('home')
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class UpdateOrderFormView(UpdateView):
+    model = Order
+    template_name = "order_form.html"
+    fields = ['open', 'delivered', 'manager', 'delivery_person', 'delivery_time', 'closing_time', 'notes', 'silent', 'cancelled', 'cancelled_reason']
+
+    def get_form(self, form_class=None):
+        form = super(UpdateOrderFormView, self).get_form(form_class)
+        form.fields['manager'].queryset = User.objects.filter(profile__company=self.request.user.profile.company)
+        form.fields['delivery_person'].queryset = User.objects.filter(id__in=[uo.user.id for uo in form.instance.userorder_set.all()])
+        return form
+
+    def form_valid(self, form):
+        order = form.save(commit=False)
+        order.company = self.request.user.profile.company
+        return super(UpdateOrderFormView, self).form_valid(form)
+
+    def get_success_url(self):
+        messages.success(self.request, 'Group order updated')
+        return reverse_lazy('home')
+
+
+class FoodProviderQuickView(DetailView):
+    model = FoodProvider
+    template_name = "foodprovider_view.html"
+
+

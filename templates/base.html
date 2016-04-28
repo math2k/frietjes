@@ -66,13 +66,14 @@
                     <a href="#" class="open_close" id="close_in"><i class="icon_close"></i></a>
                     <ul>
                         <li role="presentation" class=""><a href="/">Home</a></li>
+                        {% if user.is_staff %}
+                            <li role="presentation"><a href="{% url 'order-new' %}">New group order</a></li>
+                        {% endif %}
                         {% if user.is_authenticated %}
                             <li role="presentation">
                                 <a href="{% url 'notifications' %}">Notifications</a></li>
                             <li role="presentation"><a href="{% url "auth_logout" %}?next=/">Logout</a></li>
                         {% else %}
-                            <li role="presentation">
-                            <a href="{% url "registration_register" %}">Register</a></li>
                             <li><a href="#0" data-toggle="modal" data-target="#login_2">Login</a></li>
                         {% endif %}
                     </ul>
@@ -197,7 +198,7 @@
                 {% if field != '__all__' %}
                     text: '{{ field }}: {{ msg }}',
                 {% else %}
-                    text: '{{ msg }}',
+                    text: '{{ msg|striptags }}',
                 {% endif %}
                 type: 'error'
             });

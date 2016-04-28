@@ -126,8 +126,8 @@
                         <div class="col-md-6 col-sm-6  fadeIn" data-wow-delay="0.1s">
                             {% if request.user.is_staff %}
                                 <span class="pull-right">
-                                    <a href="{% url "admin:app_order_change" order.pk %}" class="add-tooltip"
-                                       title="View order in admin">
+                                    <a href="{% url "order-update" pk=order.pk %}" class="add-tooltip"
+                                       title="Change order details">
                                         <i class="icon-pencil"></i>
                                     </a>
                                     {% if order.userorder_set.all and order.open %}
@@ -174,11 +174,7 @@
                                                 </div>
                                             {% endif %}
                                         {% endif %}
-                                        <div class="
-
-
-
-                                                {% if order.open %}{% if order.closing_time or order.delivery_time %}col-offset-xs-3{% endif %}{% endif %} text-left">
+                                        <div class="{% if order.open %}{% if order.closing_time or order.delivery_time %}col-offset-xs-3{% endif %}{% endif %} text-left">
                                             Delivered by:
                                             {% if order.delivery_person %}
                                                 {{ order.delivery_person.username }}

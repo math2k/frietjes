@@ -32,7 +32,8 @@ class FoodProvider(models.Model):
     name = models.CharField(max_length=50)
     address = models.CharField(max_length=300)
     phone = models.CharField(max_length=20, null=True)
-    logo = models.ImageField(upload_to='logos', null=True)
+    logo = models.ImageField(upload_to='logos', blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
 
     def __unicode__(self):
         return u"{0}".format(self.name)
@@ -40,12 +41,12 @@ class FoodProvider(models.Model):
 
 class Order(models.Model):
     company = models.ForeignKey(to="Company")
-    open = models.BooleanField(default=True, verbose_name="Open for ordering")
+    open = models.BooleanField(default=True, verbose_name="Open for ordering", help_text='')
     delivered = models.BooleanField(default=False)
     manager = models.ForeignKey(User)
     provider = models.ForeignKey(FoodProvider, verbose_name="Place", related_name='provider')
     date = models.DateField(auto_now_add=True)
-    delivery_person = models.ForeignKey(User, blank=True, null=True, related_name="delivery_person")
+    delivery_person = models.ForeignKey(User, blank=True, null=True, related_name="delivery_person", help_text='Can be picked at random as soon a users have placed an order')
     delivery_time = models.TimeField(blank=True, null=True)
     closing_time = models.TimeField(blank=True, null=True)
     notes = models.TextField(default="", blank=True)

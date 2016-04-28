@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load staticfiles %}
+{% load bootstrap %}
+
+{% block page_title %}
+    {% if object %}
+        Update group order
+    {% else %}
+        New group order
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <form action="" method="post" class="order">
+        <div class="container margin_60_35">
+            <div class="row">
+                <div class="col-md-3 sidebar">
+                    <div class="theiaStickySidebar">
+                        <div class="box_style_2 left" id="place_details" style="display: none;">
+                        </div>
+                    </div>
+                </div><!-- End col-md-3 -->
+
+                <div class="col-md-6">
+                    <div class="box_style_2" id="main_menu">
+                        <form action="" method="post">
+                            <h2 class="inner">Group order form</h2>
+                            <div class="col-xs-12">
+                                {% if object %}
+                                    <div class="form-group">
+                                        <label class="control-label  " for="id_provider">Place</label>
+                                        <input type="hidden" id="id_provider" name="provider" value="{{ order.provider.id }}">
+                                        <div class=" ">
+                                            {{ order.provider }}
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    {{ form.provider|bootstrap }}
+                                {% endif %}
+                            </div>
+                            <div class="col-xs-6">
+                                {{ form.open|bootstrap }}
+                            </div>
+                            <div class="col-xs-6">
+                                {{ form.silent|bootstrap }}
+                            </div>
+                            <div class="col-xs-6">
+                                {{ form.manager|bootstrap }}
+                            </div>
+                            <div class="col-xs-6">
+                                {% if order.userorder_set.all|length > 0 %}
+                                    <a href="{% url "pick-random" o=object.pk %}"
+                                       class="btn btn-xs btn-primary pull-right">Pick at random</a>
+                                {% endif %}
+                                {{ form.delivery_person|bootstrap }}
+                            </div>
+                            <div class="col-xs-6">
+                                {{ form.closing_time|bootstrap }}
+                            </div>
+                            <div class="col-xs-6">
+                                {{ form.delivery_time|bootstrap }}
+                            </div>
+                            <div class="col-xs-12">
+                                {{ form.notes|bootstrap }}
+                            </div>
+                            <div class="col-xs-6">
+                                {{ form.cancelled|bootstrap }}
+                            </div>
+                            <div class="col-xs-6">
+                                {{ form.cancelled_reason|bootstrap }}
+                            </div>
+                            <div class="control-group">
+                                <div class="controls">
+                                    <button type="submit" class="btn btn-success pull-right">Save group order</button>
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                            {% csrf_token %}
+                        </form>
+                    </div><!-- End box_style_1 -->
+                </div><!-- End col-md-6 -->
+
+                <div class="col-md-3 sidebar" id="sidebar">
+
+                </div><!-- End col-md-3 -->
+
+            </div><!-- End row -->
+        </div><!-- End container -->
+        {% csrf_token %}
+        {{ user_order.order }}
+        <input type="hidden" id="items" name="items" value=""/>
+    </form>
+    <!-- End Content =============================================== -->
+{% endblock %}
+{% block extra_js %}
+    <script type="text/javascript">
+        function getPlaceDetails(id) {
+            $.get('/place/' + id).success(function (data) {
+                $('#place_details').html(data);
+                $('#place_details').fadeIn();
+            });
+        }
+        $(document).ready(function () {
+            $('#id_provider').on('change', function () {
+                $('#place_details').hide();
+                getPlaceDetails(this.value);
+            });
+            if(place_id = $('#id_provider').val()){
+                getPlaceDetails(place_id);
+            }
+        });
+
+    </script>
+{% endblock %}

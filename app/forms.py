@@ -1,9 +1,10 @@
 from django import forms
 from django.forms import ModelForm, Select, HiddenInput, TextInput, Textarea, Field, CharField, ModelChoiceField, \
     EmailField, widgets
+from django.views.generic import CreateView
 from registration.forms import RegistrationForm
 
-from app.models import UserOrderItem, UserOrder, MenuItem, FoodProvider, NotificationRequest, UserInvite
+from app.models import UserOrderItem, UserOrder, MenuItem, FoodProvider, NotificationRequest, UserInvite, Order
 
 
 class OrderForm(ModelForm):
@@ -67,7 +68,7 @@ class FrietjesRegistrationForm(RegistrationForm):
 
 
 class UserInviteForm(ModelForm):
-    email = EmailField(label='', required=True, widget=widgets.TextInput(attrs={'placeholder': 'Email'}))
+    email = EmailField(label='', required=True, widget=widgets.TextInput(attrs={'placeholder': 'john@doe.com'}))
 
     class Meta:
         model = UserInvite

@@ -6,6 +6,7 @@ import uuid
 
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Count
 from django.db.models.query import QuerySet
@@ -17,7 +18,8 @@ from registration.backends.simple.views import RegistrationView, User
 from app.forms import OrderForm, UserOrderForm, UserOrder, NotificationRequestForm, ImportMenuItemsForm, \
     FrietjesRegistrationForm, UserInviteForm
 from app.models import Order, MenuItem, UserOrderItem, NotificationRequest, MenuItemCategory, UserProfile, FoodProvider
-from django.views.generic import TemplateView, FormView, View, RedirectView, CreateView, UpdateView, DetailView
+from django.views.generic import (
+    TemplateView, FormView, View, RedirectView, CreateView, UpdateView, DetailView, ListView, DeleteView)
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 from app.signals import *
@@ -141,6 +143,41 @@ class TogglePaidFlag(View):
             if uo.paid:
                 fe = FeedEntry(event='_{0}_ paid their order'.format(uo.user.username))
                 fe.save()
+            return redirect(request.META.get('HTTP_REFERER'))
+
+
+class ToggleUserStaffFlag(View):
+    http_method_names = ['post', ]
+
+    def post(self, request, *args, **kwargs):
+        if request.user.is_staff:
+            u = get_object_or_404(User, pk=kwargs.get('pk'))
+            admin_group = Group.objects.get(name='admin')
+            if u.is_staff:
+                if len(User.objects.filter(is_staff=True, profile__company=self.request.user.profile.company)) == 1:
+                    messages.error(self.request, "Removing that user from staff would make the company staff-less. You don't want that.")
+                    return redirect(request.META.get('HTTP_REFERER'))
+                u.is_staff = not u.is_staff
+                u.save()
+                admin_group.user_set.remove(u)
+                messages.warning(request, "{0} is not an admin anymore".format(u.username))
+            else:
+                u.is_staff = not u.is_staff
+                u.save()
+                admin_group.user_set.add(u)
+                messages.success(request, "{0} is now an admin".format(u.username))
+            return redirect(request.META.get('HTTP_REFERER'))
+
+
+class SetOrderDeliveredView(View):
+    http_method_names = ['post', ]
+
+    def post(self, request, *args, **kwargs):
+        if request.user.is_staff:
+            o = get_object_or_404(Order, pk=kwargs.get('pk'))
+            o.delivered = True
+            o.save()
+            messages.success(request, "Order has been marked as delivered!")
             return redirect(request.META.get('HTTP_REFERER'))
 
 
@@ -298,7 +335,7 @@ class UserInviteFormView(CreateView):
 
     def get_success_url(self):
         messages.success(self.request, 'Invitation sent!')
-        return reverse_lazy('home')
+        return self.request.META.get('HTTP_REFERER')
 
 
 @method_decorator(staff_member_required, name='dispatch')
@@ -334,7 +371,9 @@ class UpdateOrderFormView(UpdateView):
     def get_form(self, form_class=None):
         form = super(UpdateOrderFormView, self).get_form(form_class)
         form.fields['manager'].queryset = User.objects.filter(profile__company=self.request.user.profile.company)
-        form.fields['delivery_person'].queryset = User.objects.filter(id__in=[uo.user.id for uo in form.instance.userorder_set.all()])
+        user_list = [uo.user.id for uo in form.instance.userorder_set.all()]
+        user_list.append(self.request.user.id)
+        form.fields['delivery_person'].queryset = User.objects.filter(id__in=user_list)
         return form
 
     def form_valid(self, form):
@@ -350,5 +389,46 @@ class UpdateOrderFormView(UpdateView):
 class FoodProviderQuickView(DetailView):
     model = FoodProvider
     template_name = "foodprovider_view.html"
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class ListCompanyUsers(ListView):
+    model = User
+    ordering = 'username'
+    template_name = "user_list.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ListCompanyUsers, self).get_context_data(**kwargs)
+        ctx['invite_form'] = UserInviteForm()
+        return ctx
+
+    def get_queryset(self):
+        return User.objects.filter(profile__company=self.request.user.profile.company)
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class ListUserOrdersView(ListView):
+    model = User
+    template_name = "userorder_list.html"
+
+    def get_queryset(self):
+        return UserOrder.objects.filter(user_id=self.kwargs.get('pk')).order_by('-order__date')
+
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ListUserOrdersView, self).get_context_data(**kwargs)
+        ctx['user'] = User.objects.get(pk=self.kwargs.get('pk'))
+        return ctx
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class DeleteUser(DeleteView):
+    model = User
+
+    def get_success_url(self):
+        messages.success(self.request, 'User has been deleted.')
+        return reverse_lazy('user-list')
+
+
 
 

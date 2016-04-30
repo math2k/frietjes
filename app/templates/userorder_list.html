@@ -1,0 +1,21 @@
+<h5>
+    {{ user.username }}'s orders
+</h5>
+{% for uo in object_list %}
+    <ul>
+        <li>
+            <a href="{% url "user-order-view" user_order=uo.pk %}">
+                {{ uo.order.date|date:"D j M" }}</a>
+            <span class="pull-right">
+            {% if uo.order.delivered %}
+                <span class="label label-success">Delivered</span>
+            {% endif %}
+                {% if not uo.paid %}
+                    <span class="label label-danger">Not paid</span>
+                {% endif %}
+            </span>
+        </li>
+    </ul>
+    {% empty %}
+    No orders
+{% endfor %}

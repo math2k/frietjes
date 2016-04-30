@@ -26,6 +26,7 @@ def send_order_notifications(**kwargs):
 Hey {name},
 
 An order that matches your notification criteria has been created!
+
 Check it out on https://whats.4lunch.eu !
 
 Cheers,
@@ -47,6 +48,7 @@ def notify_all(**kwargs):
 Hey there,
 
 You have been invited to join 4lunch.eu.
+
 Create your account by following this personalized link:
 https://whats.4lunch.eu{register_url}
 

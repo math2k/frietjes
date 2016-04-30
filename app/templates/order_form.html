@@ -7,7 +7,13 @@
     {% if object %}
         Update group order
     {% else %}
-        New group order
+        Create group order
+    {% endif %}
+{% endblock %}
+
+{% block page_title_text %}
+    {% if not object %}
+        This will allow people to submit their order to this place
     {% endif %}
 {% endblock %}
 
@@ -30,7 +36,8 @@
                                 {% if object %}
                                     <div class="form-group">
                                         <label class="control-label  " for="id_provider">Place</label>
-                                        <input type="hidden" id="id_provider" name="provider" value="{{ order.provider.id }}">
+                                        <input type="hidden" id="id_provider" name="provider"
+                                               value="{{ order.provider.id }}">
                                         <div class=" ">
                                             {{ order.provider }}
                                         </div>
@@ -106,7 +113,7 @@
                 $('#place_details').hide();
                 getPlaceDetails(this.value);
             });
-            if(place_id = $('#id_provider').val()){
+            if (place_id = $('#id_provider').val()) {
                 getPlaceDetails(place_id);
             }
         });

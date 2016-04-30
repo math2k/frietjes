@@ -53,7 +53,7 @@ a.dropdown-toggle.icon-search{display: inline-block;}
 .main-menu ul ul li a {font-size: 13px;color: #666;border-bottom:1px solid #ededed;display: block;}
 .main-menu ul ul li:last-child a {border-bottom:none;}
 
-.main-menu ul ul li:hover > a {background-color:#f9f9f9;color:#ec008c; padding-left:15px;}
+.main-menu ul ul li:hover > a {background-color:#f9f9f9;color:#dd5F32; padding-left:15px;}
 
 .main-menu ul .menu-wrapper ul {position: relative;display:block;}
 .main-menu ul .menu-wrapper ul {margin-bottom:15px;left: 0;}
@@ -71,7 +71,7 @@ a#search_bt span{ display:none;}
 a.show-submenu:hover,
 a.show-submenu:focus,
 a.show-submenu-mega:hover,
-a.show-submenu-mega:focus{color:#ec008c !important;background-color:#f9f9f9;}	
+a.show-submenu-mega:focus{color:#dd5F32 !important;background-color:#f9f9f9;}	
 	
 .main-menu ul li  {border-top: none;border-bottom: 1px solid #ededed;color: #fff;}
 
@@ -85,7 +85,7 @@ a.show-submenu-mega:focus{color:#ec008c !important;background-color:#f9f9f9;}
 .main-menu a {display: block;color:#555 !important;}
 .main-menu li {position: relative;}
 	
-.main-menu a:hover {color:#ec008c !important;}
+.main-menu a:hover {color:#dd5F32 !important;}
 	
 .main-menu ul > li {padding-bottom: 0;}
 .main-menu ul > li i{float:right;}

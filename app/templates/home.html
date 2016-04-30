@@ -24,71 +24,138 @@
 {% block content %}
     <!-- Content ================================================== -->
     <div class="container margin_60_35">
+    <div class="row">
+        {% if request.user.is_authenticated %}
+            <div class="col-md-9">
+                <div class="box_style_2" id="main_menu">
+                    <h2 class="inner">Orders</h2>
+                    <div class="row">
+                        {% for order in all_orders %}
+                            <div class="col-md-6 col-sm-6 fadeIn" data-wow-delay="0.1s">
+                                {% if request.user.is_staff %}
+                                    <span class="pull-right">
+                                    <a href="{% url "order-update" pk=order.pk %}" class="add-tooltip"
+                                       title="Change order details">
+                                        <i class="icon-pencil"></i>
+                                    </a>
+                                    <form style="display: inline;" class="confirm-form" action="{% url "set-order-delivered" pk=order.pk %}" method="post">
+                                        {% csrf_token %}
+                                        <a href="#" onclick="$(this).closest('form').submit()" class="add-tooltip" title="Mark order as delivered">
+                                            <i class="icon-food-1"></i>
+                                        </a>
+                                    </form>
+                                        {% if order.userorder_set.all and order.open and not order.delivery_person %}
+                                            <a href="{% url "pick-random" o=order.pk %}" class="add-tooltip"
+                                               title="Pick a random delivery person">
+                                                <i class="icon-truck"></i>
+                                            </a>
+                                        {% endif %}
+                                    </span>
+                                {% endif %}
+                                <div class="strip_list grid">
 
-    <div class="main_title">
-        <h2 class="nomargin_top" style="padding-top:0">How it works</h2>
-        <p>
-            Look at the amazing icons below to understand how easy it is.
-        </p>
-    </div>
-    <div class="row">
-        <div class="col-md-3">
-            <div class="box_home" id="one">
-                <span>1</span>
-                <div class="icon icon-search"></div>
-                <h3>Find an open group order</h3>
-                <p>
-                    At one of the available places below.
-                </p>
+                                    <div class="desc">
+                                        <a href="{% url "order-view" order=order.pk %}">
+                                            <h3>
+                                                {{ order.provider.name }}
+                                            </h3>
+                                            {% if order.provider.logo %}
+                                                <div class="thumb_strip">
+                                                    <img src="{{ order.provider.logo.url }}" alt=""/>
+                                                </div>
+                                            {% else %}
+                                                <div class="thumb_strip">
+                                                    <i class="icon icon-shop-1"
+                                                       style="font-size: 70px; opacity: 0.5; vertical-align: middle"></i>
+                                                </div>
+                                            {% endif %}
+                                        </a>
+                                        <div class="type">
+                                            {{ order.date }}
+                                        </div>
+                                        <div class="location">
+                                            {% if order.open %}
+                                                {% if order.closing_time or order.delivery_time %}
+                                                    <div class="col-xs-6 text-left">
+                                                        {% if order.open and order.closing_time %}
+                                                            <span class="opening">Order before
+                                                                {{ order.closing_time|date:"H:i" }}</span>
+                                                        {% endif %}
+                                                        {% if order.open and order.delivery_time %}
+                                                            <span class="">Expected delivery
+                                                                {{ order.delivery_time|date:"H:i" }}</span>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            {% endif %}
+                                            <div class="
+
+
+
+
+
+
+                                                    {% if order.open %}{% if order.closing_time or order.delivery_time %}col-offset-xs-3{% endif %}{% endif %} text-left">
+                                                Delivered by:
+                                                {% if order.delivery_person %}
+                                                    {{ order.delivery_person.username }}
+                                                {% else %}
+                                                    {% if order.open %}
+                                                        you ?
+                                                    {% endif %}
+                                                {% endif %}
+                                                <br/>
+                                                Current order: {{ order.total }}€
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <div style="margin-top: 30px;">
+                                            {% if order.open %}
+                                                <a href="{% url "order" order=order.pk %}"
+                                                   class="btn btn-success btn-md">
+                                                    Order
+                                                </a>
+                                            {% else %}
+                                                <span class="label label-danger">Closed</span>
+                                                {% if order.has_unpaid_user_order %}
+                                                    <span class="label label-warning">Not fully paid</span>&nbsp;
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div><!-- End strip_list-->
+                            </div><!-- End col-md-6-->
+                            {% empty %}
+                            <p class="text-center"><strong>No orders available.</strong></p>
+                        {% endfor %}
+
+                    </div><!-- End row-->
+                </div><!-- End row-->
+            </div><!-- End row -->
+        {% else %}
+            <div class="row">
+                <div class="col-xs-12" style="margin-bottom: 30px;">
+                    <p class="text-center"><strong>Please <a href="#0" data-toggle="modal"
+                                                             data-target="#login_2">login</a> to view available
+                        orders.</strong>
+                    </p>
+                    <p class="text-center">You don't have an account ? Ask one of your colleague to invite you into the
+                        system.</p>
+                </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="box_home" id="two">
-                <span>2</span>
-                <div class="icon icon-cursor"></div>
-                <h3>Place your order</h3>
-                <p>
-                    Select your food in the menu.
-                </p>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="box_home" id="three">
-                <span>3</span>
-                <div class="icon icon-food"></div>
-                <h3>Enjoy your food</h3>
-                <p>
-                    With your colleagues, or without.
-                </p>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="box_home" id="four">
-                <span>4</span>
-                <div class="icon icon-money-2"></div>
-                <h3>Pay your order</h3>
-                <p>
-                    Pay the manager of the group order.
-                </p>
-            </div>
-        </div>
-    </div><!-- End row -->
-    <div class="row">
-        <div class="col-md-3">
-            <div id="filters_col">
-                <div class="filter_type">
-                    <h5>Your orders</h5>
-                    <hr style="margin-top: 0px;">
-                    {% if user.is_authenticated %}
-                        <div class="hidden">
-                            <span>Your company: <strong>{{ user.profile.company.name }}</strong></span>
-                            <hr/>
-                        </div>
-                        {% for uo in my_orders %}
-                            <ul>
-                                <li>
-                                    <a href="{% url "user-order-view" user_order=uo.pk %}">
-                                        {{ uo.order.date|date:"D j M" }}</a>
+        {% endif %}
+        {% if user.is_authenticated %}
+            <div class="col-md-3">
+                <div id="filters_col">
+                    <div class="filter_type">
+                        <h5>Your orders</h5>
+                        <hr style="margin-top: 0px;">
+                        {% if user.is_authenticated %}
+                            {% for uo in my_orders %}
+                                <ul>
+                                    <li>
+                                        <a href="{% url "user-order-view" user_order=uo.pk %}">
+                                            {{ uo.order.date|date:"D j M" }}</a>
                                     <span class="pull-right">
                                     {% if uo.order.delivered %}
                                         <span class="label label-success">Delivered</span>
@@ -97,122 +164,77 @@
                                             <span class="label label-danger">Not paid</span>
                                         {% endif %}
                                     </span>
-                                </li>
-                            </ul>
-                            {% empty %}
-                            No orders
-                        {% endfor %}
-                        <hr/>
-                        <h5>Invite a colleague</h5>
-                        <form action="{% url 'invite-form' %}" method="post">
-                            {{ invite_form }}
-                            {% csrf_token %}
-                            <button class="btn btn-xs btn-primary pull-right">Send</button>
-                        </form>
-                    {% else %}
-                        <p>Please <a href="#0" data-toggle="modal" data-target="#login_2">login</a> to view your orders
-                        </p>
-                    {% endif %}
+                                    </li>
+                                </ul>
+                                {% empty %}
+                                No orders
+                            {% endfor %}
+                            <hr/>
+                            {% include "userinvite_form.inc.html" %}
+                        {% else %}
+                            <p>Please <a href="#0" data-toggle="modal" data-target="#login_2">login</a> to view your
+                                orders
+                            </p>
+                        {% endif %}
 
+                    </div>
                 </div>
+            </div>
+        {% endif %}
+        <div class="clearfix"></div>
+        <div class="row">
+            <div class="main_title">
+                <h2 class="nomargin_top" style="padding-top:0">How it works</h2>
+                <p>
+                    Look at the amazing icons below to understand how easy it is.
+                </p>
             </div>
         </div>
 
-        <div class="col-md-9">
-
-            <div class="row">
-                {% if request.user.is_authenticated %}
-                    {% for order in all_orders %}
-                        <div class="col-md-6 col-sm-6  fadeIn" data-wow-delay="0.1s">
-                            {% if request.user.is_staff %}
-                                <span class="pull-right">
-                                    <a href="{% url "order-update" pk=order.pk %}" class="add-tooltip"
-                                       title="Change order details">
-                                        <i class="icon-pencil"></i>
-                                    </a>
-                                    {% if order.userorder_set.all and order.open %}
-                                        <a href="{% url "pick-random" o=order.pk %}" class="add-tooltip"
-                                           title="Pick a random delivery person">
-                                            <i class="icon-truck"></i>
-                                        </a>
-                                    {% endif %}
-                                    </span>
-                            {% endif %}
-                            <div class="strip_list grid">
-
-                                <div class="desc">
-                                    <a href="{% url "order-view" order=order.pk %}">
-                                        <h3>
-                                            {{ order.provider.name }}
-                                        </h3>
-                                        {% if order.provider.logo %}
-                                            <div class="thumb_strip">
-                                                <img src="{{ order.provider.logo.url }}" alt=""/>
-                                            </div>
-                                        {% else %}
-                                            <div class="thumb_strip">
-                                                <i class="icon icon-shop-1"
-                                                   style="font-size: 70px; opacity: 0.5; vertical-align: middle"></i>
-                                            </div>
-                                        {% endif %}
-                                    </a>
-                                    <div class="type">
-                                        {{ order.date }}
-                                    </div>
-                                    <div class="location">
-                                        {% if order.open %}
-                                            {% if order.closing_time or order.delivery_time %}
-                                                <div class="col-xs-6 text-left">
-                                                    {% if order.open and order.closing_time %}
-                                                        <span class="opening">Order before
-                                                            {{ order.closing_time|date:"H:i" }}</span>
-                                                    {% endif %}
-                                                    {% if order.open and order.delivery_time %}
-                                                        <span class="">Expected delivery
-                                                            {{ order.delivery_time|date:"H:i" }}</span>
-                                                    {% endif %}
-                                                </div>
-                                            {% endif %}
-                                        {% endif %}
-                                        <div class="{% if order.open %}{% if order.closing_time or order.delivery_time %}col-offset-xs-3{% endif %}{% endif %} text-left">
-                                            Delivered by:
-                                            {% if order.delivery_person %}
-                                                {{ order.delivery_person.username }}
-                                            {% else %}
-                                                {% if order.open %}
-                                                    you ?
-                                                {% endif %}
-                                            {% endif %}
-                                            <br/>
-                                            Current order: {{ order.total }}€
-                                        </div>
-                                        <div class="clearfix"></div>
-                                    </div>
-                                    <div style="margin-top: 30px;">
-                                        {% if order.open %}
-                                            <a href="{% url "order" order=order.pk %}"
-                                               class="btn btn-success btn-md">
-                                                Order
-                                            </a>
-                                        {% else %}
-                                            <span class="label label-danger">Closed</span>
-                                            {% if order.has_unpaid_user_order %}
-                                                <span class="label label-warning">Not fully paid</span>&nbsp;
-                                            {% endif %}
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div><!-- End strip_list-->
-                        </div><!-- End col-md-6-->
-                    {% endfor %}
-                {% else %}
-                    <p class="text-center"><strong>Please <a href="#0" data-toggle="modal"
-                                                             data-target="#login_2">login</a> to view available orders.</strong>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="box_home" id="one">
+                    <span>1</span>
+                    <div class="icon icon-search"></div>
+                    <h3>Find an open group order</h3>
+                    <p>
+                        At one of the available places below.
                     </p>
-                {% endif %}
-            </div><!-- End row-->
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="box_home" id="two">
+                    <span>2</span>
+                    <div class="icon icon-cursor"></div>
+                    <h3>Place your order</h3>
+                    <p>
+                        Select your food in the menu.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="box_home" id="three">
+                    <span>3</span>
+                    <div class="icon icon-food"></div>
+                    <h3>Enjoy your food</h3>
+                    <p>
+                        With your colleagues, or without.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="box_home" id="four">
+                    <span>4</span>
+                    <div class="icon icon-money-2"></div>
+                    <h3>Pay your order</h3>
+                    <p>
+                        Pay the manager of the group order.
+                    </p>
+                </div>
+            </div>
         </div><!-- End row -->
     </div><!-- End container -->
+
 {% endblock %}
 
 {% block contentttt %}

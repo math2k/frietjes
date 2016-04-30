@@ -14,7 +14,6 @@
                     </h2>
 
                     <form class="form-horizontal" method="post">{% csrf_token %}
-                        {{ form.email.errors }}
                         <div class="form-group">
                             <label class="col-xs-4 control-label"
                                    for="id_email">{% trans 'Email address:' %}</label>

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block page_title %}
+    User management
+{% endblock %}
+
+{% block page_title_text %}
+    Admin users can create group orders, add food places and set other users as admin members.
+{% endblock %}
+
+{% block content %}
+    <div class="container margin_60_35">
+    <div class="row">
+        <div class="col-md-3">
+            <div id="filters_col">
+                <div class="filter_type">
+                    {% include "userinvite_form.inc.html" %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="box_style_2">
+                <h2 class="inner">
+                    Users
+                </h2>
+
+                <table class="table table-striped">
+                    {% for u in object_list %}
+                        <tr>
+                            <td>
+                                {% if u == user %}
+                                <i class="fa fa-user add-tooltip text-warning"
+                                               title="This is you"></i>
+                                {% endif %}
+                                <a href="#" class="user" data-id="{{ u.pk }}"><strong>{{ u.username }}</strong></a>
+                            </td>
+                            <td>{{ u.email }}</td>
+                            <td>
+                                <div class="pull-right">
+                                    <form method="post" style="display: inline" class="confirm-form"
+                                          action="{% url "toggle-user-staff-flag" pk=u.pk %}">
+                                        {% csrf_token %}
+                                        {% if u.is_staff %}
+                                            <button class="btn btn-xs btn-warning" type="submit">
+                                                Remove admin rights
+                                            </button>{% else %}
+                                            <button class="btn btn-xs btn-success" type="submit">
+                                                Add as admin
+                                            </button>{% endif %}
+                                    </form>
+                                    <form method="post" style="display: inline" class="confirm-form"
+                                          action="{% url "user-delete" pk=u.pk %}">
+                                        {% csrf_token %}
+                                        <button class="btn btn-xs btn-danger" type="submit">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <div class="col-md-3 sidebar" id="sidebar">
+            <div class="theiaStickySidebar">
+                <div id="user_orders" class="box_style_2" style="padding: 0 20px 20px 20px;">
+                    <p style="text-align: center; padding-top: 20px;">
+                        Click on a username to view their orders
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block extra_js %}
+    <script type="text/javascript">
+        function getUserOrders(id) {
+            $.get('/user-orders/' + id).success(function (data) {
+                $('#user_orders').html(data);
+                $('#user_orders').fadeIn();
+            });
+        }
+        $('body').on('click', '.user', function () {
+            var id = $(this).data('id');
+            getUserOrders(id);
+            return false;
+        });
+        $(document).ready(function () {
+
+        });
+    </script>
+{% endblock %}

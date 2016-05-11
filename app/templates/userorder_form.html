@@ -9,7 +9,11 @@
 {% block page_title_text %}
     <div class="icon icon-location-1">&nbsp;{{ order.provider.address }}</div>
     {% if order.provider.phone %}
-        <div class="icon icon-phone">&nbsp;{{ order.provider.phone }}</div>{% endif %}
+        <div class="icon icon-phone">&nbsp;{{ order.provider.phone }}</div>
+    {% endif %}
+    {% if order.notes %}
+        <div class="icon-pencil">&nbsp;{{ order.notes }}</div>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -58,7 +62,7 @@
                         <div class="box_style_2 left">
                             <i class="icon icon-lifebuoy"></i>
                             <h4>Need <span>Help?</span></h4>
-                            Contact {{ order.manager }} if you require assistance with this order.
+                            Contact <strong>{{ order.manager }}</strong> if you require assistance with this order.
                         </div>
                     </div>
                 </div><!-- End col-md-3 -->
@@ -147,72 +151,7 @@
     <!-- End Content =============================================== -->
 {% endblock %}
 
-{% block contentll %}
-    <div class="row">
-        <form class="form-inline order" method="post">
-            <div class="col-lg-6">
-                <div>
-                    <div>
-                        {% for m in menu_items %}
-                            {% ifchanged m.category %}
-                                </div>
-                                </div>
-                                <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    {{ m.category.name }}
-                                </div>
-                                <div class="panel-body">
-                            {% endifchanged %}
-                            <a href="javascript:void(0);" class="add-static-tooltip list-group-item cart-item"
-                               data-item-id="{{ m.pk }}"
-                               data-item-price="{{ m.unit_price }}">
-                                <button type="button" class="btn btn-xs btn-noborder btn-success pull-right cart-add">
-                                    <i class="fa fa-plus"></i>
-                                </button>
-                                <button type="button" class="btn btn-danger btn-xs btn-noborder pull-right cart-remove"
-                                        style="display: none;">
-                                    <i class="fa fa-minus"></i>
-                                </button>
-                                <span>
-                                    <p class="list-group-item-text pull-left">
-                                        {% if m.pk in latest_order_items %}
-                                            <i class="fa fa-star add-tooltip text-warning"
-                                               title="This item was in your latest order"></i>{% endif %}
-                                        <strong>{{ m.name }}</strong>
-                                    </p>
-                                    <p class="list-group-item-text pull-right">
-                                        {{ m.unit_price }}
-                                    </p>
-				</span>
-                                <br class="clearfix">
-                            </a>
-                        {% endfor %}
-                        </div>
-                        </div>
-            </div>
 
-            <div class="col-lg-6">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <i class="fa fa-shopping-cart"></i> Cart
-                        <span class="pull-right">Total: <span id="cart-total">0.00</span>€</span>
-                    </div>
-                    <div id="cart" class="panel-body">
-
-                    </div>
-                    {{ user_order.order|add_class:'form-control' }}
-                </div>
-                <div class="form-group">
-                    {{ user_order.notes|add_class:"form-control" }}
-                </div>
-
-                <input type="hidden" id="items" name="items" value=""/>
-                {% csrf_token %}
-            </div>
-            <button type="submit" style="margin-top: 20px;" class="btn btn-success pull-right">Place order</button>
-        </form>
-    </div>
-{% endblock %}
 {% block extra_js %}
     <script>
         function getText(n) {

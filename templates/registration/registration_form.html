@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
 
-{% block title %}Registration{% endblock %}
+{% block page_title %}Registration{% endblock %}
 
 {% block content %}
     <div class="container margin_60_35">
@@ -9,8 +9,9 @@
             <div class="box_style_2">
                 <h2 class="inner">Register</h2>
 
-                <form class="form-horizontal" method="post" action="{% url 'registration_register' %}">
+                <form class="form-horizontal" method="post" action="{% url 'registration_register' secret=form.secret.value %}">
                     {% csrf_token %}
+                    {{ form.secret }}
                     <div class="form-group">
                         <label class="col-xs-6 control-label" for="id_username">Name</label>
                         <div class="col-xs-6">

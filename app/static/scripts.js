@@ -17,6 +17,10 @@ $(document).ready(function () {
     $('.add-static-tooltip').tooltip({'trigger': 'manual'}).tooltip('show');
 });
 
+$(document).on('submit', '.confirm-form', function (){
+    return confirm('Are you sure ?');
+});
+
 $(document).on('show.bs.modal', '#image-modal', function (event) {
     var button = $(event.relatedTarget);
     var modal = $(this);

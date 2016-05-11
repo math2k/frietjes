@@ -1,0 +1,25 @@
+<h3>
+    {{ object.name }}
+</h3>
+{% if object.logo %}
+    <img src="{{ object.logo.url }}" style="width: 80%; height: 80%"/>
+{% endif %}
+{% if object.menuimage_set.all %}
+    <p>
+        View the full menu:<br/>
+        {% for i in object.menuimage_set.all %}
+            <a data-toggle="modal" data-target="#image-modal" data-img="{{ i.image.url }}"
+               class="fa fa-file-text-o add-tooltip"
+               title="Image {{ forloop.counter }}"></a>
+            &nbsp;
+        {% endfor %}
+    </p>
+{% endif %}
+<hr>
+<div class="icon icon-location-1">&nbsp;{{ object.address }}</div>
+{% if object.phone %}
+    <div class="icon icon-phone">&nbsp;{{ object.phone }}</div>
+{% endif %}
+{% if object.notes %}
+    {{ object.notes }}
+{% endif %}

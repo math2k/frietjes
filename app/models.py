@@ -32,19 +32,21 @@ class FoodProvider(models.Model):
     name = models.CharField(max_length=50)
     address = models.CharField(max_length=300)
     phone = models.CharField(max_length=20, null=True)
-    logo = models.ImageField(upload_to='logos', null=True)
+    logo = models.ImageField(upload_to='logos', blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
 
     def __unicode__(self):
         return u"{0}".format(self.name)
 
 
 class Order(models.Model):
-    open = models.BooleanField(default=True, verbose_name="Open for ordering")
+    company = models.ForeignKey(to="Company")
+    open = models.BooleanField(default=True, verbose_name="Open for ordering", help_text='')
     delivered = models.BooleanField(default=False)
     manager = models.ForeignKey(User)
     provider = models.ForeignKey(FoodProvider, verbose_name="Place", related_name='provider')
     date = models.DateField(auto_now_add=True)
-    delivery_person = models.ForeignKey(User, blank=True, null=True, related_name="delivery_person")
+    delivery_person = models.ForeignKey(User, blank=True, null=True, related_name="delivery_person", help_text='Can be picked at random as soon a users have placed an order')
     delivery_time = models.TimeField(blank=True, null=True)
     closing_time = models.TimeField(blank=True, null=True)
     notes = models.TextField(default="", blank=True)
@@ -193,3 +195,28 @@ class NotificationRequest(models.Model):
 class FeedEntry(models.Model):
     datetime = models.DateTimeField(auto_now_add=True)
     event = models.TextField()
+
+
+class Company(models.Model):
+    name = models.CharField(max_length=200)
+
+    def __unicode__(self):
+        return self.name
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, related_name='profile', on_delete=models.CASCADE)
+    company = models.ForeignKey(Company)
+
+
+class UserInvite(models.Model):
+    email = models.EmailField()
+    secret = models.CharField(primary_key=True, max_length=32, editable=False)
+    company = models.ForeignKey(Company)
+    used_on = models.DateTimeField(editable=False, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.secret = str(uuid.uuid4())[:32]
+        return super(UserInvite, self).save(*args, **kwargs)
+

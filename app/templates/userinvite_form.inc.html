@@ -1,0 +1,6 @@
+<h5>Invite a colleague</h5>
+<form action="{% url 'invite-form' %}" method="post">
+    {{ invite_form }}
+    {% csrf_token %}
+    <button class="btn btn-xs btn-primary pull-right">Send</button>
+</form>

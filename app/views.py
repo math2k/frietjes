@@ -6,16 +6,20 @@ import uuid
 
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Count
+from django.db.models.query import QuerySet
 from django.forms import formset_factory, Select
 from django.forms.models import modelformset_factory
 from django.utils.decorators import method_decorator
-from registration.backends.simple.views import RegistrationView
+from registration.backends.simple.views import RegistrationView, User
 
-from app.forms import OrderForm, UserOrderForm, UserOrder, NotificationRequestForm, ImportMenuItemsForm
-from app.models import Order, MenuItem, UserOrderItem, NotificationRequest, MenuItemCategory
-from django.views.generic import TemplateView, FormView, View, RedirectView, CreateView, UpdateView
+from app.forms import OrderForm, UserOrderForm, UserOrder, NotificationRequestForm, ImportMenuItemsForm, \
+    FrietjesRegistrationForm, UserInviteForm
+from app.models import Order, MenuItem, UserOrderItem, NotificationRequest, MenuItemCategory, UserProfile, FoodProvider
+from django.views.generic import (
+    TemplateView, FormView, View, RedirectView, CreateView, UpdateView, DetailView, ListView, DeleteView)
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 from app.signals import *
@@ -26,12 +30,12 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = {}
-        if self.request.GET.get('all'):
-            ctx['all_orders'] = Order.objects.all().order_by("-pk")
-        else:
-            ctx['all_orders'] = Order.objects.all().order_by("-pk")[:10]
-        ctx['open_order'] = Order.objects.filter(open=True).order_by("-date").last()
-        ctx['col_size'] = int(len(ctx['all_orders']) / 2)
+        if self.request.user.is_authenticated():
+            if self.request.GET.get('all'):
+                ctx['all_orders'] = Order.objects.filter(company=self.request.user.profile.company).order_by("-pk")
+            else:
+                ctx['all_orders'] = Order.objects.filter(company=self.request.user.profile.company).order_by("-pk")[:10]
+            ctx['open_order'] = Order.objects.filter(open=True, company=self.request.user.profile.company).order_by("-date").last()
         #ctx['feed_entries'] = FeedEntry.objects.filter(datetime__day=datetime.datetime.now().day).order_by('-datetime')[:15]
         ctx['feed_entries'] = FeedEntry.objects.filter().order_by('-datetime')[:15]
         ctx['show_notification_tooltip'] = False if self.request.COOKIES.get('show_notification_tooltip') == '0' else True
@@ -42,6 +46,7 @@ class HomeView(TemplateView):
             ctx['my_orders'] = []
         if self.request.user.is_authenticated():
             ctx['unpaid_orders'] = UserOrder.objects.filter(user=self.request.user, paid=False, order__open=False)
+        ctx['invite_form'] = UserInviteForm()
         return ctx
 
 
@@ -141,6 +146,41 @@ class TogglePaidFlag(View):
             return redirect(request.META.get('HTTP_REFERER'))
 
 
+class ToggleUserStaffFlag(View):
+    http_method_names = ['post', ]
+
+    def post(self, request, *args, **kwargs):
+        if request.user.is_staff:
+            u = get_object_or_404(User, pk=kwargs.get('pk'))
+            admin_group = Group.objects.get(name='admin')
+            if u.is_staff:
+                if len(User.objects.filter(is_staff=True, profile__company=self.request.user.profile.company)) == 1:
+                    messages.error(self.request, "Removing that user from staff would make the company staff-less. You don't want that.")
+                    return redirect(request.META.get('HTTP_REFERER'))
+                u.is_staff = not u.is_staff
+                u.save()
+                admin_group.user_set.remove(u)
+                messages.warning(request, "{0} is not an admin anymore".format(u.username))
+            else:
+                u.is_staff = not u.is_staff
+                u.save()
+                admin_group.user_set.add(u)
+                messages.success(request, "{0} is now an admin".format(u.username))
+            return redirect(request.META.get('HTTP_REFERER'))
+
+
+class SetOrderDeliveredView(View):
+    http_method_names = ['post', ]
+
+    def post(self, request, *args, **kwargs):
+        if request.user.is_staff:
+            o = get_object_or_404(Order, pk=kwargs.get('pk'))
+            o.delivered = True
+            o.save()
+            messages.success(request, "Order has been marked as delivered!")
+            return redirect(request.META.get('HTTP_REFERER'))
+
+
 class Redirect(RedirectView):
     pattern_name = "home"
 
@@ -156,11 +196,11 @@ class PickRandomDeliveryPerson(View):
         if request.user.is_staff:
             o = get_object_or_404(Order, pk=kwargs.get('o'))
             if o.delivery_person:
-                messages.error(request, "{0} is already set as the chinese volunteer!".format(o.delivery_person.username))
+                messages.error(request, "{0} is already set as the delivery person!".format(o.delivery_person.username))
             else:
                 o.assign_random_delivery_person()
                 if o.delivery_person:
-                    messages.success(request, "{0} has been selected as chinese volunteer! Thanks {0} :D".format(
+                    messages.success(request, "{0} has been designated as volunteer! Thanks {0} :D".format(
                         o.delivery_person.username))
                     fe = FeedEntry(event='_{0}_ has been randomly selected to pick up the order from {1}'
                                    .format(o.delivery_person.username, o.provider.name))
@@ -214,7 +254,7 @@ class NotificationRequestFormView(UpdateView):
         if len(self.object.providers.all()) > 0 or self.object.all_providers or self.object.deliveries:
             messages.success(self.request, "Notifications saved!")
         else:
-            messages.warning(self.request, "We won't bother you with notifications again")
+            messages.warning(self.request, "We won't bother you with notifications.")
         return reverse_lazy('home')
 
 
@@ -256,10 +296,139 @@ class ImportMenuItemsFormView(FormView):
 
 class FrietjesRegistrationView(RegistrationView):
 
-    def dispatch(self, *args, **kwargs):
-        res = super(FrietjesRegistrationView, self).dispatch(*args, **kwargs)
-        res.set_cookie('show_account_tooltip', '0', expires="Fri, 01-Jan-25 12:12:12 GMT")
+    form_class = FrietjesRegistrationForm
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.invite = UserInvite.objects.get(pk=self.kwargs['secret'], used_on=None)
+        except UserInvite.DoesNotExist:
+            messages.error(self.request, 'Invalid invitation link')
+            return redirect(reverse_lazy('home'))
+        return super(FrietjesRegistrationView, self).dispatch(request, *args, **kwargs)
+
+    def get_initial(self):
+        return {'secret': self.invite.secret, 'email': self.invite.email}
+
+    def form_valid(self, form):
+        res = super(FrietjesRegistrationView, self).form_valid(form)
+        # TODO: Fix this mess
+        user = User.objects.get(username=form.cleaned_data['username'])
+        user_profile = UserProfile(user_id=user.pk, company=self.invite.company)
+        user_profile.save()
+        self.invite.used_on = datetime.datetime.now()
+        self.invite.save()
         return res
 
     def get_success_url(self, user):
         return self.request.GET.get('next', self.request.POST.get('next', reverse_lazy('home')))
+
+
+class UserInviteFormView(CreateView):
+    model = UserInvite
+    fields = ['email']
+    template_name = 'userinvite_form.html'
+
+    def form_valid(self, form):
+        invite = form.save(commit=False)
+        invite.company = self.request.user.profile.company
+        return super(UserInviteFormView, self).form_valid(form)
+
+    def get_success_url(self):
+        messages.success(self.request, 'Invitation sent!')
+        return self.request.META.get('HTTP_REFERER')
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class CreateOrderFormView(CreateView):
+    model = Order
+    template_name = "order_form.html"
+    fields = ['open', 'delivered', 'manager', 'provider', 'delivery_person', 'delivery_time', 'closing_time', 'notes', 'silent', 'cancelled', 'cancelled_reason']
+
+    def get_form(self, form_class=None):
+        form = super(CreateOrderFormView, self).get_form(form_class)
+        form.fields['manager'].queryset = User.objects.filter(profile__company=self.request.user.profile.company)
+        if not form.instance.id:
+            # New group order, only current user can be the delivery person
+            form.fields['delivery_person'].queryset = User.objects.filter(pk=self.request.user.pk)
+        return form
+
+    def form_valid(self, form):
+        order = form.save(commit=False)
+        order.company = self.request.user.profile.company
+        return super(CreateOrderFormView, self).form_valid(form)
+
+    def get_success_url(self):
+        messages.success(self.request, 'Group order created')
+        return reverse_lazy('home')
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class UpdateOrderFormView(UpdateView):
+    model = Order
+    template_name = "order_form.html"
+    fields = ['open', 'delivered', 'manager', 'delivery_person', 'delivery_time', 'closing_time', 'notes', 'silent', 'cancelled', 'cancelled_reason']
+
+    def get_form(self, form_class=None):
+        form = super(UpdateOrderFormView, self).get_form(form_class)
+        form.fields['manager'].queryset = User.objects.filter(profile__company=self.request.user.profile.company)
+        user_list = [uo.user.id for uo in form.instance.userorder_set.all()]
+        user_list.append(self.request.user.id)
+        form.fields['delivery_person'].queryset = User.objects.filter(id__in=user_list)
+        return form
+
+    def form_valid(self, form):
+        order = form.save(commit=False)
+        order.company = self.request.user.profile.company
+        return super(UpdateOrderFormView, self).form_valid(form)
+
+    def get_success_url(self):
+        messages.success(self.request, 'Group order updated')
+        return reverse_lazy('home')
+
+
+class FoodProviderQuickView(DetailView):
+    model = FoodProvider
+    template_name = "foodprovider_view.html"
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class ListCompanyUsers(ListView):
+    model = User
+    ordering = 'username'
+    template_name = "user_list.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ListCompanyUsers, self).get_context_data(**kwargs)
+        ctx['invite_form'] = UserInviteForm()
+        return ctx
+
+    def get_queryset(self):
+        return User.objects.filter(profile__company=self.request.user.profile.company)
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class ListUserOrdersView(ListView):
+    model = User
+    template_name = "userorder_list.html"
+
+    def get_queryset(self):
+        return UserOrder.objects.filter(user_id=self.kwargs.get('pk')).order_by('-order__date')
+
+
+    def get_context_data(self, **kwargs):
+        ctx = super(ListUserOrdersView, self).get_context_data(**kwargs)
+        ctx['user'] = User.objects.get(pk=self.kwargs.get('pk'))
+        return ctx
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class DeleteUser(DeleteView):
+    model = User
+
+    def get_success_url(self):
+        messages.success(self.request, 'User has been deleted.')
+        return reverse_lazy('user-list')
+
+
+
+

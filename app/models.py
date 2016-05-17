@@ -46,7 +46,7 @@ class Order(models.Model):
     manager = models.ForeignKey(User)
     provider = models.ForeignKey(FoodProvider, verbose_name="Place", related_name='provider')
     date = models.DateField(auto_now_add=True)
-    delivery_person = models.ForeignKey(User, blank=True, null=True, related_name="delivery_person", help_text='Can be picked at random as soon a users have placed an order')
+    delivery_person = models.ForeignKey(User, blank=True, null=True, related_name="delivery_person", help_text='Can be picked at random as soon as users have placed an order')
     delivery_time = models.TimeField(blank=True, null=True)
     closing_time = models.TimeField(blank=True, null=True)
     notes = models.TextField(default="", blank=True)

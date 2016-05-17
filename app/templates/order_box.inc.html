@@ -1,0 +1,90 @@
+{% if request.user.is_staff %}
+    <span class="pull-right">
+                                    <a href="{% url "order-update" pk=order.pk %}" class="add-tooltip"
+                                       title="Change order details">
+                                        <i class="icon-pencil"></i>
+                                    </a>
+                                    <form style="display: inline;" class="confirm-form"
+                                          action="{% url "set-order-delivered" pk=order.pk %}" method="post">
+                                        {% csrf_token %}
+                                        <a href="#" onclick="$(this).closest('form').submit()" class="add-tooltip"
+                                           title="Mark order as delivered">
+                                            <i class="icon-food-1"></i>
+                                        </a>
+                                    </form>
+        {% if order.userorder_set.all and order.open and not order.delivery_person %}
+            <a href="{% url "pick-random" o=order.pk %}" class="add-tooltip"
+               title="Pick a random delivery person">
+                                                <i class="icon-truck"></i>
+                                            </a>
+        {% endif %}
+                                    </span>
+{% endif %}
+<div class="strip_list grid">
+    <div class="desc">
+        <a href="{% url "order-view" order=order.pk %}">
+            <h3>
+                {{ order.provider.name }}
+            </h3>
+            {% if order.provider.logo %}
+                <div class="thumb_strip">
+                    <img src="{{ order.provider.logo.url }}" alt=""/>
+                </div>
+            {% else %}
+                <div class="thumb_strip">
+                    <i class="icon icon-shop-1"
+                       style="font-size: 70px; opacity: 0.5; vertical-align: middle"></i>
+                </div>
+            {% endif %}
+            <div class="clearfix"></div>
+        </a>
+        <div class="type">
+            {{ order.date }}
+        </div>
+        <div class="location">
+            {% if order.open %}
+                {% if order.closing_time or order.delivery_time %}
+                    <div class="col-xs-6 text-left">
+                        {% if order.open and order.closing_time %}
+                            <span class="opening">Order before
+                                {{ order.closing_time|date:"H:i" }}</span>
+                        {% endif %}
+                        {% if order.open and order.delivery_time %}
+                            <span class="">Expected delivery
+                                {{ order.delivery_time|date:"H:i" }}</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endif %}
+            <div class="
+
+
+                    {% if order.open %}{% if order.closing_time or order.delivery_time %}col-offset-xs-3{% endif %}{% endif %} text-left">
+                Delivered by:
+                {% if order.delivery_person %}
+                    {{ order.delivery_person.username }}
+                {% else %}
+                    {% if order.open %}
+                        you ?
+                    {% endif %}
+                {% endif %}
+                <br/>
+                Current order: {{ order.total }}€
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <div style="margin-top: 30px;">
+            {% if order.open %}
+                <a href="{% url "order" order=order.pk %}"
+                   class="btn btn-success btn-md">
+                    Order
+                </a>
+            {% else %}
+                <span class="label label-danger">Closed</span>
+                {% if order.has_unpaid_user_order %}
+                    <span class="label label-warning">Not fully paid</span>&nbsp;
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>

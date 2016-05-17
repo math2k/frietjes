@@ -8,8 +8,9 @@
 
 {% block page_title_text %}
     <div class="icon icon-location-1">&nbsp;{{ user_order.order.provider.address }}</div>
-    {% if order.provider.phone %}
-        <div class="icon icon-phone">&nbsp;{{ user_order.order.provider.phone }}</div>{% endif %}
+    {% if user_order.order.provider.phone %}
+        <div class="icon icon-phone">&nbsp;{{ user_order.order.provider.phone }}</div>
+    {% endif %}
 {% endblock %}
 
 {% block content %}

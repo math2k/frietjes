@@ -7,6 +7,9 @@
 
 {% block page_title_text %}
     <span class="icon_pin"></span> {{ order.provider.address }}
+    {% if order.provider.phone %}
+        <div class="icon icon-phone">&nbsp;{{ order.provider.phone }}</div>
+    {% endif %}
 {% endblock %}
 
 {% block jumbo %}
@@ -51,49 +54,52 @@
             </div>
             <div class="clearfix"></div>
             <div class="col-md-6 hidden-print">
-                {% for uo in order.get_userorders %}
-                    <form action="{% url "toggle-paid-flag" uo=uo.pk %}" method="post">
-                        <div class="panel panel-default">
-                            {% csrf_token %}
-                            <div class="panel-heading">
-                                {{ uo.user.username }}
-                                {% if user.is_staff %}
-                                    <a href="#" onclick="$(this).closest('form').submit(); return false;"
-                                       title="Toggle payment status" class="add-tooltip">
-                                {% endif %}
-                                {% if uo.paid %}
-                                    <span class="label label-success">Paid</span>
-                                {% else %}
-                                    <span class="label label-warning">Not paid</span>
-                                {% endif %}
-                                {% if user.is_staff %}
-                                    </a>
-                                {% endif %}
-                                {% if uo.user == request.user %}
-                                    <span class="label label-primary">Your order</span>
-                                {% endif %}
-                                <span class="pull-right price"><b>{{ uo.total }} €</b></span>
-                            </div>
-                            <ul class="list-group">
-                                {% for uoi in uo.userorderitem_set.all %}
-                                    <li class="list-group-item" style="padding-top: 5px; padding-bottom: 5px;">{{ uoi }} <span
-                                            class="pull-right price">{{ uoi.total }} €</span></li>
-                                {% endfor %}
-                            </ul>
-                            {% if uo.notes %}
-                                <div class="panel-body">
-                                    <b>{{ uo.notes }}</b>
+                <div class="box_style_2">
+                    <h2 class="inner hidden-print">Users' orders</h2>
+                    {% for uo in order.get_userorders %}
+                        <form action="{% url "toggle-paid-flag" uo=uo.pk %}" method="post">
+                            <div class="panel panel-default">
+                                {% csrf_token %}
+                                <div class="panel-heading" style="padding: 5px 15px;">
+                                    {{ uo.user.username }}
+                                    {% if user.is_staff %}
+                                        <a href="#" onclick="$(this).closest('form').submit(); return false;"
+                                           title="Toggle payment status" class="add-tooltip">
+                                    {% endif %}
+                                    {% if uo.paid %}
+                                        <span class="label label-success">Paid</span>
+                                    {% else %}
+                                        <span class="label label-warning">Not paid</span>
+                                    {% endif %}
+                                    {% if user.is_staff %}
+                                        </a>
+                                    {% endif %}
+                                    {% if uo.user == request.user %}
+                                        <span class="label label-primary">Your order</span>
+                                    {% endif %}
+                                    <span class="pull-right price"><b>{{ uo.total }} €</b></span>
                                 </div>
-                            {% endif %}
-                        </div>
-                    </form>
-                {% endfor %}
+                                <ul class="list-group">
+                                    {% for uoi in uo.userorderitem_set.all %}
+                                        <li class="list-group-item"
+                                            style="padding-top: 5px; padding-bottom: 5px;">{{ uoi }} <span
+                                                class="pull-right price">{{ uoi.total }} €</span></li>
+                                    {% endfor %}
+                                </ul>
+                                {% if uo.notes %}
+                                    <div class="panel-body">
+                                        <b>{{ uo.notes }}</b>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </form>
+                    {% endfor %}
+                </div>
             </div>
             <div class="col-md-6">
-                <div class="panel panel-default">
-                    <div class="panel-heading">Order summary<span class="pull-right price"><b>{{ order.total }}
-                        €</b></span>
-                    </div>
+                <div class="box_style_2">
+                    <h2 class="inner hidden-print">Summary <span class="pull-right price"><b>{{ order.total }}
+                        €</b></h2>
                     <ul class="list-group">
                         {% for i in order_items %}
                             <li class="list-group-item"
@@ -103,6 +109,11 @@
                         {% endfor %}
                     </ul>
                 </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-offset-3 col-md-6 hidden-print">
+                {% include "order_box.inc.html" %}
             </div>
         </div>
     </div>

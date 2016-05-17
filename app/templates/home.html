@@ -14,9 +14,7 @@
         {% if open_order %}
             <p>Some group orders are open, make your choice below!</p>
         {% else %}
-            <p>Sorry, no group order is open at the moment.. <a href="{% url "admin:app_order_add" %}">create one
-                yourself
-                ?</a></p>
+            <p>Sorry, no group order is open at the moment.</p>
         {% endif %}
     {% endif %}
 {% endblock %}
@@ -198,7 +196,7 @@
                     <div class="icon icon-search"></div>
                     <h3>Find an open group order</h3>
                     <p>
-                        At one of the available places below.
+                        At one of the available places.
                     </p>
                 </div>
             </div>

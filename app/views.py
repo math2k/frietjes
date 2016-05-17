@@ -155,7 +155,7 @@ class ToggleUserStaffFlag(View):
             admin_group = Group.objects.get(name='admin')
             if u.is_staff:
                 if len(User.objects.filter(is_staff=True, profile__company=self.request.user.profile.company)) == 1:
-                    messages.error(self.request, "Removing that user from staff would make the company staff-less. You don't want that.")
+                    messages.error(self.request, "Removing admin privileges of that user would make the company admin-less. You don't want that.")
                     return redirect(request.META.get('HTTP_REFERER'))
                 u.is_staff = not u.is_staff
                 u.save()

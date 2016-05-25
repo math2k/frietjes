@@ -1107,8 +1107,12 @@ ul.additional_links li:first-child{
     padding: 1px 5px;
 }
 
+.table.table_summary td::first-letter {
+  text-transform: uppercase;
+}
 .table.table_summary td {
-	border-top:0
+	border-top:0;
+  text-transform: lowercase;
 }
 .table.table_summary td.total{
 	font-weight:bold;

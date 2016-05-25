@@ -39,6 +39,7 @@ class HomeView(TemplateView):
                 ctx['all_orders'] = Order.objects.filter(company=self.request.user.profile.company).order_by("-pk").prefetch_related('provider', 'delivery_person')[:10]
                 ctx['all_group_outings'] = EatingGroup.objects.filter(company=self.request.user.profile.company).order_by("-pk").prefetch_related('provider')[:10]
             ctx['open_order'] = Order.objects.filter(open=True, company=self.request.user.profile.company).order_by("-date").last()
+            ctx['open_group'] = EatingGroup.objects.filter(open=True, company=self.request.user.profile.company).order_by("-date").last()
         #ctx['feed_entries'] = FeedEntry.objects.filter(datetime__day=datetime.datetime.now().day).order_by('-datetime')[:15]
         ctx['feed_entries'] = FeedEntry.objects.filter().order_by('-datetime')[:15]
         ctx['show_notification_tooltip'] = False if self.request.COOKIES.get('show_notification_tooltip') == '0' else True

@@ -16,6 +16,9 @@
         {% else %}
             <p>Sorry, no group order is open at the moment.</p>
         {% endif %}
+        {% if open_group %}
+            <p>Some group outings are open, join them!</p>
+        {% endif %}
     {% endif %}
 {% endblock %}
 

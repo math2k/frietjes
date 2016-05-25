@@ -480,7 +480,7 @@ class ListCompanyUsers(ListView):
         return ctx
 
     def get_queryset(self):
-        return User.objects.filter(profile__company=self.request.user.profile.company)
+        return User.objects.filter(profile__company=self.request.user.profile.company).order_by('username')
 
 
 @method_decorator(staff_member_required, name='dispatch')

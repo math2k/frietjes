@@ -17,7 +17,8 @@ from registration.backends.simple.views import RegistrationView, User
 
 from app.forms import OrderForm, UserOrderForm, UserOrder, NotificationRequestForm, ImportMenuItemsForm, \
     FrietjesRegistrationForm, UserInviteForm
-from app.models import Order, MenuItem, UserOrderItem, NotificationRequest, MenuItemCategory, UserProfile, FoodProvider
+from app.models import Order, MenuItem, UserOrderItem, NotificationRequest, MenuItemCategory, UserProfile, FoodProvider, \
+    EatingGroup, EatingGroupMember
 from django.views.generic import (
     TemplateView, FormView, View, RedirectView, CreateView, UpdateView, DetailView, ListView, DeleteView)
 from django.shortcuts import redirect, get_object_or_404
@@ -32,16 +33,18 @@ class HomeView(TemplateView):
         ctx = {}
         if self.request.user.is_authenticated():
             if self.request.GET.get('all'):
-                ctx['all_orders'] = Order.objects.filter(company=self.request.user.profile.company).order_by("-pk")
+                ctx['all_orders'] = Order.objects.filter(company=self.request.user.profile.company).order_by("-pk").prefetch_related('provider', 'delivery_person')
+                ctx['all_group_outings'] = EatingGroup.objects.filter(company=self.request.user.profile.company).order_by("-pk").prefetch_related('provider')
             else:
-                ctx['all_orders'] = Order.objects.filter(company=self.request.user.profile.company).order_by("-pk")[:10]
+                ctx['all_orders'] = Order.objects.filter(company=self.request.user.profile.company).order_by("-pk").prefetch_related('provider', 'delivery_person')[:10]
+                ctx['all_group_outings'] = EatingGroup.objects.filter(company=self.request.user.profile.company).order_by("-pk").prefetch_related('provider')[:10]
             ctx['open_order'] = Order.objects.filter(open=True, company=self.request.user.profile.company).order_by("-date").last()
         #ctx['feed_entries'] = FeedEntry.objects.filter(datetime__day=datetime.datetime.now().day).order_by('-datetime')[:15]
         ctx['feed_entries'] = FeedEntry.objects.filter().order_by('-datetime')[:15]
         ctx['show_notification_tooltip'] = False if self.request.COOKIES.get('show_notification_tooltip') == '0' else True
         ctx['show_account_tooltip'] = False if self.request.COOKIES.get('show_account_tooltip') == '0' else True
         if self.request.user.is_authenticated():
-            ctx['my_orders'] = UserOrder.objects.filter(user=self.request.user).order_by('-order__date')
+            ctx['my_orders'] = UserOrder.objects.filter(user=self.request.user).order_by('-order__date').prefetch_related('order')
         else:
             ctx['my_orders'] = []
         if self.request.user.is_authenticated():
@@ -344,9 +347,19 @@ class CreateOrderFormView(CreateView):
     template_name = "order_form.html"
     fields = ['open', 'delivered', 'manager', 'provider', 'delivery_person', 'delivery_time', 'closing_time', 'notes', 'silent', 'cancelled', 'cancelled_reason']
 
+    def get_initial(self):
+        return {
+            'manager': self.request.user
+        }
+
     def get_form(self, form_class=None):
         form = super(CreateOrderFormView, self).get_form(form_class)
+        form.fields['provider'].queryset = FoodProvider.objects.filter(type__in=['takeaway'])
         form.fields['manager'].queryset = User.objects.filter(profile__company=self.request.user.profile.company)
+        form.fields['closing_time'].input_formats = ('%d/%m/%Y %H:%M',)
+        form.fields['closing_time'].widget.format = '%d/%m/%Y %H:%M'
+        form.fields['delivery_time'].input_formats = ('%d/%m/%Y %H:%M',)
+        form.fields['delivery_time'].widget.format = '%d/%m/%Y %H:%M'
         if not form.instance.id:
             # New group order, only current user can be the delivery person
             form.fields['delivery_person'].queryset = User.objects.filter(pk=self.request.user.pk)
@@ -355,10 +368,69 @@ class CreateOrderFormView(CreateView):
     def form_valid(self, form):
         order = form.save(commit=False)
         order.company = self.request.user.profile.company
+        order.manager = self.request.user
         return super(CreateOrderFormView, self).form_valid(form)
 
     def get_success_url(self):
         messages.success(self.request, 'Group order created')
+        return reverse_lazy('home')
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class CreateGroupFormView(CreateView):
+    model = EatingGroup
+    template_name = "group_form.html"
+    fields = ['open', 'provider', 'manager', 'departing_time', 'closing_time', 'notes', 'silent', 'cancelled', 'cancelled_reason']
+
+    def get_initial(self):
+        return {
+            'manager': self.request.user
+        }
+
+    def get_form(self, form_class=None):
+        form = super(CreateGroupFormView, self).get_form(form_class)
+        form.fields['manager'].queryset = User.objects.filter(profile__company=self.request.user.profile.company)
+        form.fields['provider'].queryset = FoodProvider.objects.filter(type='restaurant')
+        form.fields['closing_time'].input_formats = ('%d/%m/%Y %H:%M',)
+        form.fields['closing_time'].widget.format = '%d/%m/%Y %H:%M'
+        form.fields['departing_time'].input_formats = ('%d/%m/%Y %H:%M',)
+        form.fields['departing_time'].widget.format = '%d/%m/%Y %H:%M'
+        return form
+
+    def form_valid(self, form):
+        order = form.save(commit=False)
+        order.company = self.request.user.profile.company
+        order.manager = self.request.user
+        return super(CreateGroupFormView, self).form_valid(form)
+
+    def get_success_url(self):
+        messages.success(self.request, 'Group outing created')
+        return reverse_lazy('home')
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class UpdateGroupFormView(UpdateView):
+    model = EatingGroup
+    template_name = "group_form.html"
+    fields = ['open', 'provider', 'manager', 'departing_time', 'closing_time', 'notes', 'silent', 'cancelled', 'cancelled_reason']
+
+    def get_form(self, form_class=None):
+        form = super(UpdateGroupFormView, self).get_form(form_class)
+        form.fields['manager'].queryset = User.objects.filter(profile__company=self.request.user.profile.company)
+        form.fields['provider'].queryset = FoodProvider.objects.filter(type='restaurant')
+        form.fields['closing_time'].input_formats = ('%d/%m/%Y %H:%M',)
+        form.fields['closing_time'].widget.format = '%d/%m/%Y %H:%M'
+        form.fields['departing_time'].input_formats = ('%d/%m/%Y %H:%M',)
+        form.fields['departing_time'].widget.format = '%d/%m/%Y %H:%M'
+        return form
+
+    def form_valid(self, form):
+        order = form.save(commit=False)
+        order.company = self.request.user.profile.company
+        return super(UpdateGroupFormView, self).form_valid(form)
+
+    def get_success_url(self):
+        messages.success(self.request, 'Group updated')
         return reverse_lazy('home')
 
 
@@ -374,6 +446,10 @@ class UpdateOrderFormView(UpdateView):
         user_list = [uo.user.id for uo in form.instance.userorder_set.all()]
         user_list.append(self.request.user.id)
         form.fields['delivery_person'].queryset = User.objects.filter(id__in=user_list)
+        form.fields['closing_time'].input_formats = ('%d/%m/%Y %H:%M',)
+        form.fields['closing_time'].widget.format = '%d/%m/%Y %H:%M'
+        form.fields['delivery_time'].input_formats = ('%d/%m/%Y %H:%M',)
+        form.fields['delivery_time'].widget.format = '%d/%m/%Y %H:%M'
         return form
 
     def form_valid(self, form):
@@ -414,7 +490,6 @@ class ListUserOrdersView(ListView):
     def get_queryset(self):
         return UserOrder.objects.filter(user_id=self.kwargs.get('pk')).order_by('-order__date')
 
-
     def get_context_data(self, **kwargs):
         ctx = super(ListUserOrdersView, self).get_context_data(**kwargs)
         ctx['user'] = User.objects.get(pk=self.kwargs.get('pk'))
@@ -430,5 +505,45 @@ class DeleteUser(DeleteView):
         return reverse_lazy('user-list')
 
 
+@method_decorator(login_required, name='dispatch')
+class LeaveGroupView(DeleteView):
+    model = EatingGroupMember
+
+    def dispatch(self, request, *args, **kwargs):
+        membership = EatingGroupMember.objects.get(pk=self.kwargs['pk'])
+        if request.user.is_staff or request.user == membership.user:
+            return super(LeaveGroupView, self).dispatch(request, *args, **kwargs)
+        else:
+            return redirect(self.request.META.get('HTTP_REFERER'))
+
+    def get_success_url(self):
+        messages.success(self.request, 'User has been removed from group.')
+        return self.request.META.get('HTTP_REFERER')
+
+
+@method_decorator(login_required, name='dispatch')
+class JoinGroupFormView(CreateView):
+    model = EatingGroupMember
+
+    template_name = "group_view.html"
+    fields = ['can_drive', 'notes']
+
+    def get_success_url(self):
+        messages.success(self.request, 'Group joined!')
+        return reverse_lazy('group-view', kwargs={'group': self.kwargs['group']})
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.eating_group = EatingGroup.objects.get(pk=self.kwargs['group'])
+        return super(JoinGroupFormView, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(JoinGroupFormView, self).get_context_data(**kwargs)
+        ctx['group'] = EatingGroup.objects.get(pk=self.kwargs['group'])
+        try:
+            ctx['mymembership'] = EatingGroupMember.objects.filter(eating_group=self.kwargs['group'], user=self.request.user)[0]
+        except (EatingGroupMember.DoesNotExist, IndexError):
+            ctx['mymembership'] = None
+        return ctx
 
 

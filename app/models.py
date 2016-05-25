@@ -34,9 +34,65 @@ class FoodProvider(models.Model):
     phone = models.CharField(max_length=20, null=True)
     logo = models.ImageField(upload_to='logos', blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
+    type = models.CharField(max_length=50, choices=(('takeaway', 'Takeaway'), ('restaurant', 'Restaurant'), ('shop', 'Shop')))
 
     def __unicode__(self):
         return u"{0}".format(self.name)
+
+
+class EatingGroup(models.Model):
+    company = models.ForeignKey(to="Company")
+    provider = models.ForeignKey(FoodProvider, verbose_name="Place")
+    manager = models.ForeignKey(User)
+    date = models.DateField(auto_now_add=True)
+    open = models.BooleanField(default=True, verbose_name="Open for joining", help_text='')
+    closing_time = models.DateTimeField(null=True, blank=True, help_text="Closing time for joining the outing")
+    departing_time = models.DateTimeField(null=True, blank=True, help_text="Time leaving the office")
+    silent = models.BooleanField(default=False, help_text="Don't send notifications for this outing")
+    notes = models.TextField(default="", blank=True)
+    cancelled = models.BooleanField(default=False)
+    cancelled_reason = models.TextField(null=True, blank=True, help_text="Reason for cancelling this outing")
+
+    def __init__(self, *args, **kwargs):
+        super(EatingGroup, self).__init__(*args, **kwargs)
+        self._original_cancelled = self.cancelled
+
+    def save(self, **kwargs):
+        if self._original_cancelled != self.cancelled and self.cancelled:
+            if self.silent:
+                return super(EatingGroup, self).save(**kwargs)
+            users = set([egm.user for egm in self.eatinggroupmember_set.all()])
+            for u in users:
+                body = """
+Hey {name},
+
+We are sorry to let you know that the order from {place} has been cancelled!
+
+{reason}
+
+Cheers,
+--
+4lunch.eu
+                    """.format(name=u.username, place=self.provider.name,
+                               reason='The reason given is: ' + self.cancelled_reason if self.cancelled_reason else 'No reason was given by the manager')
+                send_mail("What's for lunch? - 4lunch.eu", body,
+                          '4lunch.eu notifications <notifications@4lunch.eu>',
+                          [u.email], fail_silently=True)
+
+        return super(EatingGroup, self).save(**kwargs)
+
+    def __unicode__(self):
+        return u"{0} on {1}".format(self.provider.name, self.date)
+
+
+class EatingGroupMember(models.Model):
+    eating_group = models.ForeignKey(to=EatingGroup)
+    user = models.ForeignKey(to=User)
+    can_drive = models.BooleanField(default=False, help_text="I can drive and have a car.")
+    notes = models.TextField(blank=True, null=True)
+
+    def __unicode__(self):
+        return u"{0} at {1} on {2}".format(self.user.username, self.eating_group.provider.name, self.eating_group.date)
 
 
 class Order(models.Model):
@@ -47,8 +103,8 @@ class Order(models.Model):
     provider = models.ForeignKey(FoodProvider, verbose_name="Place", related_name='provider')
     date = models.DateField(auto_now_add=True)
     delivery_person = models.ForeignKey(User, blank=True, null=True, related_name="delivery_person", help_text='Can be picked at random as soon as users have placed an order')
-    delivery_time = models.TimeField(blank=True, null=True)
-    closing_time = models.TimeField(blank=True, null=True)
+    delivery_time = models.DateTimeField(blank=True, null=True)
+    closing_time = models.DateTimeField(blank=True, null=True)
     notes = models.TextField(default="", blank=True)
     silent = models.BooleanField(default=False, help_text="Don't send notifications for this order")
     cancelled = models.BooleanField(default=False, help_text="Food won't be delivered for this order")
@@ -112,17 +168,17 @@ To cancel notifications, visit this address: http://whats.4lunch.eu{cancel_url}
                     users = set([uo.user for uo in self.userorder_set.all()])
                     for u in users:
                         body = """
-        Hey {name},
+Hey {name},
 
-        We are sorry to let you know that the order from {place} has been cancelled!
+We are sorry to let you know that the order from {place} has been cancelled!
 
-        {reason}
+{reason}
 
-        Cheers,
-        --
-        4lunch.eu
+Cheers,
+--
+4lunch.eu
 
-        To cancel notifications, visit this address: http://whats.4lunch.eu{cancel_url}
+To cancel notifications, visit this address: http://whats.4lunch.eu{cancel_url}
                 """.format(name=u.username, place=self.provider.name, cancel_url=reverse_lazy('notifications'),
                            reason='The reason given is: '+self.cancelled_reason  if self.cancelled_reason else 'No reason was given by the manager')
                         send_mail("What's for lunch? - 4lunch.eu", body,
@@ -175,6 +231,7 @@ class NotificationRequest(models.Model):
     secret = models.CharField(max_length=32, null=True, blank=True)
     all_providers = models.BooleanField(default=False)
     deliveries = models.BooleanField(default=False)
+    all_outings = models.BooleanField(default=False)
 
     @property
     def selected_providers(self):

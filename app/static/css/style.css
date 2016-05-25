@@ -872,7 +872,8 @@ a.strip_list:hover h3{
 	width:110px;
 	height:110px;
 	overflow:hidden;
-	border:1px solid #ededed;
+	border:0px solid #ededed;
+	border-radius: 20px;
 	padding:5px;
 	text-align:center;
 	box-sizing: border-box;
@@ -2140,4 +2141,8 @@ a.bt_filters{
 
 .latest-order-start {
     color: #E19D29;
+}
+
+textarea.small {
+	height: 50px;
 }

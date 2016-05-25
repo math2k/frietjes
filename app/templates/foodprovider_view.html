@@ -3,6 +3,9 @@
 </h3>
 {% if object.logo %}
     <img src="{{ object.logo.url }}" style="width: 80%; height: 80%"/>
+{% else %}
+    <i class="icon icon-shop-1"
+       style="font-size: 70px; opacity: 0.5; vertical-align: middle"></i>
 {% endif %}
 {% if object.menuimage_set.all %}
     <p>

@@ -1,24 +1,26 @@
 {% if request.user.is_staff %}
     <span class="pull-right">
-                                    <a href="{% url "order-update" pk=order.pk %}" class="add-tooltip"
-                                       title="Change order details">
-                                        <i class="icon-pencil"></i>
-                                    </a>
-                                    <form style="display: inline;" class="confirm-form"
-                                          action="{% url "set-order-delivered" pk=order.pk %}" method="post">
-                                        {% csrf_token %}
-                                        <a href="#" onclick="$(this).closest('form').submit()" class="add-tooltip"
-                                           title="Mark order as delivered">
-                                            <i class="icon-food-1"></i>
-                                        </a>
-                                    </form>
+        <a href="{% url "order-update" pk=order.pk %}" class="add-tooltip"
+           title="Change order details">
+            <i class="icon-pencil"></i>
+        </a>
+        {% if not order.delivered %}
+            <form style="display: inline;" class="confirm-form"
+                  action="{% url "set-order-delivered" pk=order.pk %}" method="post">
+            {% csrf_token %}
+            <a href="#" onclick="$(this).closest('form').submit()" class="add-tooltip"
+               title="Mark order as delivered">
+                <i class="icon-food-1"></i>
+            </a>
+        </form>
+        {% endif %}
         {% if order.userorder_set.all and order.open and not order.delivery_person %}
             <a href="{% url "pick-random" o=order.pk %}" class="add-tooltip"
                title="Pick a random delivery person">
-                                                <i class="icon-truck"></i>
-                                            </a>
+               <i class="icon-truck"></i>
+            </a>
         {% endif %}
-                                    </span>
+    </span>
 {% endif %}
 <div class="strip_list grid">
     <div class="desc">
@@ -42,24 +44,32 @@
             {{ order.date }}
         </div>
         <div class="location">
-            {% if order.open %}
-                {% if order.closing_time or order.delivery_time %}
-                    <div class="col-xs-6 text-left">
+            <div class="col-xs-12 text-left">
+                {% if order.open %}
+                    {% if order.closing_time or order.delivery_time %}
+                        {% now 'd/m/Y' as cur_date %}
                         {% if order.open and order.closing_time %}
                             <span class="opening">Order before
-                                {{ order.closing_time|date:"H:i" }}</span>
+                                <strong>{% if order.closing_time|date:"d/m/Y" != cur_date %}
+                                    {{ order.closing_time|date:"D j, H:i" }}
+                                {% else %}
+                                    today, {{ order.closing_time|date:"H:i" }}
+                                {% endif %}
+                                </strong>
+                                </span><br/>
                         {% endif %}
                         {% if order.open and order.delivery_time %}
                             <span class="">Expected delivery
-                                {{ order.delivery_time|date:"H:i" }}</span>
+                                <strong>{% if order.delivery_time|date:"d/m/Y" != cur_date %}
+                                    {{ order.delivery_time|date:"D j, H:i" }}
+                                {% else %}
+                                    today, {{ order.delivery_time|date:"H:i" }}
+                                {% endif %}
+                                </strong>
+                                </span><br/>
                         {% endif %}
-                    </div>
+                    {% endif %}
                 {% endif %}
-            {% endif %}
-            <div class="
-
-
-                    {% if order.open %}{% if order.closing_time or order.delivery_time %}col-offset-xs-3{% endif %}{% endif %} text-left">
                 Delivered by:
                 {% if order.delivery_person %}
                     {{ order.delivery_person.username }}

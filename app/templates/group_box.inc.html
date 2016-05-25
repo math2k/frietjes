@@ -1,0 +1,86 @@
+{% if request.user.is_staff %}
+    <span class="pull-right">
+        <a href="{% url "group-update" pk=group.pk %}" class="add-tooltip"
+           title="Change group details">
+            <i class="icon-pencil"></i>
+        </a>
+    </span>
+{% endif %}
+<div class="strip_list grid">
+    <div class="desc">
+        <a href="{% url "group-view" group=group.pk %}">
+            <h3>
+                {{ group.provider.name }}
+            </h3>
+            {% if group.provider.logo %}
+                <div class="thumb_strip">
+                    <img src="{{ group.provider.logo.url }}" alt=""/>
+                </div>
+            {% else %}
+                <div class="thumb_strip">
+                    <i class="icon icon-shop-1"
+                       style="font-size: 70px; opacity: 0.5; vertical-align: middle"></i>
+                </div>
+            {% endif %}
+            <div class="clearfix"></div>
+        </a>
+        <div class="type">
+            {{ group.date }}
+        </div>
+        <div class="location">
+            <p>
+                {% if group.eatinggroupmember_set.all|length == 0 %}
+                    Nobody has joined yet<br/>
+                {% else %}
+                    {% if group.eatinggroupmember_set.all|length > 1 %}
+                        {{ group.eatinggroupmember_set.all|length }} people have joined
+                    {% else %}
+                        {{ group.eatinggroupmember_set.all|length }} person has joined
+                    {% endif %}
+                {% endif %}
+            </p>
+            {% if group.open %}
+                {% if group.closing_time or group.delivery_time %}
+                    {% now 'd/m/Y' as cur_date %}
+                    <div class="col-xs-12 text-left">
+                        {% if group.open and group.closing_time %}
+                            <span class="opening">Join before
+                                <strong>{% if group.closing_time|date:"d/m/Y" != cur_date %}
+                                    {{ group.closing_time|date:"D j, H:i" }}
+                                {% else %}
+                                    today, {{ group.closing_time|date:"H:i" }}
+                                {% endif %}
+                                </strong>
+                            </span><br/>
+                        {% endif %}
+                        {% if group.open and group.departing_time %}
+                            <span class="">Departing time
+                                <strong>{% if group.departing_time|date:"d/m/Y" != cur_date %}
+                                    {{ group.departing_time|date:"D j, H:i" }}
+                                {% else %}
+                                    today, {{ group.departing_time|date:"H:i" }}
+                                {% endif %}
+                                </strong>
+                            </span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endif %}
+            <div class="
+
+                    {% if group.open %}{% if group.closing_time or group.departing %}col-offset-xs-3{% endif %}{% endif %} text-left">
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        <div style="margin-top: 30px;">
+            {% if group.open %}
+                <a href="{% url "group-view" group=group.pk %}"
+                   class="btn btn-success btn-md">
+                    View group
+                </a>
+            {% else %}
+                <span class="label label-danger">Closed</span>
+            {% endif %}
+        </div>
+    </div>
+</div>

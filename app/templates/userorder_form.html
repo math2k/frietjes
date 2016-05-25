@@ -23,9 +23,9 @@
                 <div class="col-md-3 sidebar">
                     <div class="theiaStickySidebar">
                         <div class="box_style_2 left">
-                        {% if order.provider.logo %}
-                            <img src="{{ order.provider.logo.url }}" style="width: 80%; height: 80%"/>
-                        {% endif %}
+                            {% if order.provider.logo %}
+                                <img src="{{ order.provider.logo.url }}" style="width: 80%; height: 80%"/>
+                            {% endif %}
                             {% if order.provider.menuimage_set.all %}
                                 <p>
                                     View the full menu:<br/>
@@ -51,7 +51,7 @@
                             <i class="icon icon-truck"></i>
                             {% if order.delivery_person %}
                                 <h4>Delivery</h4>
-                                {{ order.delivery_person.username }} is taking care of the delivery today.
+                                <strong>{{ order.delivery_person.username }}</strong> is taking care of the delivery today.
                             {% else %}
                                 <h4>Delivery ?</h4>
                                 Food won't magically appear in the office.<br/>
@@ -136,7 +136,13 @@
                                 </tbody>
                             </table>
                             <hr>
-                            <button type="submit" class="btn btn-success pull-right">Order now</button>
+                            {% if order.open %}
+                                <button type="submit" class="btn btn-success pull-right">Order now</button>
+                            {% else %}
+                                <p class="text-center">
+                                    <span class="label label-danger">Closed</span>
+                                </p>
+                            {% endif %}
                             <div class="clearfix"></div>
                         </div><!-- End cart_box -->
                     </div><!-- End theiaStickySidebar -->

@@ -15,9 +15,31 @@ $(document).ready(function () {
     });
 
     $('.add-static-tooltip').tooltip({'trigger': 'manual'}).tooltip('show');
+
+    dt = $('.datetimepicker').datetimepicker({
+        icons: {
+            // inverted, check bootstrap-datetimepicker.min.js:374
+            time: 'fa fa-calendar',
+            date: 'fa fa-clock-o',
+            up: 'fa fa-chevron-up',
+            down: 'fa fa-chevron-down',
+            previous: 'fa fa-chevron-left',
+            next: 'fa fa-chevron-right',
+            today: 'fa glyphicon-screenshot',
+            clear: 'fa fa-trash',
+            close: 'fa fa-remove'
+        },
+        format: 'D/M/YYYY HH:mm',
+        stepping: 5,
+        sideBySide: false,
+        showClear: true,
+        showClose: true,
+        useCurrent: false
+        //defaultDate: moment.utc().hour(12).minute(00)
+    });
 });
 
-$(document).on('submit', '.confirm-form', function (){
+$(document).on('submit', '.confirm-form', function () {
     return confirm('Are you sure ?');
 });
 

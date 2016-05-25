@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load bootstrap %}
+
+{% block page_title %}
+    Outing to {{ group.provider }}
+{% endblock %}
+
+{% block page_title_text %}
+    <span class="icon_pin"></span> {{ group.provider.address }}
+    {% if group.provider.phone %}
+        <div class="icon icon-phone">&nbsp;{{ group.provider.phone }}</div>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="container margin_60_35">
+        <div class="row">
+            <div class="col-md-3 sidebar">
+                <div class="theiaStickySidebar">
+                    {% if group.provider.logo %}
+                        <div class="box_style_2 left">
+                            <img src="{{ group.provider.logo.url }}" style="width: 80%; height: 80%"/>
+                        </div>
+                    {% endif %}
+                    <div class="box_style_2 left">
+                        <i class="icon icon-lifebuoy"></i>
+                        <h4>Need <span>Help?</span></h4>
+                        Contact <strong>{{ group.manager }}</strong> if you require assistance.
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 hidden-print">
+                <div class="box_style_2">
+                    <h2 class="inner hidden-print">
+                        {% if group.eatinggroupmember_set.all|length == 0 %}
+                            Nobody in this outing yet<br/>
+                        {% else %}
+                            {% if group.eatinggroupmember_set.all|length > 1 %}
+                                {{ group.eatinggroupmember_set.all|length }} people in this outing
+                            {% else %}
+                                {{ group.eatinggroupmember_set.all|length }} person in this outing
+                            {% endif %}
+                        {% endif %}</h2>
+                    {% if group.eatinggroupmember_set.all|length > 0 %}
+                        <table class="table table-striped">
+                            {% for member in group.eatinggroupmember_set.all %}
+                                <tr>
+                                    <td>
+                                        {% if member.user == user %}
+                                            <i class="fa fa-user add-tooltip text-warning"
+                                               title="This is you"></i>
+                                        {% endif %}
+                                        {% if member.can_drive %}
+                                            <i class="fa fa-car add-tooltip text-warning"
+                                               title="This user can drive"></i>
+                                        {% endif %}
+                                        {% if member.notes %}
+                                            <i class="fa fa-comment add-tooltip text-warning"
+                                               title="User said: {{ member.notes }}"></i>
+                                        {% endif %}
+                                        <a href="#" class="user"
+                                           data-id="{{ u.pk }}"><strong>{{ member.user.username }}</strong></a>
+                                    </td>
+                                    <td>
+                                        {% if user.is_staff %}
+                                            <div class="pull-right">
+                                                <form method="post" style="display: inline" class="confirm-form"
+                                                      action="{% url "group-leave" pk=member.pk %}">
+                                                    {% csrf_token %}
+                                                    <button class="btn btn-xs btn-danger" type="submit">Remove</button>
+                                                </form>
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    {% else %}
+                        <p class="text-center">Nobody joined this outing yet!</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-3 sidebar" id="sidebar">
+                <div class="theiaStickySidebar">
+                    <div id="cart_box">
+                        <h3>Group <i class="fa fa-users pull-right"></i></h3>
+                        {% if group.open %}
+                            {% if not mymembership %}
+                                <form action="{% url "group-view" group=group.pk %}" method="post">
+                                    {{ form.can_drive|bootstrap }}
+                                    {{ form.notes|add_class:'small'|bootstrap }}
+                                    {% csrf_token %}
+                                    <div style="margin-top: 35px;" class="pull-right">
+                                        <button type="submit" class="btn btn-success">Join</button>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                </form>
+                            {% else %}
+                                <form action="{% url "group-leave" pk=mymembership.pk %}" method="post">
+                                    {% csrf_token %}
+                                    <div style="text-align: center; margin-top: 35px;">
+                                        <button type="submit" class="btn btn-warning">Leave</button>
+                                    </div>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            <p class="text-center">
+                                <span class="label label-danger">Closed</span>
+                            </p>
+                        {% endif %}
+                        <div class="clearfix"></div>
+                    </div><!-- End cart_box -->
+                </div><!-- End theiaStickySidebar -->
+            </div><!-- End col-md-3 -->
+        </div>
+        <div class="row">
+            <div class="col-md-offset-3 col-md-6 hidden-print">
+                {% include "group_box.inc.html" %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

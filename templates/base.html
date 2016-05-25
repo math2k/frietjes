@@ -27,6 +27,7 @@
 
     <!-- BASE CSS -->
     <link href="{% static 'css/base.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
 
     <!--[if lt IE 9]>
       <script src="js/html5shiv.min.js"></script>
@@ -70,6 +71,7 @@
                         {% if user.is_authenticated %}
                             {% if user.is_staff %}
                                 <li><a href="{% url "order-new" %}">Create group order</a></li>
+                                <li><a href="{% url "group-new" %}">Create group outing</a></li>
                                 <li><a href="{% url "user-list" %}">User management</a></li>
                             {% endif %}
                             <li role="presentation"><a href="{% url 'notifications' %}">Notifications</a></li>
@@ -185,6 +187,8 @@
 <script src="{% static 'assets/validate.js' %}"></script>
 <script src="{% static 'jquery.noty.packaged.min.js' %}"></script>
 <script src="{% static 'js/theia-sticky-sidebar.js' %}"></script>
+<script src="{% static 'moment.min.js' %}"></script>
+<script src="{% static 'bootstrap-datetimepicker.min.js' %}"></script>
 <script src="{% static 'scripts.js' %}"></script>
 <script>
     {% for message in messages %}

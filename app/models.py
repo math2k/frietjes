@@ -34,10 +34,17 @@ class FoodProvider(models.Model):
     phone = models.CharField(max_length=20, null=True)
     logo = models.ImageField(upload_to='logos', blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
-    type = models.CharField(max_length=50, choices=(('takeaway', 'Takeaway'), ('restaurant', 'Restaurant'), ('shop', 'Shop')))
+    type = models.ManyToManyField(to='FoodProviderType')
 
     def __unicode__(self):
         return u"{0}".format(self.name)
+
+
+class FoodProviderType(models.Model):
+    name = models.CharField(primary_key=True, max_length=50, choices=(('takeaway', 'Takeaway'), ('restaurant', 'Restaurant'), ('shop', 'Shop')))
+
+    def __unicode__(self):
+        return u'{0}'.format(self.name)
 
 
 class EatingGroup(models.Model):

@@ -355,7 +355,7 @@ class CreateOrderFormView(CreateView):
 
     def get_form(self, form_class=None):
         form = super(CreateOrderFormView, self).get_form(form_class)
-        form.fields['provider'].queryset = FoodProvider.objects.filter(type__in=['takeaway'])
+        form.fields['provider'].queryset = FoodProvider.objects.filter(type__in=['takeaway']).distinct()
         form.fields['manager'].queryset = User.objects.filter(profile__company=self.request.user.profile.company)
         form.fields['closing_time'].input_formats = ('%d/%m/%Y %H:%M',)
         form.fields['closing_time'].widget.format = '%d/%m/%Y %H:%M'
@@ -391,7 +391,7 @@ class CreateGroupFormView(CreateView):
     def get_form(self, form_class=None):
         form = super(CreateGroupFormView, self).get_form(form_class)
         form.fields['manager'].queryset = User.objects.filter(profile__company=self.request.user.profile.company)
-        form.fields['provider'].queryset = FoodProvider.objects.filter(type='restaurant')
+        form.fields['provider'].queryset = FoodProvider.objects.filter(type__in=['restaurant', 'shop']).distinct()
         form.fields['closing_time'].input_formats = ('%d/%m/%Y %H:%M',)
         form.fields['closing_time'].widget.format = '%d/%m/%Y %H:%M'
         form.fields['departing_time'].input_formats = ('%d/%m/%Y %H:%M',)

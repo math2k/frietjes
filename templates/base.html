@@ -71,8 +71,8 @@
                         {% if user.is_authenticated %}
                             {% if user.is_staff %}
                                 <li><a href="{% url "order-new" %}">Create group order</a></li>
-                                <li><a href="{% url "group-new" %}">Create group outing</a></li>
-                                <li><a href="{% url "user-list" %}">User management</a></li>
+                                <li><a href="{% url "group-new" %}">Create outing</a></li>
+                                <li><a href="{% url "user-list" %}">Users</a></li>
                             {% endif %}
                             <li role="presentation"><a href="{% url 'notifications' %}">Notifications</a></li>
                             <li role="presentation"><a href="{% url "auth_logout" %}?next=/">Logout</a></li>

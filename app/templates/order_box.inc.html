@@ -13,9 +13,11 @@ Admin <span class="caret"></span>
 <li><a href="{% url "order-update" pk=order.pk %}" class="no-add-tooltip dropdown-item" title="Change order details">
 <i class="icon-pencil"></i> Change details
 </a></li>
-<li><a href="#" onclick="$(this).closest('form').submit()" class="no-add-tooltip dropdown-item"
-       title="Mark order as delivered"><i class="icon-food-1"></i> Mark delivered
+    {% if not order.delivered %}
+        <li><a href="#" onclick="$(this).closest('form').submit()" class="no-add-tooltip dropdown-item"
+               title="Mark order as delivered"><i class="icon-food-1"></i> Mark delivered
 </a></li>
+    {% endif %}
     {% if order.userorder_set.all and order.open and not order.delivery_person %}
         <li><a href="{% url "pick-random" o=order.pk %}" class="no-add-tooltip dropdown-item"
                title="Pick a random delivery person"><i class="icon-truck"></i> Pick random delivery person

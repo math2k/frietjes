@@ -3,4 +3,8 @@ argparse==1.2.1
 distribute==0.6.24
 django-flat-theme==1.1.1
 django-widget-tweaks==1.4.1
+django-registration==2.0.4
+django-debug_toolbar==1.4
 wsgiref==0.1.2
+Pillow==3.1.1
+django-bootstrap-form==2.0.5

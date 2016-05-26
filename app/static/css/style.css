@@ -1094,10 +1094,10 @@ ul.additional_links li:first-child{
 .table.cart-list td h5{
 	margin-bottom:0;
 	font-weight:600;
-	text-transform: lowercase;
+	/*text-transform: lowercase;*/
 }
 .table.cart-list td h5::first-letter{
-	text-transform: uppercase;
+	/*text-transform: uppercase;*/
 }
 .table.cart-list{
 	margin-bottom:0;
@@ -1107,13 +1107,13 @@ ul.additional_links li:first-child{
     padding: 1px 5px;
 }
 
-.table.table_summary td::first-letter {
+/*s.table.table_summary td::first-letter {
   text-transform: uppercase;
 }
 .table.table_summary td {
 	border-top:0;
   text-transform: lowercase;
-}
+}*/
 .table.table_summary td.total{
 	font-weight:bold;
 	font-size:18px;

@@ -1,9 +1,18 @@
 {% if request.user.is_staff %}
     <span class="pull-right">
-        <a href="{% url "group-update" pk=group.pk %}" class="add-tooltip"
-           title="Change group details">
-            <i class="icon-pencil"></i>
-        </a>
+        <div class="btn-group">
+            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                aria-expanded="false">
+                Admin <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a href="{% url "group-update" pk=group.pk %}" class="no-add-tooltip"
+                       title="Change group details">
+                    <i class="icon-pencil"></i> Change group details
+                </a>
+                </li>
+            </ul>
+        </div>
     </span>
 {% endif %}
 <div class="strip_list grid">
@@ -67,6 +76,7 @@
                 {% endif %}
             {% endif %}
             <div class="
+
 
                     {% if group.open %}{% if group.closing_time or group.departing %}col-offset-xs-3{% endif %}{% endif %} text-left">
             </div>

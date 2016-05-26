@@ -48,7 +48,7 @@
 <header class="hidden-print">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-6 col-sm-6 col-xs-6">
+            <div class="col-md-7 col-sm-7 col-xs-7">
                 <a href="/" id="logo">
                     <img src="{% static 'img/logo_mobile_2x.png' %}" width="59" height="23" alt="" data-retina="true"
                          class="hidden-xs">
@@ -58,21 +58,27 @@
                 <span class="subtitle">What's 4lunch {% if user.profile.company %}@
                     {{ user.profile.company }}{% endif %} ?</span>
             </div>
-            <nav class="col-md-6 col-sm-6 col-xs-6">
+            <nav class="col-md-5 col-sm-5 col-xs-5">
                 <a class="cmn-toggle-switch cmn-toggle-switch__htx open_close" href="javascript:void(0);"><span>Menu mobile</span></a>
                 <div class="main-menu">
                     <div id="header_menu">
                         <img src="{% static 'img/logo_mobile.png' %}" width="59" height="23" alt="" data-retina="true">
-                        <span class="subtitle">What's 4lunch ?</span>
+                        <span class="subtitle">What's 4lunch {% if user.profile.company %}@
+                    {{ user.profile.company }}{% endif %}?</span>
                     </div>
                     <a href="#" class="open_close" id="close_in"><i class="icon_close"></i></a>
                     <ul>
                         <li role="presentation" class=""><a href="/">Home</a></li>
                         {% if user.is_authenticated %}
                             {% if user.is_staff %}
-                                <li><a href="{% url "order-new" %}">Create group order</a></li>
-                                <li><a href="{% url "group-new" %}">Create outing</a></li>
-                                <li><a href="{% url "user-list" %}">Users</a></li>
+                                <li class="submenu">
+                                    <a href="#" class="show-submenu">Admin things<i class="icon-down-open-mini"></i></a>
+                                    <ul>
+                                        <li><a href="{% url "order-new" %}">Create group order</a></li>
+                                        <li><a href="{% url "group-new" %}">Create outing</a></li>
+                                        <li><a href="{% url "user-list" %}">User management</a></li>
+                                    </ul>
+                                </li>
                             {% endif %}
                             <li role="presentation"><a href="{% url 'notifications' %}">Notifications</a></li>
                             <li role="presentation"><a href="{% url "auth_logout" %}?next=/">Logout</a></li>

@@ -242,7 +242,7 @@ class UserOrderDeleteView(DeleteView):
 
     def get_object(self, queryset=None):
         obj = super(UserOrderDeleteView, self).get_object(queryset)
-        if self.request.user != obj.user:
+        if self.request.user != obj.user or not obj.order.open:
             raise Http404
         return obj
 

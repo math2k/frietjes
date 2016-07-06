@@ -80,15 +80,17 @@
                                             {% endif %}
                                             {% if uo.user == request.user %}
                                                 <span class="label label-primary">Your order</span>
-                                                <form style="display: inline" class="confirm-form"
-                                                      action="{% url "user-order-delete" pk=uo.pk %}" method="post">
-                                                {% csrf_token %}
+                                                {% if order.open %}
+                                                    <form style="display: inline" class="confirm-form"
+                                                          action="{% url "user-order-delete" pk=uo.pk %}" method="post">
+                                                    {% csrf_token %}
                                                     <a href="#"
                                                        onclick="$(this).closest('form').submit(); return false;"
                                                        title="Delete your order" class="add-tooltip">
                                                     <span class="label label-danger">Delete</span>
                                                         </a>
                                                 </form>
+                                                {% endif %}
                                             {% endif %}
                                         </span>
                                     <span class="pull-right price"><b>{{ uo.total }} €</b></span>

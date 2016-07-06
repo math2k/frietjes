@@ -12,6 +12,7 @@ from django.db.models import Count
 from django.db.models.query import QuerySet
 from django.forms import formset_factory, Select
 from django.forms.models import modelformset_factory
+from django.http import Http404
 from django.utils.decorators import method_decorator
 from registration.backends.simple.views import RegistrationView, User
 
@@ -139,8 +140,8 @@ class TogglePaidFlag(View):
     http_method_names = ['post', ]
 
     def post(self, request, *args, **kwargs):
-        if request.user.is_staff:
-            uo = get_object_or_404(UserOrder, pk=kwargs.get('uo'))
+        uo = get_object_or_404(UserOrder, pk=kwargs.get('uo'))
+        if request.user.is_staff or request.user in (uo.order.delivery_person, uo.order.manager):
             uo.paid = not uo.paid
             uo.save()
             messages.success(request, "{0}'s order marked as {1}".format(uo.user.username, "paid" if uo.paid else "not paid"))
@@ -222,6 +223,7 @@ class OrderView(TemplateView):
         ctx['order'] = Order.objects.get(pk=kwargs['order'])
         ctx['order_items'] = UserOrderItem.objects.filter(user_order__order=ctx['order']). \
             values('menu_item__name').annotate(count=Count('menu_item__name')).order_by('menu_item__category__order')
+        ctx['orders_with_notes'] = UserOrder.objects.filter(order=ctx['order']).exclude(notes__isnull=True).exclude(notes__exact='')
         return ctx
 
 
@@ -233,6 +235,20 @@ class UserOrderView(TemplateView):
         ctx['user_order'] = UserOrder.objects.get(pk=kwargs['user_order'])
         ctx['success'] = 'success' in self.request.GET
         return ctx
+
+
+class UserOrderDeleteView(DeleteView):
+    model = UserOrder
+
+    def get_object(self, queryset=None):
+        obj = super(UserOrderDeleteView, self).get_object(queryset)
+        if self.request.user != obj.user:
+            raise Http404
+        return obj
+
+    def get_success_url(self):
+        messages.success(self.request, 'Your order has been deleted!')
+        return self.request.META.get('HTTP_REFERER')
 
 
 @method_decorator(login_required, name='dispatch')

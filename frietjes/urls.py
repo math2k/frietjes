@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^$', HomeView.as_view(), name="home"),
     url(r'^redirect', Redirect.as_view(), name="redirect"),
     url(r'^user-order/(?P<user_order>.+)/view$', UserOrderView.as_view(), name="user-order-view"),
+    url(r'^user-order/(?P<pk>.+)/delete', UserOrderDeleteView.as_view(), name="user-order-delete"),
     url(r'^order/(?P<order>.+)/view$', OrderView.as_view(), name="order-view"),
     url(r'^group/(?P<group>.+)/view$', JoinGroupFormView.as_view(), name="group-view"),
     url(r'^group/(?P<pk>.+)/leave', LeaveGroupView.as_view(), name="group-leave"),

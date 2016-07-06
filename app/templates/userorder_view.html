@@ -36,7 +36,7 @@
                             <i class="icon_check_alt2"></i>
                             <h3>Thank you!</h3>
                             <p>
-                                You order has been saved.
+                                You <a href="{% url "order-view" order=user_order.order.pk %}">order</a> has been saved.
                             </p>
                             <p>Go back to the <a href="{% url "home" %}">home page.</a></p>
                             {% if user_order.order.delivery_time %}

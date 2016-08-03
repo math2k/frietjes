@@ -25,7 +25,7 @@ def send_order_notifications(**kwargs):
         body = """
 Hey {name},
 
-An order that matches your notification criteria has been created!
+An order at {place} has been created!
 
 Check it out on https://whats.4lunch.eu !
 
@@ -34,7 +34,7 @@ Cheers,
 4lunch.eu
 
 To cancel notifications, visit this address: https://whats.4lunch.eu{cancel_url}
-        """.format(name=nr.user.username, cancel_url=reverse_lazy('notifications'))
+        """.format(place=order.provider.name, name=nr.user.username, cancel_url=reverse_lazy('notifications'))
         send_mail("What's for lunch? - 4lunch.eu", body, '4lunch.eu notifications <notifications@4lunch.eu>',
             [nr.user.email], fail_silently=True)
 
@@ -53,7 +53,7 @@ def send_eatinggroup_notifications(**kwargs):
         body = """
 Hey {name},
 
-A group outing that matches your notification criteria has been created!
+A group outing to {place} has been created!
 
 Check it out on https://whats.4lunch.eu !
 
@@ -62,7 +62,7 @@ Cheers,
 4lunch.eu
 
 To cancel notifications, visit this address: https://whats.4lunch.eu{cancel_url}
-        """.format(name=nr.user.username, cancel_url=reverse_lazy('notifications'))
+        """.format(place=eg.provider.name, name=nr.user.username, cancel_url=reverse_lazy('notifications'))
         send_mail("What's for lunch? - 4lunch.eu", body, '4lunch.eu notifications <notifications@4lunch.eu>',
             [nr.user.email], fail_silently=True)
 

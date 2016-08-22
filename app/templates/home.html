@@ -9,7 +9,7 @@
     {% endif %}
 {% endblock %}
 
-{% block page_title_text %}
+{% block page_title_text_DISABLED %}
     {% if user.is_authenticated %}
         {% if open_order %}
             <p>Some group orders are open, make your choice below!</p>
@@ -27,36 +27,60 @@
     <div class="container margin_60_35">
     <div class="row">
         {% if request.user.is_authenticated %}
-            <div class="col-md-4">
-                <div class="box_style_2" id="main_menu">
-                    <h2 class="inner">Orders</h2>
-                    <div class="row">
-                        {% for order in all_orders %}
-                            <div class="col-md-12 fadeIn" data-wow-delay="0.1s">
-                                {% include "order_box.inc.html" %}
-                            </div>
-                            {% empty %}
-                            <p class="text-center"><strong>No orders available.</strong></p>
-                        {% endfor %}
-
+            {% if not view_passed %}
+                <div class="col-md-8">
+                    <div class="box_style_2" id="main_menu">
+                        <h2 class="inner">Upcoming</h2>
+                        <div class="row">
+                            {% if upcoming_orders|length == 0 and upcoming_groups|length == 0 %}
+                                <p class="text-center"><strong>No upcoming order or outing, yet!</strong></p>
+                            {% endif %}
+                            {% for order in upcoming_orders %}
+                                <div class="col-md-6 fadeIn" data-wow-delay="0.1s">
+                                    {% include "order_box.inc.html" %}
+                                </div>
+                            {% endfor %}
+                            {% for group in upcoming_groups %}
+                                <div class="col-md-6 fadeIn" data-wow-delay="0.1s">
+                                    {% include "group_box.inc.html" %}
+                                </div>
+                            {% endfor %}
+                        </div><!-- End row-->
                     </div><!-- End row-->
-                </div><!-- End row-->
-            </div><!-- End row -->
-            <div class="col-md-4">
-                <div class="box_style_2" id="main_menu">
-                    <h2 class="inner">Outings</h2>
-                    <div class="row">
-                        {% for group in all_group_outings %}
-                            <div class="col-md-12 fadeIn" data-wow-delay="0.1s">
-                                {% include "group_box.inc.html" %}
-                            </div>
-                            {% empty %}
-                            <p class="text-center"><strong>No outings available.</strong></p>
-                        {% endfor %}
-
+                <a href="?past=1">View past orders</a>
+                </div><!-- End row -->
+            {% endif %}
+            {% if view_passed %}
+                <div class="col-md-4">
+                    <div class="box_style_2" id="main_menu">
+                        <h2 class="inner">Orders</h2>
+                        <div class="row">
+                            {% for order in all_orders %}
+                                <div class="col-md-12 fadeIn" data-wow-delay="0.1s">
+                                    {% include "order_box.inc.html" %}
+                                </div>
+                                {% empty %}
+                                <p class="text-center"><strong>No orders available.</strong></p>
+                            {% endfor %}
+                        </div><!-- End row-->
                     </div><!-- End row-->
-                </div><!-- End row-->
-            </div><!-- End row -->
+                </div><!-- End row -->
+                <div class="col-md-4">
+                    <div class="box_style_2" id="main_menu">
+                        <h2 class="inner">Outings</h2>
+                        <div class="row">
+                            {% for group in all_group_outings %}
+                                <div class="col-md-12 fadeIn" data-wow-delay="0.1s">
+                                    {% include "group_box.inc.html" %}
+                                </div>
+                                {% empty %}
+                                <p class="text-center"><strong>No outings available.</strong></p>
+                            {% endfor %}
+
+                        </div><!-- End row-->
+                    </div><!-- End row-->
+                </div><!-- End row -->
+            {% endif %}
         {% else %}
             <div class="row">
                 <div class="col-xs-12" style="margin-bottom: 30px;">

@@ -32,15 +32,20 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = {}
+        ctx['view_passed'] = self.request.GET.get('past')
         if self.request.user.is_authenticated():
-            if self.request.GET.get('all'):
-                ctx['all_orders'] = Order.objects.filter(company=self.request.user.profile.company).order_by("-pk").prefetch_related('provider', 'delivery_person')
-                ctx['all_group_outings'] = EatingGroup.objects.filter(company=self.request.user.profile.company).order_by("-pk").prefetch_related('provider')
-            else:
-                ctx['all_orders'] = Order.objects.filter(company=self.request.user.profile.company).order_by("-pk").prefetch_related('provider', 'delivery_person')[:5]
-                ctx['all_group_outings'] = EatingGroup.objects.filter(company=self.request.user.profile.company).order_by("-pk").prefetch_related('provider')[:5]
-            ctx['open_order'] = Order.objects.filter(open=True, company=self.request.user.profile.company).order_by("-date").last()
-            ctx['open_group'] = EatingGroup.objects.filter(open=True, company=self.request.user.profile.company).order_by("-date").last()
+            if ctx['view_passed']:
+                if self.request.GET.get('all'):
+                    ctx['all_orders'] = Order.objects.filter(company=self.request.user.profile.company).order_by("-pk").prefetch_related('provider', 'delivery_person')
+                    ctx['all_group_outings'] = EatingGroup.objects.filter(company=self.request.user.profile.company).order_by("-pk").prefetch_related('provider')
+                else:
+                    ctx['all_orders'] = Order.objects.filter(company=self.request.user.profile.company).order_by("-pk").prefetch_related('provider', 'delivery_person')[:5]
+                    ctx['all_group_outings'] = EatingGroup.objects.filter(company=self.request.user.profile.company).order_by("-pk").prefetch_related('provider')[:5]
+            #ctx['open_order'] = Order.objects.filter(open=True, company=self.request.user.profile.company).order_by("-date").last()
+            #ctx['open_group'] = EatingGroup.objects.filter(open=True, company=self.request.user.profile.company).order_by("-date").last()
+            ctx['upcoming_groups'] = EatingGroup.objects.filter(open=True, company=self.request.user.profile.company, departing_time__gte=datetime.date.today())
+            ctx['upcoming_orders'] = Order.objects.filter(open=True, company=self.request.user.profile.company, delivery_time__gte=datetime.date.today())
+
         #ctx['feed_entries'] = FeedEntry.objects.filter(datetime__day=datetime.datetime.now().day).order_by('-datetime')[:15]
         #ctx['feed_entries'] = FeedEntry.objects.filter().order_by('-datetime')[:15]
         #ctx['show_notification_tooltip'] = False if self.request.COOKIES.get('show_notification_tooltip') == '0' else True
@@ -429,12 +434,11 @@ class CreateGroupFormView(CreateView):
 class UpdateGroupFormView(UpdateView):
     model = EatingGroup
     template_name = "group_form.html"
-    fields = ['open', 'provider', 'manager', 'departing_time', 'closing_time', 'notes', 'silent', 'cancelled', 'cancelled_reason']
+    fields = ['open', 'manager', 'departing_time', 'closing_time', 'notes', 'silent', 'cancelled', 'cancelled_reason']
 
     def get_form(self, form_class=None):
         form = super(UpdateGroupFormView, self).get_form(form_class)
         form.fields['manager'].queryset = User.objects.filter(profile__company=self.request.user.profile.company)
-        form.fields['provider'].queryset = FoodProvider.objects.filter(type='restaurant')
         form.fields['closing_time'].input_formats = ('%d/%m/%Y %H:%M',)
         form.fields['closing_time'].widget.format = '%d/%m/%Y %H:%M'
         form.fields['departing_time'].input_formats = ('%d/%m/%Y %H:%M',)

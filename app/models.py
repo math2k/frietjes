@@ -41,7 +41,7 @@ class FoodProvider(models.Model):
 
 
 class FoodProviderType(models.Model):
-    name = models.CharField(primary_key=True, max_length=50, choices=(('takeaway', 'Takeaway'), ('restaurant', 'Restaurant'), ('shop', 'Shop')))
+    name = models.CharField(primary_key=True, max_length=50, choices=(('takeaway', 'Takeaway'), ('restaurant', 'Restaurant'), ('shop', 'Shop'), ('sport', 'Sport')))
 
     def __unicode__(self):
         return u'{0}'.format(self.name)

@@ -43,8 +43,8 @@ class HomeView(TemplateView):
                     ctx['all_group_outings'] = EatingGroup.objects.filter(company=self.request.user.profile.company).order_by("-pk").prefetch_related('provider')[:5]
             #ctx['open_order'] = Order.objects.filter(open=True, company=self.request.user.profile.company).order_by("-date").last()
             #ctx['open_group'] = EatingGroup.objects.filter(open=True, company=self.request.user.profile.company).order_by("-date").last()
-            ctx['upcoming_groups'] = EatingGroup.objects.filter(open=True, company=self.request.user.profile.company, departing_time__gte=datetime.date.today())
-            ctx['upcoming_orders'] = Order.objects.filter(open=True, company=self.request.user.profile.company, delivery_time__gte=datetime.date.today())
+            ctx['upcoming_groups'] = EatingGroup.objects.filter(company=self.request.user.profile.company, departing_time__gte=datetime.date.today())
+            ctx['upcoming_orders'] = Order.objects.filter(company=self.request.user.profile.company, delivery_time__gte=datetime.date.today())
 
         #ctx['feed_entries'] = FeedEntry.objects.filter(datetime__day=datetime.datetime.now().day).order_by('-datetime')[:15]
         #ctx['feed_entries'] = FeedEntry.objects.filter().order_by('-datetime')[:15]
@@ -424,7 +424,7 @@ class CreateGroupFormView(CreateView):
     def get_form(self, form_class=None):
         form = super(CreateGroupFormView, self).get_form(form_class)
         form.fields['manager'].queryset = User.objects.filter(profile__company=self.request.user.profile.company)
-        form.fields['provider'].queryset = FoodProvider.objects.filter(type__in=['restaurant', 'shop']).distinct()
+        form.fields['provider'].queryset = FoodProvider.objects.filter(type__in=['restaurant', 'shop', 'sport']).distinct()
         form.fields['closing_time'].input_formats = ('%d/%m/%Y %H:%M',)
         form.fields['closing_time'].widget.format = '%d/%m/%Y %H:%M'
         form.fields['departing_time'].input_formats = ('%d/%m/%Y %H:%M',)

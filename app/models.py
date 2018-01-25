@@ -151,22 +151,26 @@ class Order(models.Model):
             fe.save()
             if self.silent:
                 return super(Order, self).save(**kwargs)
-            users = set([uo.user for uo in self.userorder_set.filter()])
-            nrs = NotificationRequest.objects.filter(deliveries=True, user__in=users)
-            for nr in nrs:
+            for uo in self.userorder_set.filter(user__notificationrequest__deliveries=True):
                 body = """
 Hey {name},
 
 The order from {place} has been delivered!
 
+Your order: {items}
+
+Total: {total}€ {payable_to}
+
 Cheers,
 --
 4lunch.eu
 
-To cancel notifications, visit this address: http://whats.4lunch.eu{cancel_url}
-        """.format(name=nr.user.username, place=self.provider.name, cancel_url=reverse_lazy('notifications'))
+You can cancel notifications here: https://whats.4lunch.eu{cancel_url}
+        """.format(name=uo.user.username, place=self.provider.name, cancel_url=reverse_lazy('notifications'),
+                   items=', '.join([item.menu_item.name for item in uo.userorderitem_set.all()]),
+                   total=uo.total, payable_to='(payable to {})'.format(uo.order.delivery_person) if uo.order.delivery_person else '')
                 send_mail("What's for lunch? - 4lunch.eu", body, '4lunch.eu notifications <notifications@4lunch.eu>',
-                    [nr.user.email], fail_silently=True)
+                    [uo.user.email], fail_silently=True)
         if self._original_cancelled != self.cancelled and self.cancelled:
                     fe = FeedEntry(event='Order at _{0}_ has been cancelled!'.format(self.provider.name))
                     fe.save()
@@ -185,7 +189,7 @@ Cheers,
 --
 4lunch.eu
 
-To cancel notifications, visit this address: http://whats.4lunch.eu{cancel_url}
+You can cancel notifications here: https://whats.4lunch.eu{cancel_url}
                 """.format(name=u.username, place=self.provider.name, cancel_url=reverse_lazy('notifications'),
                            reason='The reason given is: '+self.cancelled_reason  if self.cancelled_reason else 'No reason was given by the manager')
                         send_mail("What's for lunch? - 4lunch.eu", body,

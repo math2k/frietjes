@@ -157,6 +157,8 @@ Hey {name},
 
 The order from {place} has been delivered!
 
+You can view it here: https://whats.4lunch.eu{link}
+
 Your order: {items}
 
 Total: {total}€ {payable_to}
@@ -166,7 +168,8 @@ Cheers,
 4lunch.eu
 
 You can cancel notifications here: https://whats.4lunch.eu{cancel_url}
-        """.format(name=uo.user.username, place=self.provider.name, cancel_url=reverse_lazy('notifications'),
+        """.format(name=uo.user.username, place=self.provider.name, link=reverse_lazy('order-view', kwargs={'order': uo.order.id}),
+                   cancel_url=reverse_lazy('notifications'),
                    items=', '.join([item.menu_item.name for item in uo.userorderitem_set.all()]),
                    total=uo.total, payable_to='(payable to {})'.format(uo.order.delivery_person) if uo.order.delivery_person else '')
                 send_mail("What's for lunch? - 4lunch.eu", body, '4lunch.eu notifications <notifications@4lunch.eu>',

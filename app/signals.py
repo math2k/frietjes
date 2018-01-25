@@ -18,8 +18,8 @@ def send_order_notifications(**kwargs):
         return
     nrs = NotificationRequest.objects.filter(Q(providers__in=[order.provider]) | Q(all_providers=True)).distinct()
     for nr in nrs:
-        if nr.user == order.manager:
-            continue
+        #if nr.user == order.manager:
+            #continue
         if nr.user.profile.company != order.company:
             continue
         body = """
@@ -33,7 +33,7 @@ Cheers,
 --
 4lunch.eu
 
-To cancel notifications, visit this address: https://whats.4lunch.eu{cancel_url}
+You can cancel notifications here: https://whats.4lunch.eu{cancel_url}
         """.format(place=order.provider.name, name=nr.user.username, cancel_url=reverse_lazy('notifications'))
         send_mail("What's for lunch? - 4lunch.eu", body, '4lunch.eu notifications <notifications@4lunch.eu>',
             [nr.user.email], fail_silently=True)
@@ -61,7 +61,7 @@ Cheers,
 --
 4lunch.eu
 
-To cancel notifications, visit this address: https://whats.4lunch.eu{cancel_url}
+You can cancel notifications here: https://whats.4lunch.eu{cancel_url}
         """.format(place=eg.provider.name, name=nr.user.username, cancel_url=reverse_lazy('notifications'))
         send_mail("What's for lunch? - 4lunch.eu", body, '4lunch.eu notifications <notifications@4lunch.eu>',
             [nr.user.email], fail_silently=True)

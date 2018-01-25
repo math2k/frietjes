@@ -38,6 +38,7 @@ urlpatterns = [
     url(r'^toggle-paid-flag/(?P<uo>.+)$', TogglePaidFlag.as_view(), name="toggle-paid-flag"),
     url(r'^toggle-user-staff-flag/(?P<pk>.+)$', ToggleUserStaffFlag.as_view(), name="toggle-user-staff-flag"),
     url(r'^set-order-delivered/(?P<pk>.+)$', SetOrderDeliveredView.as_view(), name="set-order-delivered"),
+    url(r'^set-order-closed/(?P<pk>.+)$', SetOrderClosedView.as_view(), name="set-order-closed"),
     url(r'^pick-random/(?P<o>.+)$', PickRandomDeliveryPerson.as_view(), name="pick-random"),
     url(r'^notifications', NotificationRequestFormView.as_view(), name="notifications"),
     url(r'^notification/cancel/(?P<s>.{32})', NotificationCancelFormView.as_view(), name="notification-cancel"),

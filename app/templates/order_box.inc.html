@@ -1,9 +1,16 @@
 {% if request.user.is_staff %}
     <span class="pull-right">
-<form style="display: inline;" class="confirm-form" action="{% url "set-order-delivered" pk=order.pk %}"
+<form style="display: inline;" class="confirm-form" id="set-delivered"
+      action="{% url "set-order-delivered" pk=order.pk %}"
       method="post">
 {% csrf_token %}
-    <!-- Single button -->
+</form>
+<form style="display: inline;" class="confirm-form" id="set-closed"
+      action="{% url "set-order-closed" pk=order.pk %}"
+      method="post">
+{% csrf_token %}
+</form>
+        <!-- Single button -->
 <div class="btn-group">
 <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
         aria-expanded="false">
@@ -13,8 +20,13 @@ Admin <span class="caret"></span>
 <li><a href="{% url "order-update" pk=order.pk %}" class="no-add-tooltip dropdown-item" title="Change order details">
 <i class="icon-pencil"></i> Change details
 </a></li>
+    {% if order.open %}
+        <li><a href="#" onclick="$('#set-closed').submit()" class="no-add-tooltip dropdown-item"
+               title="Close order"><i class="icon-lock"></i> Close order
+</a></li>
+    {% endif %}
     {% if not order.delivered %}
-        <li><a href="#" onclick="$(this).closest('form').submit()" class="no-add-tooltip dropdown-item"
+        <li><a href="#" onclick="$('#set-delivered').submit()" class="no-add-tooltip dropdown-item"
                title="Mark order as delivered"><i class="icon-food-1"></i> Mark delivered
 </a></li>
     {% endif %}
@@ -25,7 +37,6 @@ Admin <span class="caret"></span>
     {% endif %}
         </ul>
         </div>
-</form>
 </span>
 {% endif %}
 <div class="strip_list grid">

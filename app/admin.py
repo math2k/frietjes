@@ -1,3 +1,4 @@
+from adminsortable2.admin import SortableAdminMixin
 from django.contrib.admin import ModelAdmin
 from app.models import *
 from django.contrib import admin
@@ -14,7 +15,7 @@ class MenuItemAdmin(ModelAdmin):
     list_filter = ('category', 'category__provider')
 
 
-class MenuItemCategoryAdmin(ModelAdmin):
+class MenuItemCategoryAdmin(SortableAdminMixin, ModelAdmin):
     list_display = ('name', 'provider')
     list_filter = ('provider',)
 

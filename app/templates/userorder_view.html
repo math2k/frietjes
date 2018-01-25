@@ -11,6 +11,9 @@
     {% if user_order.order.provider.phone %}
         <div class="icon icon-phone">&nbsp;{{ user_order.order.provider.phone }}</div>
     {% endif %}
+    {% if user_order.order.notes %}
+        <div class="icon-pencil">&nbsp;{{ user_order.order.notes }}</div>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -25,8 +28,11 @@
                             {% if user_order.order.delivered %}
                                 <span class="label label-success">Delivered</span>
                             {% endif %}
-                                {% if not user_order.paid %}
+                                {% if not user_order.paid and not user_order.order.cancelled %}
                                     <span class="label label-danger">Not paid</span>
+                                {% endif %}
+                                {% if user_order.order.cancelled %}
+                                    <span class="label label-warning">Cancelled</span>
                                 {% endif %}
                         </span>
                         {% endif %}

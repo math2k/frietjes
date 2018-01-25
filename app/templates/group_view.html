@@ -11,6 +11,9 @@
     {% if group.provider.phone %}
         <div class="icon icon-phone">&nbsp;{{ group.provider.phone }}</div>
     {% endif %}
+    {% if group.notes %}
+        <div class="icon-pencil">&nbsp;{{ group.notes }}</div>
+    {% endif %}
 {% endblock %}
 
 {% block content %}

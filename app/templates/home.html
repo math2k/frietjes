@@ -47,7 +47,7 @@
                             {% endfor %}
                         </div><!-- End row-->
                     </div><!-- End row-->
-                <a href="?past=1">View past orders</a>
+                    <a href="?past=1">View past orders</a>
                 </div><!-- End row -->
             {% endif %}
             {% if view_passed %}
@@ -105,13 +105,16 @@
                                     <li>
                                         <a href="{% url "user-order-view" user_order=uo.pk %}">
                                             {{ uo.order.date|date:"D j M" }}</a>
-                                    <span class="pull-right">
-                                    {% if uo.order.delivered %}
-                                        <span class="label label-success">Delivered</span>
-                                    {% endif %}
-                                        {% if not uo.paid %}
-                                            <span class="label label-danger">Not paid</span>
-                                        {% endif %}
+                                        <span class="pull-right">
+                                            {% if uo.order.delivered %}
+                                                <span class="label label-success">Delivered</span>
+                                            {% endif %}
+                                            {% if uo.order.cancelled %}
+                                                <span class="label label-warning">Cancelled</span>
+                                            {% endif %}
+                                            {% if not uo.paid and not uo.order.cancelled %}
+                                                <span class="label label-danger">Not paid</span>
+                                            {% endif %}
                                     </span>
                                     </li>
                                 </ul>

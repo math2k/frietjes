@@ -191,6 +191,18 @@ class SetOrderDeliveredView(View):
             return redirect(request.META.get('HTTP_REFERER'))
 
 
+class SetOrderClosedView(View):
+    http_method_names = ['post', ]
+
+    def post(self, request, *args, **kwargs):
+        if request.user.is_staff:
+            o = get_object_or_404(Order, pk=kwargs.get('pk'))
+            o.open = False
+            o.save()
+            messages.success(request, "Order has been closed, nobody can order anymore!")
+            return redirect(request.META.get('HTTP_REFERER'))
+
+
 class Redirect(RedirectView):
     pattern_name = "home"
 

@@ -218,6 +218,9 @@ class MenuItemCategory(models.Model):
     def __unicode__(self):
         return u"{0} from {1}".format(self.name, self.provider.name)
 
+    class Meta(object):
+        ordering = ['order']
+
 
 class MenuItem(models.Model):
     name = models.CharField(max_length=100)

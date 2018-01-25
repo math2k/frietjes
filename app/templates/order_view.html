@@ -10,6 +10,9 @@
     {% if order.provider.phone %}
         <div class="icon icon-phone">&nbsp;{{ order.provider.phone }}</div>
     {% endif %}
+    {% if order.notes %}
+        <div class="icon-pencil">&nbsp;{{ order.notes }}</div>
+    {% endif %}
 {% endblock %}
 
 {% block jumbo %}

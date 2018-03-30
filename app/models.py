@@ -152,7 +152,7 @@ class Order(models.Model):
             if self.silent:
                 return super(Order, self).save(**kwargs)
             for uo in self.userorder_set.filter(user__notificationrequest__deliveries=True):
-                body = """
+                body = u"""
 Hey {name},
 
 The order from {place} has been delivered!
@@ -170,7 +170,7 @@ Cheers,
 You can cancel notifications here: https://whats.4lunch.eu{cancel_url}
         """.format(name=uo.user.username, place=self.provider.name, link=reverse_lazy('order-view', kwargs={'order': uo.order.id}),
                    cancel_url=reverse_lazy('notifications'),
-                   items=', '.join([item.menu_item.name for item in uo.userorderitem_set.all()]),
+                   items=u', '.join([item.menu_item.name for item in uo.userorderitem_set.all()]),
                    total=uo.total, payable_to='(payable to {})'.format(uo.order.delivery_person) if uo.order.delivery_person else '')
                 send_mail("What's for lunch? - 4lunch.eu", body, '4lunch.eu notifications <notifications@4lunch.eu>',
                     [uo.user.email], fail_silently=True)
@@ -181,7 +181,7 @@ You can cancel notifications here: https://whats.4lunch.eu{cancel_url}
                         return super(Order, self).save(**kwargs)
                     users = set([uo.user for uo in self.userorder_set.all()])
                     for u in users:
-                        body = """
+                        body = u"""
 Hey {name},
 
 We are sorry to let you know that the order from {place} has been cancelled!
@@ -194,7 +194,7 @@ Cheers,
 
 You can cancel notifications here: https://whats.4lunch.eu{cancel_url}
                 """.format(name=u.username, place=self.provider.name, cancel_url=reverse_lazy('notifications'),
-                           reason='The reason given is: '+self.cancelled_reason  if self.cancelled_reason else 'No reason was given by the manager')
+                           reason=u'The reason given is: '+self.cancelled_reason  if self.cancelled_reason else 'No reason was given by the manager')
                         send_mail("What's for lunch? - 4lunch.eu", body,
                                   '4lunch.eu notifications <notifications@4lunch.eu>',
                                   [u.email], fail_silently=True)

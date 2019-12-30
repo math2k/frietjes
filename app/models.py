@@ -19,7 +19,7 @@ class UserOrder(models.Model):
         total = self.userorderitem_set.all().aggregate(sum=models.Sum('menu_item__unit_price'))['sum']
         return total
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{0} - {1}".format(self.user.username, self.order.date, self.paid)
 
 
@@ -36,14 +36,14 @@ class FoodProvider(models.Model):
     notes = models.TextField(blank=True, null=True)
     type = models.ManyToManyField(to='FoodProviderType')
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{0}".format(self.name)
 
 
 class FoodProviderType(models.Model):
     name = models.CharField(primary_key=True, max_length=50, choices=(('takeaway', 'Takeaway'), ('restaurant', 'Restaurant'), ('shop', 'Shop'), ('sport', 'Sport')))
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{0}'.format(self.name)
 
 
@@ -88,7 +88,7 @@ Cheers,
 
         return super(EatingGroup, self).save(**kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{0} on {1}".format(self.provider.name, self.date)
 
 
@@ -98,7 +98,7 @@ class EatingGroupMember(models.Model):
     can_drive = models.BooleanField(default=False, help_text="I can drive and have a car.")
     notes = models.TextField(blank=True, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{0} at {1} on {2}".format(self.user.username, self.eating_group.provider.name, self.eating_group.date)
 
 
@@ -201,7 +201,7 @@ You can cancel notifications here: https://whats.4lunch.eu{cancel_url}
 
         return super(Order, self).save(**kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.date.strftime("%d-%m-%y")
 
 
@@ -213,7 +213,7 @@ class UserOrderItem(models.Model):
     def total(self):
         return self.menu_item.unit_price
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{0}".format(self.menu_item.name)
 
 
@@ -222,7 +222,7 @@ class MenuItemCategory(models.Model):
     order = models.IntegerField()
     provider = models.ForeignKey(FoodProvider)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{0} from {1}".format(self.name, self.provider.name)
 
     class Meta(object):
@@ -238,7 +238,7 @@ class MenuItem(models.Model):
     def provider(self):
         return self.category.provider
 
-    def __unicode__(self):
+    def __str__(self):
         return u"{0} - {1}€".format(self.name, self.unit_price)
 
 
@@ -262,7 +262,7 @@ class NotificationRequest(models.Model):
     def __repr__(self):
         return self.user.email
 
-    def __unicode__(self):
+    def __str__(self):
         return self.user.email
 
 
@@ -274,7 +274,7 @@ class FeedEntry(models.Model):
 class Company(models.Model):
     name = models.CharField(max_length=200)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 

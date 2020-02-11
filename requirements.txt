@@ -1,4 +1,4 @@
-Django==1.11.27
+Django==1.11.28
 django-admin-sortable2==0.7.5
 django-bootstrap-form==3.2.1
 django-crispy-forms==1.6.0

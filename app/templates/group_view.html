@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
-{% load bootstrap %}
+{% load bootstrap3 %}
 
 {% block page_title %}
     Outing to {{ group.provider }}
@@ -91,8 +91,8 @@
                         {% if group.open %}
                             {% if not mymembership %}
                                 <form action="{% url "group-view" group=group.pk %}" method="post">
-                                    {{ form.can_drive|bootstrap }}
-                                    {{ form.notes|add_class:'small'|bootstrap }}
+                                    {% bootstrap_field form.can_drive %}
+                                    {% bootstrap_field form.notes field_class:'small' %}
                                     {% csrf_token %}
                                     <div style="margin-top: 35px;" class="pull-right">
                                         <button type="submit" class="btn btn-success">Join</button>

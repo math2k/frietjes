@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
 {% load staticfiles %}
-{% load bootstrap %}
+{% load bootstrap3 %}
 
 {% block page_title %}
     {% if object %}
@@ -43,33 +43,33 @@
                                         </div>
                                     </div>
                                 {% else %}
-                                    {{ form.provider|bootstrap }}
+				{% bootstrap_field form.provider %}
                                 {% endif %}
                             </div>
                             <div class="col-xs-6">
-                                {{ form.open|bootstrap }}
+				{% bootstrap_field form.open %}
                             </div>
                             <div class="col-xs-6">
-                                {{ form.silent|bootstrap }}
+				{% bootstrap_field form.silent %}
                             </div>
                             <div class="col-xs-6">
-                                {{ form.closing_time|add_class:'datetimepicker'|bootstrap }}
+				{% bootstrap_field form.closing_time field_class='datetimepicker' %}
                             </div>
                             <div class="col-xs-6">
-                                {{ form.departing_time|add_class:'datetimepicker'|bootstrap }}
+				{% bootstrap_field form.departing_time field_class='datetimepicker' %}
                             </div>
                             <div class="col-xs-6">
-                                {{ form.manager|bootstrap }}
+				{% bootstrap_field form.manager %}
                             </div>
                             <div class="col-xs-12">
-                                {{ form.notes|add_class:'small'|bootstrap }}
+				{% bootstrap_field form.notes field_class='notes'%}
                             </div>
                             {% if object %}
                                 <div class="col-xs-6">
-                                    {{ form.cancelled|bootstrap }}
+				    {% bootstrap_field form.cancelled %}
                                 </div>
                                 <div class="col-xs-6">
-                                    {{ form.cancelled_reason|add_class:'small'|bootstrap }}
+				    {% bootstrap_field form.cancelled_reason field_class='small' %}
                                 </div>
                             {% endif %}
                             <div class="control-group">

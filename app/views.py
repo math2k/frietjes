@@ -14,7 +14,8 @@ from django.forms import formset_factory, Select
 from django.forms.models import modelformset_factory
 from django.http import Http404
 from django.utils.decorators import method_decorator
-from django_registration.views import RegistrationView
+#from django_registration.views import RegistrationView
+from django_registration.backends.one_step.views import RegistrationView
 from django.contrib.auth.models import User
 
 from app.forms import OrderForm, UserOrderForm, UserOrder, NotificationRequestForm, ImportMenuItemsForm, \

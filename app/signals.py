@@ -1,10 +1,10 @@
-import registration
+import django_registration
 from django.contrib.auth import user_logged_out
 from django.db.models import Q
-from registration import signals
+from django_registration import signals
 from django.contrib import messages
 from django.core.mail import send_mail
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
@@ -97,7 +97,7 @@ def add_feedentry(**kwargs):
         fe.save()
 
 
-@receiver(registration.signals.user_registered)
+@receiver(django_registration.signals.user_registered)
 def signal_all(**kwargs):
     messages.success(kwargs['request'], 'Your account has been created, and you\'re already logged in, how cool is that ?')
 

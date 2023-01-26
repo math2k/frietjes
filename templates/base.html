@@ -81,7 +81,7 @@
                                 </li>
                             {% endif %}
                             <li role="presentation"><a href="{% url 'notifications' %}">Notifications</a></li>
-                            <li role="presentation"><a href="{% url "auth_logout" %}?next=/">Logout</a></li>
+			    <li role="presentation"><a href="{% url "logout" %}?next=/">Logout</a></li>
                         {% else %}
                             <li><a href="#0" data-toggle="modal" data-target="#login_2">Login</a></li>
                         {% endif %}
@@ -173,7 +173,7 @@
     <div class="modal-dialog">
         <div class="modal-content modal-popup">
             <a href="#" class="close-link"><i class="icon_close_alt2"></i></a>
-            <form action="{% url 'auth_login' %}" method="post" class="popup-form" id="myLogin">
+            <form action="{% url 'login' %}" method="post" class="popup-form" id="myLogin">
                 <div class="login_icon"><i class="icon_lock_alt"></i></div>
                 <input type="text" name="username" class="form-control form-white" placeholder="Username">
                 <input type="password" name="password" class="form-control form-white" placeholder="Password">
@@ -181,7 +181,7 @@
                 {% csrf_token %}
             </form>
             <div class="pull-right">
-                <a href="{% url "auth_password_reset" %}">Forgot Password?</a>
+                <a href="{# url "auth_password_reset" #}">Forgot Password?</a>
             </div>
             <div class="clearfix"></div>
         </div>

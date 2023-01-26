@@ -3,14 +3,14 @@ import uuid
 
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.db import models
 from django.utils.functional import cached_property
 
 
 class UserOrder(models.Model):
-    user = models.ForeignKey(User)
-    order = models.ForeignKey('Order')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL)
+    order = models.ForeignKey('Order', on_delete=models.SET_NULL)
     paid = models.BooleanField(default=False)
     notes = models.TextField(default="", blank=True)
 
@@ -25,7 +25,7 @@ class UserOrder(models.Model):
 
 class MenuImage(models.Model):
     image = models.ImageField(upload_to='menus')
-    provider = models.ForeignKey('FoodProvider')
+    provider = models.ForeignKey('FoodProvider', on_delete=models.PROTECT)
 
 
 class FoodProvider(models.Model):
@@ -48,9 +48,9 @@ class FoodProviderType(models.Model):
 
 
 class EatingGroup(models.Model):
-    company = models.ForeignKey(to="Company")
-    provider = models.ForeignKey(FoodProvider, verbose_name="Place")
-    manager = models.ForeignKey(User)
+    company = models.ForeignKey(to="Company", on_delete=models.SET_NULL)
+    provider = models.ForeignKey(FoodProvider, verbose_name="Place", on_delete=models.SET_NULL)
+    manager = models.ForeignKey(User, on_delete=models.SET_NULL)
     date = models.DateField(auto_now_add=True)
     open = models.BooleanField(default=True, verbose_name="Open for joining", help_text='')
     closing_time = models.DateTimeField(null=True, blank=True, help_text="Closing time for joining the outing")
@@ -93,8 +93,8 @@ Cheers,
 
 
 class EatingGroupMember(models.Model):
-    eating_group = models.ForeignKey(to=EatingGroup)
-    user = models.ForeignKey(to=User)
+    eating_group = models.ForeignKey(to=EatingGroup, on_delete=models.SET_NULL)
+    user = models.ForeignKey(to=User, on_delete=models.SET_NULL)
     can_drive = models.BooleanField(default=False, help_text="I can drive and have a car.")
     notes = models.TextField(blank=True, null=True)
 
@@ -103,13 +103,13 @@ class EatingGroupMember(models.Model):
 
 
 class Order(models.Model):
-    company = models.ForeignKey(to="Company")
+    company = models.ForeignKey(to="Company", on_delete=models.SET_NULL)
     open = models.BooleanField(default=True, verbose_name="Open for ordering", help_text='')
     delivered = models.BooleanField(default=False)
-    manager = models.ForeignKey(User)
-    provider = models.ForeignKey(FoodProvider, verbose_name="Place", related_name='provider')
+    manager = models.ForeignKey(User, on_delete=models.SET_NULL)
+    provider = models.ForeignKey(FoodProvider, verbose_name="Place", related_name='provider', on_delete=models.SET_NULL)
     date = models.DateField(auto_now_add=True)
-    delivery_person = models.ForeignKey(User, blank=True, null=True, related_name="delivery_person", help_text='Can be picked at random as soon as users have placed an order')
+    delivery_person = models.ForeignKey(User, blank=True, null=True, related_name="delivery_person", help_text='Can be picked at random as soon as users have placed an order', on_delete=models.SET_NULL)
     delivery_time = models.DateTimeField(null=True)
     closing_time = models.DateTimeField(blank=True, null=True)
     notes = models.TextField(default="", blank=True)
@@ -206,8 +206,8 @@ You can cancel notifications here: https://whats.4lunch.eu{cancel_url}
 
 
 class UserOrderItem(models.Model):
-    user_order = models.ForeignKey(UserOrder)
-    menu_item = models.ForeignKey("MenuItem")
+    user_order = models.ForeignKey(UserOrder, on_delete=models.PROTECT)
+    menu_item = models.ForeignKey("MenuItem", on_delete=models.PROTECT)
 
     @property
     def total(self):
@@ -220,7 +220,7 @@ class UserOrderItem(models.Model):
 class MenuItemCategory(models.Model):
     name = models.CharField(max_length=100)
     order = models.IntegerField()
-    provider = models.ForeignKey(FoodProvider)
+    provider = models.ForeignKey(FoodProvider, on_delete=models.PROTECT)
 
     def __str__(self):
         return u"{0} from {1}".format(self.name, self.provider.name)
@@ -232,7 +232,7 @@ class MenuItemCategory(models.Model):
 class MenuItem(models.Model):
     name = models.CharField(max_length=100)
     unit_price = models.DecimalField(max_digits=6, decimal_places=2)
-    category = models.ForeignKey(MenuItemCategory)
+    category = models.ForeignKey(MenuItemCategory, on_delete=models.PROTECT)
 
     @property
     def provider(self):
@@ -243,7 +243,7 @@ class MenuItem(models.Model):
 
 
 class NotificationRequest(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
     providers = models.ManyToManyField(to=FoodProvider, blank=True)
     secret = models.CharField(max_length=32, null=True, blank=True)
     all_providers = models.BooleanField(default=False)
@@ -280,13 +280,13 @@ class Company(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name='profile', on_delete=models.CASCADE)
-    company = models.ForeignKey(Company)
+    company = models.ForeignKey(Company, on_delete=models.PROTECT)
 
 
 class UserInvite(models.Model):
     email = models.EmailField()
     secret = models.CharField(primary_key=True, max_length=32, editable=False)
-    company = models.ForeignKey(Company)
+    company = models.ForeignKey(Company, on_delete=models.PROTECT)
     used_on = models.DateTimeField(editable=False, null=True, blank=True)
 
     def save(self, *args, **kwargs):

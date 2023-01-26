@@ -2,7 +2,7 @@ from django import forms
 from django.forms import ModelForm, Select, HiddenInput, TextInput, Textarea, Field, CharField, ModelChoiceField, \
     EmailField, widgets
 from django.views.generic import CreateView
-from registration.forms import RegistrationForm
+from django_registration.forms import RegistrationForm
 
 from app.models import UserOrderItem, UserOrder, MenuItem, FoodProvider, NotificationRequest, UserInvite, Order
 

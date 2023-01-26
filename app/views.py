@@ -7,14 +7,15 @@ import uuid
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.db.models import Count
 from django.db.models.query import QuerySet
 from django.forms import formset_factory, Select
 from django.forms.models import modelformset_factory
 from django.http import Http404
 from django.utils.decorators import method_decorator
-from registration.backends.simple.views import RegistrationView, User
+from django_registration.views import RegistrationView
+from django.contrib.auth.models import User
 
 from app.forms import OrderForm, UserOrderForm, UserOrder, NotificationRequestForm, ImportMenuItemsForm, \
     FrietjesRegistrationForm, UserInviteForm
@@ -33,7 +34,7 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         ctx = {}
         ctx['view_passed'] = self.request.GET.get('past')
-        if self.request.user.is_authenticated():
+        if self.request.user.is_authenticated:
             if ctx['view_passed']:
                 if self.request.GET.get('all'):
                     ctx['all_orders'] = Order.objects.filter(company=self.request.user.profile.company).order_by("-pk").prefetch_related('provider', 'delivery_person')
@@ -50,11 +51,11 @@ class HomeView(TemplateView):
         #ctx['feed_entries'] = FeedEntry.objects.filter().order_by('-datetime')[:15]
         #ctx['show_notification_tooltip'] = False if self.request.COOKIES.get('show_notification_tooltip') == '0' else True
         #ctx['show_account_tooltip'] = False if self.request.COOKIES.get('show_account_tooltip') == '0' else True
-        if self.request.user.is_authenticated():
+        if self.request.user.is_authenticated:
             ctx['my_orders'] = UserOrder.objects.filter(user=self.request.user).order_by('-order__date').prefetch_related('order')
         else:
             ctx['my_orders'] = []
-        if self.request.user.is_authenticated():
+        if self.request.user.is_authenticated:
             ctx['unpaid_orders'] = UserOrder.objects.filter(user=self.request.user, paid=False, order__open=False)
         ctx['invite_form'] = UserInviteForm()
         return ctx

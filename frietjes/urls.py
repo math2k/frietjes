@@ -16,14 +16,16 @@ Including another URLconf
 from django.conf.urls.static import static
 
 from app.views import *
-from django.conf.urls import include, url
+from django.conf.urls import url
 from django.contrib import admin
 from django.conf import settings
+from django.urls import path, include
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
     url(r'^accounts/register/(?P<secret>.{32})$', FrietjesRegistrationView.as_view(), name='registration_register'),
-    url(r'^accounts/', include('registration.backends.simple.urls')),
+    path('accounts/', include('django_registration.backends.activation.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
     url(r'^$', HomeView.as_view(), name="home"),
     url(r'^redirect', Redirect.as_view(), name="redirect"),
     url(r'^user-order/(?P<user_order>.+)/view$', UserOrderView.as_view(), name="user-order-view"),
@@ -52,7 +54,6 @@ urlpatterns = [
     url(r'^users', ListCompanyUsers.as_view(), name="user-list"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-from django.conf.urls import include, patterns, url
 
 if settings.DEBUG:
     import debug_toolbar

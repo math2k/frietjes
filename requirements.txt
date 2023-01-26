@@ -7,6 +7,6 @@ django-flat-theme==1.1.1
 django-registration==2.0.4
 django-registration-bootstrap==0.2.0
 django-widget-tweaks==1.4.1
-Pillow==3.1.1
+Pillow==9.3.0
 pytz==2015.7
 sqlparse
